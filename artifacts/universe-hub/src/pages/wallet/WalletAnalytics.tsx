@@ -2,9 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
-import {
-  ANALYTICS_WEEKLY, ANALYTICS_MONTHLY, DISTRIBUTION_DATA, CURRENCY_BALANCES,
-} from "@/lib/walletMockData";
+import { useWallet } from "@/context/WalletContext";
 import { cn } from "@/lib/utils";
 import { TrendingUp, BarChart3, PieChart as PieIcon, Activity } from "lucide-react";
 import {
@@ -38,19 +36,20 @@ function ChartPanel({ title, subtitle, children, delay = 0 }: { title: string; s
 const AXIS_STYLE = { tick: { fill: "rgba(255,255,255,0.3)", fontSize: 10, fontFamily: "monospace" }, tickLine: false, axisLine: false };
 
 export default function WalletAnalytics() {
+  const { balances, analyticsWeekly, analyticsMonthly, distributionData } = useWallet();
   const [period, setPeriod] = useState<"weekly" | "monthly">("weekly");
-  const data = period === "weekly" ? ANALYTICS_WEEKLY : ANALYTICS_MONTHLY;
+  const data = period === "weekly" ? analyticsWeekly : analyticsMonthly;
 
-  const totalPortfolio = CURRENCY_BALANCES.reduce((s, c) => {
+  const totalPortfolio = balances.reduce((s, c) => {
     const rates: Record<string, number> = { credits: 1, coins: 0.5, tokens: 20, points: 0.1 };
     return s + c.balance * (rates[c.id] ?? 1);
   }, 0);
 
   const KPIS = [
-    { label: "Tổng danh mục (CR)", value: Math.round(totalPortfolio).toLocaleString("vi-VN"), color: "text-primary",  change: "+15.8%" },
-    { label: "Tăng trưởng Token",  value: "+24.1%",                                           color: "text-purple-400", change: "Tuần này" },
-    { label: "Giao dịch / Ngày",   value: "5.2",                                              color: "text-cyan-400",   change: "+1.3" },
-    { label: "Điểm thưởng / Ngày", value: "245",                                              color: "text-amber-400",  change: "+31.5%" },
+    { label: "Tổng danh mục (CR)", value: Math.round(totalPortfolio).toLocaleString("vi-VN"), color: "text-primary",   change: "+15.8%" },
+    { label: "Tăng trưởng Token",  value: "+24.1%",                                            color: "text-purple-400", change: "Tuần này" },
+    { label: "Giao dịch / Ngày",   value: "5.2",                                               color: "text-cyan-400",   change: "+1.3" },
+    { label: "Điểm thưởng / Ngày", value: "245",                                               color: "text-amber-400",  change: "+31.5%" },
   ];
 
   return (
@@ -67,7 +66,6 @@ export default function WalletAnalytics() {
         <Header />
 
         <main className="flex-1 p-4 md:p-6 space-y-5 overflow-auto">
-          {/* Header + period toggle */}
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <h1 className="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
@@ -84,6 +82,7 @@ export default function WalletAnalytics() {
                   key={k}
                   onClick={() => setPeriod(k)}
                   className={cn("px-4 py-1.5 rounded-lg text-[10px] font-mono font-bold tracking-widest uppercase transition-all", period === k ? "bg-primary/20 text-primary border border-primary/30" : "text-muted-foreground/40 hover:text-white")}
+                  data-testid={`button-period-${k}`}
                 >
                   {l}
                 </button>
@@ -91,7 +90,6 @@ export default function WalletAnalytics() {
             </div>
           </div>
 
-          {/* KPI cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {KPIS.map((kpi, i) => (
               <motion.div key={kpi.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
@@ -105,7 +103,6 @@ export default function WalletAnalytics() {
             ))}
           </div>
 
-          {/* Row 1: Balance Area + Volume Bar */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <ChartPanel title="Biến động số dư" subtitle="Tất cả tài sản theo thời gian (quy đổi CR)" delay={0.1}>
               <ResponsiveContainer width="100%" height={220}>
@@ -142,14 +139,13 @@ export default function WalletAnalytics() {
             </ChartPanel>
           </div>
 
-          {/* Row 2: Pie + Line Rewards */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <ChartPanel title="Phân bổ Tài sản" subtitle="Tỷ lệ từng loại tiền trong ví" delay={0.2}>
               <div className="flex items-center gap-6">
                 <ResponsiveContainer width={180} height={180}>
                   <PieChart>
-                    <Pie data={DISTRIBUTION_DATA} cx="50%" cy="50%" innerRadius={52} outerRadius={80} paddingAngle={3} dataKey="value">
-                      {DISTRIBUTION_DATA.map((entry, index) => (
+                    <Pie data={distributionData} cx="50%" cy="50%" innerRadius={52} outerRadius={80} paddingAngle={3} dataKey="value">
+                      {distributionData.map((entry, index) => (
                         <Cell key={index} fill={entry.color} stroke="transparent" />
                       ))}
                     </Pie>
@@ -157,8 +153,8 @@ export default function WalletAnalytics() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="flex-1 space-y-3">
-                  {DISTRIBUTION_DATA.map(d => {
-                    const total = DISTRIBUTION_DATA.reduce((s, x) => s + x.value, 0);
+                  {distributionData.map(d => {
+                    const total = distributionData.reduce((s, x) => s + x.value, 0);
                     const pct = ((d.value / total) * 100).toFixed(1);
                     return (
                       <div key={d.name} className="space-y-1">

@@ -1,12 +1,13 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
-import { CURRENCY_BALANCES, TRANSACTIONS, type CurrencyBalance } from "@/lib/walletMockData";
+import { useWallet } from "@/context/WalletContext";
+import { type CurrencyBalance } from "@/lib/walletMockData";
 import { cn } from "@/lib/utils";
 import {
   TrendingUp, TrendingDown, CreditCard, Coins, Gem, Sparkles,
   Clock, ArrowUpRight, ArrowDownLeft, RefreshCw, Gift, ArrowLeftRight,
+  Loader2,
 } from "lucide-react";
 import {
   ResponsiveContainer, AreaChart, Area, Tooltip as RTooltip,
@@ -80,11 +81,9 @@ function BalanceCard({ c, index }: { c: CurrencyBalance; index: number }) {
         c.border, c.glow
       )}
     >
-      {/* Background glow */}
       <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl", c.bg)} />
 
       <div className="relative z-10">
-        {/* Header row */}
         <div className="flex items-center justify-between mb-3">
           <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", c.bg, c.border, "border")}>
             <Icon className={cn("w-5 h-5", c.color)} />
@@ -98,21 +97,16 @@ function BalanceCard({ c, index }: { c: CurrencyBalance; index: number }) {
           </div>
         </div>
 
-        {/* Name */}
         <p className="text-[10px] font-mono text-muted-foreground/50 uppercase tracking-widest mb-1">{c.nameVi}</p>
-
-        {/* Balance */}
         <p className={cn("text-3xl font-bold tracking-tight transition-colors", c.color)}>
           {c.balance.toLocaleString("vi-VN")}
         </p>
         <p className="text-[10px] font-mono text-muted-foreground/40 mt-0.5">{c.symbol}</p>
 
-        {/* Sparkline */}
         <div className="mt-4 -mx-1">
           <MiniSparkline data={c.history} color={c.chartColor} />
         </div>
 
-        {/* Last updated */}
         <div className="flex items-center gap-1 mt-2">
           <Clock className="w-3 h-3 text-muted-foreground/30" />
           <span className="text-[10px] font-mono text-muted-foreground/30">Cập nhật: {c.lastUpdated}</span>
@@ -122,11 +116,9 @@ function BalanceCard({ c, index }: { c: CurrencyBalance; index: number }) {
   );
 }
 
-function TotalPortfolio() {
-  const totalInCredits = CURRENCY_BALANCES.reduce((sum, c) => {
-    const rates: Record<string, number> = { credits: 1, coins: 0.5, tokens: 20, points: 0.1 };
-    return sum + c.balance * (rates[c.id] ?? 1);
-  }, 0);
+function TotalPortfolio({ balances }: { balances: CurrencyBalance[] }) {
+  const rates: Record<string, number> = { credits: 1, coins: 0.5, tokens: 20, points: 0.1 };
+  const totalInCredits = balances.reduce((sum, c) => sum + c.balance * (rates[c.id] ?? 1), 0);
 
   return (
     <motion.div
@@ -153,16 +145,14 @@ function TotalPortfolio() {
         </div>
       </div>
 
-      {/* Mini distribution bar */}
       <div className="mt-4 h-1.5 rounded-full overflow-hidden flex gap-0.5 relative z-10">
-        {CURRENCY_BALANCES.map((c) => {
-          const rates: Record<string, number> = { credits: 1, coins: 0.5, tokens: 20, points: 0.1 };
+        {balances.map((c) => {
           const pct = (c.balance * (rates[c.id] ?? 1) / totalInCredits) * 100;
           return <div key={c.id} style={{ width: `${pct}%`, background: c.chartColor }} className="rounded-full" />;
         })}
       </div>
       <div className="flex gap-4 mt-2 flex-wrap relative z-10">
-        {CURRENCY_BALANCES.map((c) => (
+        {balances.map((c) => (
           <div key={c.id} className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full" style={{ background: c.chartColor }} />
             <span className="text-[10px] font-mono text-muted-foreground/40">{c.nameVi}</span>
@@ -174,11 +164,11 @@ function TotalPortfolio() {
 }
 
 export default function WalletDashboard() {
-  const recent = TRANSACTIONS.slice(0, 5);
+  const { balances, transactions, isLoading, refreshWallet } = useWallet();
+  const recent = transactions.slice(0, 5);
 
   return (
     <div className="flex min-h-screen bg-background text-foreground scanline">
-      {/* Background */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/10 via-background to-background" />
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
@@ -192,7 +182,6 @@ export default function WalletDashboard() {
         <Header />
 
         <main className="flex-1 p-4 md:p-6 space-y-6 overflow-auto">
-          {/* Page header */}
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <h1 className="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
@@ -203,23 +192,29 @@ export default function WalletDashboard() {
                 4 LOẠI TÀI SẢN · COMMANDER ZARA
               </p>
             </div>
-            <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-[10px] font-mono text-muted-foreground/50 hover:text-white hover:border-white/20 transition-all uppercase tracking-widest">
-              <RefreshCw className="w-3 h-3" />
-              Làm mới
+            <button
+              onClick={refreshWallet}
+              disabled={isLoading}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-[10px] font-mono text-muted-foreground/50 hover:text-white hover:border-white/20 transition-all uppercase tracking-widest disabled:opacity-40"
+              data-testid="button-refresh-wallet"
+            >
+              {isLoading ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <RefreshCw className="w-3 h-3" />
+              )}
+              {isLoading ? "Đang tải..." : "Làm mới"}
             </button>
           </div>
 
-          {/* Total portfolio */}
-          <TotalPortfolio />
+          <TotalPortfolio balances={balances} />
 
-          {/* 4 balance cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            {CURRENCY_BALANCES.map((c, i) => (
+            {balances.map((c, i) => (
               <BalanceCard key={c.id} c={c} index={i} />
             ))}
           </div>
 
-          {/* Recent transactions */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
-import { REWARDS, type Reward } from "@/lib/walletMockData";
+import { useWallet } from "@/context/WalletContext";
+import { type Reward } from "@/lib/walletMockData";
 import { cn } from "@/lib/utils";
 import { Gift, CheckCircle2, Clock, Star, Trophy, Zap, Calendar } from "lucide-react";
 
@@ -13,17 +14,11 @@ const CAT_META: Record<Reward["category"], { label: string; color: string; bg: s
   milestone:   { label: "Cột mốc",   color: "text-amber-400",   bg: "bg-amber-400/10",   border: "border-amber-400/20",   Icon: Zap },
 };
 
-const SUMMARY_STATS = [
-  { label: "Tổng phần thưởng", value: REWARDS.length,                                   color: "text-white",       Icon: Gift },
-  { label: "Đã hoàn thành",    value: REWARDS.filter(r => r.claimed).length,            color: "text-emerald-400", Icon: CheckCircle2 },
-  { label: "Đang thực hiện",   value: REWARDS.filter(r => !r.claimed).length,           color: "text-blue-400",    Icon: Clock },
-  { label: "Điểm sắp nhận",    value: REWARDS.filter(r => !r.claimed).reduce((s, r) => s + (r.maxPoints - r.points), 0), color: "text-amber-400", Icon: Star },
-];
-
-function RewardCard({ reward, index }: { reward: Reward; index: number }) {
+function RewardCard({ reward, index, onClaim }: { reward: Reward; index: number; onClaim: (id: string) => void }) {
   const cat = CAT_META[reward.category];
   const pct = Math.round((reward.points / reward.maxPoints) * 100);
   const remaining = reward.maxPoints - reward.points;
+  const canClaim = !reward.claimed && pct >= 100;
 
   return (
     <motion.div
@@ -36,14 +31,13 @@ function RewardCard({ reward, index }: { reward: Reward; index: number }) {
           ? "border-white/5 opacity-70"
           : cn("hover:-translate-y-1", cat.border, "hover:shadow-lg")
       )}
+      data-testid={`card-reward-${reward.id}`}
     >
-      {/* Claimed overlay */}
       {reward.claimed && (
         <div className="absolute inset-0 bg-emerald-400/5 pointer-events-none rounded-2xl" />
       )}
 
       <div className="relative z-10">
-        {/* Header */}
         <div className="flex items-start gap-3 mb-4">
           <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 border", cat.bg, cat.border)}>
             {reward.icon}
@@ -64,13 +58,11 @@ function RewardCard({ reward, index }: { reward: Reward; index: number }) {
           </div>
         </div>
 
-        {/* Category badge */}
         <div className={cn("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-mono font-bold tracking-widest mb-4", cat.color, cat.bg, cat.border)}>
           <cat.Icon className="w-3 h-3" />
           {cat.label}
         </div>
 
-        {/* Progress */}
         <div className="space-y-2">
           <div className="flex justify-between text-[10px] font-mono text-muted-foreground/40">
             <span>{reward.points.toLocaleString("vi-VN")} / {reward.maxPoints.toLocaleString("vi-VN")}</span>
@@ -81,7 +73,7 @@ function RewardCard({ reward, index }: { reward: Reward; index: number }) {
               initial={{ width: 0 }}
               animate={{ width: `${pct}%` }}
               transition={{ delay: index * 0.06 + 0.3, duration: 0.8, ease: "easeOut" }}
-              className={cn("h-full rounded-full", reward.claimed ? "bg-gradient-to-r from-emerald-500/60 to-emerald-400" : `bg-gradient-to-r from-${cat.color.replace("text-", "")}/50 to-${cat.color.replace("text-", "")}`,)}
+              className="h-full rounded-full"
               style={{ background: reward.claimed ? "linear-gradient(to right, rgba(52,211,153,0.6), rgb(52,211,153))" : undefined }}
             />
           </div>
@@ -94,22 +86,43 @@ function RewardCard({ reward, index }: { reward: Reward; index: number }) {
             <p className="text-[10px] font-mono text-emerald-400">✓ Đã hoàn thành & nhận thưởng</p>
           )}
         </div>
+
+        {canClaim && (
+          <button
+            onClick={() => onClaim(reward.id)}
+            className="mt-4 w-full py-2 rounded-xl bg-amber-400/20 border border-amber-400/30 text-amber-400 text-[10px] font-mono font-bold tracking-widest uppercase hover:bg-amber-400/30 transition-all"
+            data-testid={`button-claim-${reward.id}`}
+          >
+            Nhận thưởng →
+          </button>
+        )}
       </div>
     </motion.div>
   );
 }
 
 export default function Rewards() {
+  const { rewards, claimReward } = useWallet();
   const [filter, setFilter] = useState<"all" | "active" | "claimed" | Reward["category"]>("all");
 
-  const filtered = REWARDS.filter(r => {
+  const filtered = rewards.filter(r => {
     if (filter === "active")  return !r.claimed;
     if (filter === "claimed") return r.claimed;
     if (filter === "all")     return true;
     return r.category === filter;
   });
 
-  const totalPoints = REWARDS.filter(r => r.claimed).reduce((s, r) => s + r.maxPoints, 0);
+  const totalPoints = useMemo(
+    () => rewards.filter(r => r.claimed).reduce((s, r) => s + r.maxPoints, 0),
+    [rewards]
+  );
+
+  const SUMMARY_STATS = useMemo(() => [
+    { label: "Tổng phần thưởng", value: rewards.length,                                   color: "text-white",       Icon: Gift },
+    { label: "Đã hoàn thành",    value: rewards.filter(r => r.claimed).length,            color: "text-emerald-400", Icon: CheckCircle2 },
+    { label: "Đang thực hiện",   value: rewards.filter(r => !r.claimed).length,           color: "text-blue-400",    Icon: Clock },
+    { label: "Điểm sắp nhận",    value: rewards.filter(r => !r.claimed).reduce((s, r) => s + (r.maxPoints - r.points), 0), color: "text-amber-400", Icon: Star },
+  ], [rewards]);
 
   return (
     <div className="flex min-h-screen bg-background text-foreground scanline">
@@ -125,7 +138,6 @@ export default function Rewards() {
         <Header />
 
         <main className="flex-1 p-4 md:p-6 space-y-5 overflow-auto">
-          {/* Header */}
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <h1 className="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
@@ -133,12 +145,11 @@ export default function Rewards() {
                 Phần thưởng
               </h1>
               <p className="text-[10px] font-mono text-muted-foreground/30 mt-1 tracking-wider">
-                {REWARDS.length} PHẦN THƯỞNG · {totalPoints.toLocaleString("vi-VN")} ĐIỂM ĐÃ TÍCH LŨY
+                {rewards.length} PHẦN THƯỞNG · {totalPoints.toLocaleString("vi-VN")} ĐIỂM ĐÃ TÍCH LŨY
               </p>
             </div>
           </div>
 
-          {/* Summary stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {SUMMARY_STATS.map((s, i) => (
               <motion.div
@@ -148,7 +159,7 @@ export default function Rewards() {
                 transition={{ delay: i * 0.07 }}
                 className="glass-panel rounded-xl border border-white/5 p-4 flex items-center gap-3"
               >
-                <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center bg-white/5")}>
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white/5">
                   <s.Icon className={cn("w-4 h-4", s.color)} />
                 </div>
                 <div>
@@ -159,7 +170,6 @@ export default function Rewards() {
             ))}
           </div>
 
-          {/* Level progress banner */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -179,7 +189,6 @@ export default function Rewards() {
             </div>
           </motion.div>
 
-          {/* Filter */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest">Lọc:</span>
             {([
@@ -198,15 +207,17 @@ export default function Rewards() {
                   "px-3 py-1 rounded text-[10px] font-mono font-bold tracking-widest uppercase border transition-all",
                   filter === k ? "bg-primary/20 border-primary/50 text-primary" : "border-white/10 text-muted-foreground/40 hover:text-white hover:border-white/20"
                 )}
+                data-testid={`filter-reward-${k}`}
               >
                 {l}
               </button>
             ))}
           </div>
 
-          {/* Rewards grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filtered.map((r, i) => <RewardCard key={r.id} reward={r} index={i} />)}
+            {filtered.map((r, i) => (
+              <RewardCard key={r.id} reward={r} index={i} onClaim={claimReward} />
+            ))}
             {filtered.length === 0 && (
               <div className="col-span-full glass-panel rounded-xl border border-white/5 p-12 text-center text-muted-foreground/30 text-xs font-mono tracking-widest">
                 KHÔNG TÌM THẤY PHẦN THƯỞNG PHÙ HỢP

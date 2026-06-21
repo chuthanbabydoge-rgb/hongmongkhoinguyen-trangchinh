@@ -2,7 +2,8 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
-import { TRANSACTIONS, type Transaction } from "@/lib/walletMockData";
+import { useWallet } from "@/context/WalletContext";
+import { type Transaction } from "@/lib/walletMockData";
 import { cn } from "@/lib/utils";
 import {
   ArrowUpRight, ArrowDownLeft, Gift, ArrowLeftRight,
@@ -40,14 +41,9 @@ const CURRENCY_META: Record<string, { color: string; label: string }> = {
 
 type SortKey = "date" | "amount" | "currency" | "type" | "status";
 
-const SUMMARY = [
-  { label: "Tổng GD", value: TRANSACTIONS.length, color: "text-white" },
-  { label: "Hoàn thành", value: TRANSACTIONS.filter(t => t.status === "completed").length, color: "text-emerald-400" },
-  { label: "Đang xử lý", value: TRANSACTIONS.filter(t => t.status === "pending").length,   color: "text-amber-400" },
-  { label: "Thất bại",   value: TRANSACTIONS.filter(t => t.status === "failed").length,    color: "text-red-400" },
-];
-
 export default function Transactions() {
+  const { transactions } = useWallet();
+
   const [search, setSearch] = useState("");
   const [filterCurrency, setFilterCurrency] = useState<"all" | Transaction["currency"]>("all");
   const [filterStatus, setFilterStatus] = useState<"all" | Transaction["status"]>("all");
@@ -55,13 +51,20 @@ export default function Transactions() {
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [sortAsc, setSortAsc] = useState(false);
 
+  const SUMMARY = useMemo(() => [
+    { label: "Tổng GD",    value: transactions.length,                                            color: "text-white" },
+    { label: "Hoàn thành", value: transactions.filter(t => t.status === "completed").length,      color: "text-emerald-400" },
+    { label: "Đang xử lý", value: transactions.filter(t => t.status === "pending").length,        color: "text-amber-400" },
+    { label: "Thất bại",   value: transactions.filter(t => t.status === "failed").length,         color: "text-red-400" },
+  ], [transactions]);
+
   const handleSort = (k: SortKey) => {
     if (sortKey === k) setSortAsc(v => !v);
     else { setSortKey(k); setSortAsc(false); }
   };
 
   const filtered = useMemo(() => {
-    return TRANSACTIONS.filter(tx => {
+    return transactions.filter(tx => {
       if (filterCurrency !== "all" && tx.currency !== filterCurrency) return false;
       if (filterStatus !== "all" && tx.status !== filterStatus) return false;
       if (filterType !== "all" && tx.type !== filterType) return false;
@@ -76,7 +79,7 @@ export default function Transactions() {
       if (sortKey === "status")   cmp = a.status.localeCompare(b.status);
       return sortAsc ? cmp : -cmp;
     });
-  }, [search, filterCurrency, filterStatus, filterType, sortKey, sortAsc]);
+  }, [transactions, search, filterCurrency, filterStatus, filterType, sortKey, sortAsc]);
 
   const SortBtn = ({ label, k }: { label: string; k: SortKey }) => (
     <button onClick={() => handleSort(k)} className={cn("flex items-center gap-1 text-[10px] font-mono tracking-widest uppercase transition-colors", sortKey === k ? "text-primary" : "text-muted-foreground/30 hover:text-white")}>
@@ -104,18 +107,16 @@ export default function Transactions() {
         <Header />
 
         <main className="flex-1 p-4 md:p-6 space-y-5 overflow-auto">
-          {/* Header */}
           <div>
             <h1 className="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
               <span className="w-2 h-6 bg-primary rounded-sm shadow-[0_0_10px_hsl(var(--primary))]" />
               Lịch sử Giao dịch
             </h1>
             <p className="text-[10px] font-mono text-muted-foreground/30 mt-1 tracking-wider">
-              {TRANSACTIONS.length} GIAO DỊCH · VÍ COMMANDER ZARA
+              {transactions.length} GIAO DỊCH · VÍ COMMANDER ZARA
             </p>
           </div>
 
-          {/* Summary */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {SUMMARY.map(s => (
               <div key={s.label} className="glass-panel rounded-xl border border-white/5 p-4 text-center">
@@ -125,9 +126,7 @@ export default function Transactions() {
             ))}
           </div>
 
-          {/* Filters */}
           <div className="glass-panel rounded-xl border border-white/5 p-4 space-y-3">
-            {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/30" />
               <input
@@ -135,6 +134,7 @@ export default function Transactions() {
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Tìm theo ghi chú hoặc mã giao dịch..."
                 className="w-full pl-8 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder:text-muted-foreground/30 focus:outline-none focus:border-primary/40 font-mono"
+                data-testid="input-search-transactions"
               />
             </div>
             <div className="flex flex-wrap gap-2 items-center">
@@ -150,9 +150,7 @@ export default function Transactions() {
             </div>
           </div>
 
-          {/* Table */}
           <div className="glass-panel rounded-xl border border-white/5 overflow-hidden">
-            {/* Table header */}
             <div className="grid grid-cols-[80px_auto_120px_110px_90px_100px] gap-3 px-5 py-3 border-b border-white/5 bg-white/2">
               <span className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest">Mã GD</span>
               <SortBtn label="Ghi chú" k="date" />
@@ -179,6 +177,7 @@ export default function Transactions() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: i * 0.03 }}
                     className="grid grid-cols-[80px_auto_120px_110px_90px_100px] gap-3 px-5 py-3.5 border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors items-center"
+                    data-testid={`row-transaction-${tx.id}`}
                   >
                     <span className="text-[10px] font-mono text-muted-foreground/40">{tx.id}</span>
                     <div className="flex items-center gap-2 min-w-0">
@@ -206,7 +205,7 @@ export default function Transactions() {
           </div>
 
           <p className="text-[10px] font-mono text-muted-foreground/30 text-right tracking-widest">
-            HIỂN THỊ {filtered.length} TRONG {TRANSACTIONS.length} GIAO DỊCH
+            HIỂN THỊ {filtered.length} TRONG {transactions.length} GIAO DỊCH
           </p>
         </main>
       </div>
