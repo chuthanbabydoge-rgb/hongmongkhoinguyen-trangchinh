@@ -3,12 +3,14 @@ import {
   LayoutDashboard,
   Settings,
   Hexagon,
+  Network,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
 
 const STATIC_NAV_TOP = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
+  { icon: Network, label: "Universe Map", path: "/map" },
 ];
 
 const STATIC_NAV_BOTTOM = [
