@@ -12,6 +12,7 @@ import {
   ArrowLeftRight,
   Gift,
   TrendingUp,
+  PlusCircle,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -84,6 +85,7 @@ export function Sidebar() {
             Ví
           </p>
           <NavItem icon={Wallet}          label="Tổng quan Ví"    path="/wallet" />
+          <NavItem icon={PlusCircle}      label="Tạo Giao Dịch"   path="/wallet/create" />
           <NavItem icon={ArrowLeftRight}  label="Giao dịch"        path="/wallet/transactions" />
           <NavItem icon={Gift}            label="Phần thưởng"      path="/wallet/rewards" />
           <NavItem icon={TrendingUp}      label="Phân tích Ví"     path="/wallet/analytics" />

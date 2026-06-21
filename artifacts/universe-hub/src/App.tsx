@@ -13,6 +13,7 @@ import WalletDashboard from "@/pages/wallet/WalletDashboard";
 import Transactions from "@/pages/wallet/Transactions";
 import Rewards from "@/pages/wallet/Rewards";
 import WalletAnalytics from "@/pages/wallet/WalletAnalytics";
+import CreateTransaction from "@/pages/wallet/CreateTransaction";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ function Router() {
       <Route path="/wallet/transactions" component={Transactions} />
       <Route path="/wallet/rewards" component={Rewards} />
       <Route path="/wallet/analytics" component={WalletAnalytics} />
+      <Route path="/wallet/create" component={CreateTransaction} />
       <Route component={NotFound} />
     </Switch>
   );
