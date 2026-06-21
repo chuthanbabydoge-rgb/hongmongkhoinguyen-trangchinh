@@ -3,18 +3,18 @@ import { Package, Users, Ticket, Globe, Box } from "lucide-react";
 
 export function InventorySummary() {
   const items = [
-    { label: "Pets", value: inventoryData.pets, icon: Package },
-    { label: "Players", value: inventoryData.footballPlayers, icon: Users },
-    { label: "Tickets", value: inventoryData.tickets, icon: Ticket },
-    { label: "World Assets", value: inventoryData.worldAssets, icon: Globe },
-    { label: "Items", value: inventoryData.items, icon: Box },
+    { label: "Thú cưng", value: inventoryData.pets, icon: Package },
+    { label: "Cầu thủ", value: inventoryData.footballPlayers, icon: Users },
+    { label: "Vé", value: inventoryData.tickets, icon: Ticket },
+    { label: "Tài sản TG", value: inventoryData.worldAssets, icon: Globe },
+    { label: "Vật phẩm", value: inventoryData.items, icon: Box },
   ];
 
   return (
     <div className="glass-panel p-6 rounded-xl border border-white/5">
       <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
         <Box className="w-5 h-5 text-primary" />
-        Inventory Summary
+        Tổng quan Kho đồ
       </h3>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">

@@ -4,7 +4,7 @@ import { Coins, CreditCard, Gem, TrendingUp } from "lucide-react";
 export function WalletOverview() {
   const cards = [
     {
-      label: "Credits",
+      label: "Tín dụng",
       value: walletData.credits,
       icon: CreditCard,
       color: "text-blue-400",
@@ -13,7 +13,7 @@ export function WalletOverview() {
       border: "border-blue-500/20"
     },
     {
-      label: "Coins",
+      label: "Xu",
       value: walletData.coins,
       icon: Coins,
       color: "text-cyan-400",
@@ -22,7 +22,7 @@ export function WalletOverview() {
       border: "border-cyan-500/20"
     },
     {
-      label: "Tokens",
+      label: "Token",
       value: walletData.tokens,
       icon: Gem,
       color: "text-purple-400",

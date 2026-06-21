@@ -164,13 +164,13 @@ function ServiceRow({ service, expanded, onToggle }: {
           style={{ animation: "fadeInDown 0.2s ease-out" }}
         >
           <DetailStat icon={Activity} label="Uptime" value={service.uptime} color={sm.color} />
-          <DetailStat icon={Cpu} label="Latency" value={service.latency} color="text-blue-300" />
-          <DetailStat icon={Globe} label="Environment" value={ENV_META[service.environment].label} color={em.color} />
-          <DetailStat icon={Layers} label="Version" value={service.version} color="text-purple-300" />
+          <DetailStat icon={Cpu} label="Độ trễ" value={service.latency} color="text-blue-300" />
+          <DetailStat icon={Globe} label="Môi trường" value={ENV_META[service.environment].label} color={em.color} />
+          <DetailStat icon={Layers} label="Phiên bản" value={service.version} color="text-purple-300" />
           <div className="col-span-2 sm:col-span-4 flex items-center gap-2 mt-1">
             <RefreshCw className="w-3 h-3 text-muted-foreground/40" />
             <span className="text-[10px] font-mono text-muted-foreground/40 tracking-wider">
-              LAST UPDATE — {service.lastUpdate}
+              CẬP NHẬT LẦN CUỐI — {service.lastUpdate}
             </span>
           </div>
         </div>
@@ -270,11 +270,11 @@ export default function ServiceRegistry() {
           <div className="flex items-center justify-between flex-wrap gap-3">
             <h1 className="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
               <span className="w-2 h-6 bg-primary rounded-sm shadow-[0_0_10px_hsl(var(--primary))]" />
-              Service Registry
+              Đăng ký Dịch vụ
             </h1>
             <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground/40 tracking-wider">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              LIVE MONITORING — {SERVICES.length} SERVICES
+              GIÁM SÁT TRỰC TIẾP — {SERVICES.length} DỊCH VỤ
             </div>
           </div>
 
@@ -283,7 +283,7 @@ export default function ServiceRegistry() {
 
           {/* Filter + Sort controls */}
           <div className="glass-panel rounded-xl border border-white/5 px-5 py-3 flex items-center gap-4 flex-wrap">
-            <span className="text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest mr-1">Filter</span>
+            <span className="text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest mr-1">Lọc</span>
             {(["all", "online", "degraded", "offline"] as const).map((f) => (
               <button
                 key={f}
@@ -301,21 +301,21 @@ export default function ServiceRegistry() {
             ))}
 
             <div className="ml-auto flex items-center gap-4">
-              <span className="text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">Sort</span>
-              <SortButton label="Name" k="name" />
-              <SortButton label="Status" k="status" />
-              <SortButton label="Env" k="environment" />
+              <span className="text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">Sắp xếp</span>
+              <SortButton label="Tên" k="name" />
+              <SortButton label="Trạng thái" k="status" />
+              <SortButton label="Môi trường" k="environment" />
             </div>
           </div>
 
           {/* Column headers */}
           <div className="hidden md:grid grid-cols-[1.5rem_1fr_10rem_6rem_5rem_5rem_2rem] gap-4 px-6 text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest">
             <span />
-            <span>Service</span>
-            <span>Status</span>
-            <span className="text-center">Version</span>
-            <span className="text-center">Env</span>
-            <span className="text-right">Latency</span>
+            <span>Dịch vụ</span>
+            <span>Trạng thái</span>
+            <span className="text-center">Phiên bản</span>
+            <span className="text-center">Môi trường</span>
+            <span className="text-right">Độ trễ</span>
             <span />
           </div>
 
@@ -323,7 +323,7 @@ export default function ServiceRegistry() {
           <div className="space-y-3">
             {filtered.length === 0 ? (
               <div className="glass-panel rounded-xl border border-white/5 p-12 text-center text-muted-foreground/40 font-mono text-sm tracking-wider">
-                NO SERVICES MATCH FILTER
+                KHÔNG TÌM THẤY DỊCH VỤ PHÙ HỢP
               </div>
             ) : (
               filtered.map((service) => (

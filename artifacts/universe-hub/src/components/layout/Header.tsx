@@ -14,7 +14,7 @@ export function Header() {
         <div className="relative hidden sm:block w-64 group">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <Input 
-            placeholder="Search universe..." 
+            placeholder="Tìm kiếm vũ trụ..." 
             className="pl-9 bg-black/40 border-white/10 focus-visible:border-primary/50 focus-visible:ring-primary/20 h-9 transition-all"
           />
         </div>

@@ -7,6 +7,7 @@ import Dashboard from "@/pages/Dashboard";
 import UniverseMap from "@/pages/UniverseMap";
 import ServiceRegistry from "@/pages/ServiceRegistry";
 import ModuleRegistry from "@/pages/ModuleRegistry";
+import EcosystemArchitecture from "@/pages/EcosystemArchitecture";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/map" component={UniverseMap} />
       <Route path="/services" component={ServiceRegistry} />
       <Route path="/modules" component={ModuleRegistry} />
+      <Route path="/architecture" component={EcosystemArchitecture} />
       <Route component={NotFound} />
     </Switch>
   );

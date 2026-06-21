@@ -153,7 +153,7 @@ function ModuleModal({ mode, initial, editId, onClose, onSave }: ModalProps) {
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
           <h2 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
             <Package className="w-4 h-4 text-primary" />
-            {mode === "add" ? "Add New Module" : "Edit Module"}
+            {mode === "add" ? "Thêm Module mới" : "Chỉnh sửa Module"}
           </h2>
           <button onClick={onClose} data-testid="modal-close" className="text-muted-foreground/40 hover:text-white transition-colors">
             <X className="w-5 h-5" />
@@ -171,7 +171,7 @@ function ModuleModal({ mode, initial, editId, onClose, onSave }: ModalProps) {
           )}
 
           <div>
-            <label className={labelCls}>Module Name *</label>
+            <label className={labelCls}>Tên Module *</label>
             <input
               data-testid="input-module-name"
               className={inputCls}
@@ -230,7 +230,7 @@ function ModuleModal({ mode, initial, editId, onClose, onSave }: ModalProps) {
                 onChange={(e) => set("status", e.target.value as ModuleStatus)}
               >
                 <option value="active">Active</option>
-                <option value="disabled">Disabled</option>
+                <option value="disabled">Đã tắt</option>
               </select>
             </div>
           </div>
@@ -260,7 +260,7 @@ function ModuleModal({ mode, initial, editId, onClose, onSave }: ModalProps) {
               data-testid="button-cancel"
               className="flex-1 px-4 py-2.5 rounded-lg border border-white/10 text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground hover:text-white hover:border-white/20 transition-all"
             >
-              Cancel
+              Hủy
             </button>
             <button
               type="submit"
@@ -268,7 +268,7 @@ function ModuleModal({ mode, initial, editId, onClose, onSave }: ModalProps) {
               data-testid="button-save"
               className="flex-1 px-4 py-2.5 rounded-lg bg-primary/20 border border-primary/40 text-primary text-xs font-mono font-bold tracking-widest uppercase hover:bg-primary/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {saving ? <><Spinner /> Saving…</> : (mode === "add" ? "Add Module" : "Save Changes")}
+              {saving ? <><Spinner /> Đang lưu…</> : (mode === "add" ? "Thêm Module" : "Lưu thay đổi")}
             </button>
           </div>
         </form>
@@ -305,9 +305,9 @@ function DeleteDialog({ module, onConfirm, onClose }: DeleteDialogProps) {
               <Trash2 className="w-5 h-5 text-red-400" />
             </div>
             <div>
-              <p className="text-sm font-bold text-white">Delete Module</p>
+              <p className="text-sm font-bold text-white">Xóa Module</p>
               <p className="text-xs text-muted-foreground/60 mt-0.5">
-                This will permanently remove <span className="text-white font-mono">{module.name}</span> ({module.id}) from the registry.
+                Thao tác này sẽ xóa vĩnh viễn <span className="text-white font-mono">{module.name}</span> ({module.id}) khỏi hệ thống.
               </p>
             </div>
           </div>
@@ -318,7 +318,7 @@ function DeleteDialog({ module, onConfirm, onClose }: DeleteDialogProps) {
               data-testid="button-cancel-delete"
               className="flex-1 px-4 py-2.5 rounded-lg border border-white/10 text-xs font-mono font-bold tracking-widest uppercase text-muted-foreground hover:text-white transition-all"
             >
-              Cancel
+              Hủy
             </button>
             <button
               onClick={handle}
@@ -326,7 +326,7 @@ function DeleteDialog({ module, onConfirm, onClose }: DeleteDialogProps) {
               data-testid="button-confirm-delete"
               className="flex-1 px-4 py-2.5 rounded-lg bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-mono font-bold tracking-widest uppercase hover:bg-red-500/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {deleting ? <><Spinner /> Deleting…</> : "Delete"}
+              {deleting ? <><Spinner /> Đang xóa…</> : "Xóa"}
             </button>
           </div>
         </div>
@@ -439,7 +439,7 @@ export default function ModuleRegistry() {
           <div className="flex items-center justify-between flex-wrap gap-3">
             <h1 className="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
               <span className="w-2 h-6 bg-primary rounded-sm shadow-[0_0_10px_hsl(var(--primary))]" />
-              Module Registry
+              Quản lý Module
             </h1>
             <button
               onClick={() => setModal({ mode: "add" })}
@@ -447,16 +447,16 @@ export default function ModuleRegistry() {
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/20 border border-primary/40 text-primary text-xs font-mono font-bold tracking-widest uppercase hover:bg-primary/30 transition-all"
             >
               <Plus className="w-4 h-4" />
-              Add Module
+              Thêm Module
             </button>
           </div>
 
           {/* Summary cards */}
           <div className="grid grid-cols-3 gap-4">
             {[
-              { label: "Total Modules",    value: total,         icon: Package,       color: "text-primary",      bg: "bg-primary/10",      border: "border-primary/20" },
-              { label: "Active",           value: activeCount,   icon: CheckCircle2,  color: "text-emerald-400",  bg: "bg-emerald-400/10",  border: "border-emerald-400/30" },
-              { label: "Disabled",         value: disabledCount, icon: Ban,           color: "text-red-400",      bg: "bg-red-400/10",      border: "border-red-400/30" },
+              { label: "Tổng Module",       value: total,         icon: Package,       color: "text-primary",      bg: "bg-primary/10",      border: "border-primary/20" },
+              { label: "Đang hoạt động",  value: activeCount,   icon: CheckCircle2,  color: "text-emerald-400",  bg: "bg-emerald-400/10",  border: "border-emerald-400/30" },
+              { label: "Đã tắt",          value: disabledCount, icon: Ban,           color: "text-red-400",      bg: "bg-red-400/10",      border: "border-red-400/30" },
             ].map(({ label, value, icon: Icon, color, bg, border }) => (
               <div key={label} className={cn("glass-panel rounded-xl border p-4 flex items-center gap-4", border)}>
                 <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0", bg)}>
@@ -479,14 +479,14 @@ export default function ModuleRegistry() {
                 data-testid="input-search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search modules..."
+                placeholder="Tìm kiếm module..."
                 className="w-full pl-8 pr-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder:text-muted-foreground/30 focus:outline-none focus:border-primary/40 font-mono"
               />
             </div>
 
             {/* Category filter */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest">Cat</span>
+              <span className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest">Danh mục</span>
               {(["all", ...MODULE_CATEGORIES] as const).map((c) => (
                 <button
                   key={c}
@@ -506,7 +506,7 @@ export default function ModuleRegistry() {
 
             {/* Status filter */}
             <div className="flex items-center gap-1.5 ml-auto">
-              <span className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest">Status</span>
+              <span className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest">Trạng thái</span>
               {(["all", "active", "disabled"] as const).map((s) => (
                 <button
                   key={s}
@@ -530,24 +530,24 @@ export default function ModuleRegistry() {
             {/* Table header */}
             <div className="grid grid-cols-[90px_1fr_110px_100px_90px_90px_80px_120px] gap-3 px-5 py-3 border-b border-white/5 bg-white/2">
               <SortBtn label="ID" k="id" />
-              <SortBtn label="Name" k="name" />
-              <SortBtn label="Category" k="category" />
-              <span className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest">Type</span>
-              <SortBtn label="Status" k="status" />
-              <SortBtn label="Version" k="version" />
+              <SortBtn label="Tên" k="name" />
+              <SortBtn label="Danh mục" k="category" />
+              <span className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest">Loại</span>
+              <SortBtn label="Trạng thái" k="status" />
+              <SortBtn label="Phiên bản" k="version" />
               <span className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest">URL</span>
-              <span className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest text-right">Actions</span>
+              <span className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-widest text-right">Thao tác</span>
             </div>
 
             {/* Rows */}
             {loading ? (
               <div className="flex items-center justify-center py-16 gap-2 text-muted-foreground/40 text-sm font-mono">
-                <Loader2 className="w-4 h-4 animate-spin" /> Loading modules…
+                <Loader2 className="w-4 h-4 animate-spin" /> Đang tải module…
               </div>
             ) : filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 gap-2">
                 <Cpu className="w-8 h-8 text-muted-foreground/20" />
-                <p className="text-muted-foreground/40 text-sm font-mono tracking-wider">NO MODULES MATCH FILTERS</p>
+                <p className="text-muted-foreground/40 text-sm font-mono tracking-wider">KHÔNG TÌM THẤY MODULE PHÙ HỢP</p>
               </div>
             ) : (
               filtered.map((m, i) => (
@@ -640,7 +640,7 @@ export default function ModuleRegistry() {
           {/* Footer count */}
           {!loading && (
             <p className="text-[10px] font-mono text-muted-foreground/30 text-right tracking-widest">
-              SHOWING {filtered.length} OF {total} MODULES
+              HIỂN THỊ {filtered.length} TRONG {total} MODULE
             </p>
           )}
         </main>

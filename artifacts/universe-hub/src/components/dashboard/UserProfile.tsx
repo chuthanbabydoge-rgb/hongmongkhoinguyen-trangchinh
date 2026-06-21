@@ -40,13 +40,13 @@ export function UserProfile() {
             <div className="flex items-center gap-4 text-sm font-medium tracking-widest text-muted-foreground uppercase">
               <span className="text-primary flex items-center gap-1.5"><Shield className="w-4 h-4" /> {userProfile.title}</span>
               <span className="w-1 h-1 bg-white/20 rounded-full"></span>
-              <span className="flex items-center gap-1.5 text-blue-400"><Star className="w-4 h-4" /> Elite Status</span>
+              <span className="flex items-center gap-1.5 text-blue-400"><Star className="w-4 h-4" /> Trạng thái Ưu tú</span>
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex justify-between text-xs font-mono text-muted-foreground">
-              <span className="flex items-center gap-1 text-primary/80"><Zap className="w-3 h-3" /> EXPERIENCE</span>
+              <span className="flex items-center gap-1 text-primary/80"><Zap className="w-3 h-3" /> KINH NGHIỆM</span>
               <span className="text-white">{userProfile.xp.toLocaleString()} / {userProfile.maxXp.toLocaleString()} XP</span>
             </div>
             <div className="h-3 bg-black/60 rounded-full overflow-hidden border border-white/5">

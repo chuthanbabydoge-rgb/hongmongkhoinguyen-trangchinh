@@ -28,8 +28,8 @@ export function UniverseModules() {
 
       case "coming-soon":
         toast({
-          title: "Module Offline",
-          description: `${module.title} is currently under construction.`,
+          title: "Module ngoại tuyến",
+          description: `${module.title} hiện đang trong quá trình xây dựng.`,
           className: "bg-black border border-primary text-primary font-mono",
         });
         return;
@@ -52,7 +52,7 @@ export function UniverseModules() {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
         <span className="w-2 h-6 bg-primary rounded-sm shadow-[0_0_10px_hsl(var(--primary))]"></span>
-        Universe Modules
+        Mô-đun Vũ trụ
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -7,15 +7,17 @@ import {
   ServerCog,
   BarChart3,
   Layers,
+  Cpu,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
 
 const STATIC_NAV_TOP = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-  { icon: Network, label: "Universe Map", path: "/map" },
-  { icon: ServerCog, label: "Service Registry", path: "/services" },
-  { icon: Layers, label: "Module Registry", path: "/modules" },
+  { icon: LayoutDashboard, label: "Bảng điều khiển", path: "/" },
+  { icon: Network, label: "Bản đồ Vũ trụ", path: "/map" },
+  { icon: ServerCog, label: "Đăng ký Dịch vụ", path: "/services" },
+  { icon: Layers, label: "Quản lý Module", path: "/modules" },
+  { icon: Cpu, label: "Kiến trúc HĐH", path: "/architecture" },
 ];
 
 const STATIC_NAV_BOTTOM = [
@@ -75,7 +77,7 @@ export function Sidebar() {
 
         <div className="pt-1 pb-1">
           <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
-            Modules
+            Mô-đun
           </p>
           {MODULES.map((mod) => (
             <NavItem
@@ -89,7 +91,7 @@ export function Sidebar() {
 
         <div className="pt-1 pb-1">
           <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
-            Analytics
+            Phân tích
           </p>
           <a
             href="/ecosystem-analytics/"
@@ -99,7 +101,7 @@ export function Sidebar() {
           >
             <div className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 group cursor-pointer text-muted-foreground hover:bg-white/5 hover:text-white">
               <BarChart3 className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
-              <span className="font-medium tracking-wide">Ecosystem Analytics</span>
+              <span className="font-medium tracking-wide">Phân tích Hệ sinh thái</span>
               <span className="ml-auto text-[10px] font-mono text-muted-foreground/40 border border-white/10 rounded px-1 py-0.5">↗</span>
             </div>
           </a>

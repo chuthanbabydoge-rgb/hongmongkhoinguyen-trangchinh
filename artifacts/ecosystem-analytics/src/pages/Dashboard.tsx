@@ -53,7 +53,7 @@ export default function Dashboard() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-primary font-mono tracking-widest animate-pulse">INITIALIZING NEXUS...</p>
+        <p className="mt-4 text-primary font-mono tracking-widest animate-pulse">ĐANG KHỞI ĐỘNG HỆ THỐNG...</p>
       </div>
     );
   }
@@ -72,49 +72,49 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h2 className="text-3xl font-bold text-white tracking-tight mb-2 font-mono">Mission Control</h2>
-          <p className="text-muted-foreground font-mono text-sm">Real-time telemetry and ecosystem analytics</p>
+          <h2 className="text-3xl font-bold text-white tracking-tight mb-2 font-mono">Trung tâm Điều khiển</h2>
+          <p className="text-muted-foreground font-mono text-sm">Đo lường thời gian thực và phân tích hệ sinh thái</p>
         </motion.div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
           <StatCard 
-            title="Total Users" 
+            title="Tổng người dùng" 
             value={stats.totalUsers} 
             change={stats.changes.users} 
             icon={<Users className="w-5 h-5" />}
             delay={0.1}
           />
           <StatCard 
-            title="Total Assets" 
+            title="Tổng tài sản" 
             value={stats.totalAssets} 
             change={stats.changes.assets} 
             icon={<Layers className="w-5 h-5" />}
             delay={0.2}
           />
           <StatCard 
-            title="Active Worlds" 
+            title="Thế giới hoạt động" 
             value={stats.totalWorlds} 
             change={stats.changes.worlds} 
             icon={<Globe className="w-5 h-5" />}
             delay={0.3}
           />
           <StatCard 
-            title="Football Clubs" 
+            title="CLB Bóng đá" 
             value={stats.totalFootballClubs} 
             change={stats.changes.footballClubs} 
             icon={<Shield className="w-5 h-5" />}
             delay={0.4}
           />
           <StatCard 
-            title="Digital Pets" 
+            title="Thú cưng số" 
             value={stats.totalPets} 
             change={stats.changes.pets} 
             icon={<Cat className="w-5 h-5" />}
             delay={0.5}
           />
           <StatCard 
-            title="Transactions" 
+            title="Giao dịch" 
             value={stats.totalTransactions} 
             change={stats.changes.transactions} 
             icon={<Activity className="w-5 h-5" />}
