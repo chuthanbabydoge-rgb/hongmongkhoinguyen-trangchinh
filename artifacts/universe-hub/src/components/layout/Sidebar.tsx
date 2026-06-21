@@ -6,6 +6,7 @@ import {
   Network,
   ServerCog,
   BarChart3,
+  Layers,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ const STATIC_NAV_TOP = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
   { icon: Network, label: "Universe Map", path: "/map" },
   { icon: ServerCog, label: "Service Registry", path: "/services" },
+  { icon: Layers, label: "Module Registry", path: "/modules" },
 ];
 
 const STATIC_NAV_BOTTOM = [

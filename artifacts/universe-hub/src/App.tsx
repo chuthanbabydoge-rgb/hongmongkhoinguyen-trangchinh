@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/Dashboard";
 import UniverseMap from "@/pages/UniverseMap";
 import ServiceRegistry from "@/pages/ServiceRegistry";
+import ModuleRegistry from "@/pages/ModuleRegistry";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/map" component={UniverseMap} />
       <Route path="/services" component={ServiceRegistry} />
+      <Route path="/modules" component={ModuleRegistry} />
       <Route component={NotFound} />
     </Switch>
   );
