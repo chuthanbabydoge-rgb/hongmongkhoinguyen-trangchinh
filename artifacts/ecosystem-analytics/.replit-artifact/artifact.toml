@@ -1,5 +1,5 @@
 kind = "web"
-previewPath = "/"
+previewPath = "/ecosystem-analytics/"
 title = "Ecosystem Analytics"
 version = "1.0.0"
 id = "artifacts/ecosystem-analytics"
@@ -11,7 +11,7 @@ version = "1.0.0"
 
 [[services]]
 name = "web"
-paths = [ "/" ]
+paths = [ "/ecosystem-analytics/" ]
 localPort = 18928
 
 [services.development]
@@ -28,4 +28,4 @@ to = "/index.html"
 
 [services.env]
 PORT = "18928"
-BASE_PATH = "/"
+BASE_PATH = "/ecosystem-analytics/"
