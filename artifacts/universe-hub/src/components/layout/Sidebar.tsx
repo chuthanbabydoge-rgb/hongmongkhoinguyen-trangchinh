@@ -8,6 +8,10 @@ import {
   BarChart3,
   Layers,
   Cpu,
+  Wallet,
+  ArrowLeftRight,
+  Gift,
+  TrendingUp,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -74,6 +78,16 @@ export function Sidebar() {
         {STATIC_NAV_TOP.map((item) => (
           <NavItem key={item.path} {...item} />
         ))}
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Ví
+          </p>
+          <NavItem icon={Wallet}          label="Tổng quan Ví"    path="/wallet" />
+          <NavItem icon={ArrowLeftRight}  label="Giao dịch"        path="/wallet/transactions" />
+          <NavItem icon={Gift}            label="Phần thưởng"      path="/wallet/rewards" />
+          <NavItem icon={TrendingUp}      label="Phân tích Ví"     path="/wallet/analytics" />
+        </div>
 
         <div className="pt-1 pb-1">
           <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">

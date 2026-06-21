@@ -8,6 +8,10 @@ import UniverseMap from "@/pages/UniverseMap";
 import ServiceRegistry from "@/pages/ServiceRegistry";
 import ModuleRegistry from "@/pages/ModuleRegistry";
 import EcosystemArchitecture from "@/pages/EcosystemArchitecture";
+import WalletDashboard from "@/pages/wallet/WalletDashboard";
+import Transactions from "@/pages/wallet/Transactions";
+import Rewards from "@/pages/wallet/Rewards";
+import WalletAnalytics from "@/pages/wallet/WalletAnalytics";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -20,6 +24,10 @@ function Router() {
       <Route path="/services" component={ServiceRegistry} />
       <Route path="/modules" component={ModuleRegistry} />
       <Route path="/architecture" component={EcosystemArchitecture} />
+      <Route path="/wallet" component={WalletDashboard} />
+      <Route path="/wallet/transactions" component={Transactions} />
+      <Route path="/wallet/rewards" component={Rewards} />
+      <Route path="/wallet/analytics" component={WalletAnalytics} />
       <Route component={NotFound} />
     </Switch>
   );
