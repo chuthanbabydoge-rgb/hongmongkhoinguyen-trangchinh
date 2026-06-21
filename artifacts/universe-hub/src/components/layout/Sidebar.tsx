@@ -4,6 +4,7 @@ import {
   Settings,
   Hexagon,
   Network,
+  ServerCog,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -11,6 +12,7 @@ import { cn } from "@/lib/utils";
 const STATIC_NAV_TOP = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
   { icon: Network, label: "Universe Map", path: "/map" },
+  { icon: ServerCog, label: "Service Registry", path: "/services" },
 ];
 
 const STATIC_NAV_BOTTOM = [

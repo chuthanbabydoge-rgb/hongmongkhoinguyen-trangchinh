@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/Dashboard";
 import UniverseMap from "@/pages/UniverseMap";
+import ServiceRegistry from "@/pages/ServiceRegistry";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -14,6 +15,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/map" component={UniverseMap} />
+      <Route path="/services" component={ServiceRegistry} />
       <Route component={NotFound} />
     </Switch>
   );
