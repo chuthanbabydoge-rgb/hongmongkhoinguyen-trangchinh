@@ -82,9 +82,8 @@ export interface MarketTransaction {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const now = new Date("2026-06-22T10:00:00Z");
-function hoursFromNow(h: number) { return new Date(now.getTime() + h * 3_600_000).toISOString(); }
-function daysAgo(d: number) { return new Date(now.getTime() - d * 86_400_000).toISOString(); }
+function hoursFromNow(h: number) { return new Date(Date.now() + h * 3_600_000).toISOString(); }
+function daysAgo(d: number) { return new Date(Date.now() - d * 86_400_000).toISOString(); }
 
 // ─── Listings (30) ───────────────────────────────────────────────────────────
 
