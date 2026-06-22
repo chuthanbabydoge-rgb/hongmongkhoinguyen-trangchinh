@@ -9,6 +9,7 @@ import {
 import {
   LISTINGS,
   AUCTIONS,
+  TRADES,
   MARKET_TRANSACTIONS,
   MARKET_VOLUME_TREND,
   MARKET_CATEGORY_VOLUME,
@@ -21,10 +22,11 @@ import {
   type MarketRarity,
   type TxType,
 } from "@/lib/marketplaceMockData";
+import type { Trade, TradeStatus } from "@/types/marketplace";
 
 // ─── Re-export types for convenience ─────────────────────────────────────────
 
-export type { ListingCategory, MarketRarity, ListingStatus, TxType };
+export type { ListingCategory, MarketRarity, ListingStatus, TxType, Trade, TradeStatus };
 
 // ─── Derived stats type ───────────────────────────────────────────────────────
 
@@ -44,112 +46,12 @@ export interface MarketplaceStats {
   topSellers: typeof TOP_SELLERS;
 }
 
-// ─── Trade offer type (prepared for future API) ───────────────────────────────
-
-export type TradeStatus = "pending" | "accepted" | "declined" | "cancelled" | "expired";
-
-export interface TradeOffer {
-  id: string;
-  fromUser: string;
-  fromUserAvatar: string;
-  toUser: string;
-  toUserAvatar: string;
-  offeredItems: string[];
-  requestedItems: string[];
-  offeredCredits: number;
-  requestedCredits: number;
-  status: TradeStatus;
-  createdAt: string;
-  expiresAt: string;
-  note: string;
-}
-
-// ─── Mock trades ──────────────────────────────────────────────────────────────
-
-const MOCK_TRADES: TradeOffer[] = [
-  {
-    id: "TR-001",
-    fromUser: "DragonMaster_X",
-    fromUserAvatar: "DM",
-    toUser: "CommanderZara",
-    toUserAvatar: "CZ",
-    offeredItems: ["Infernox – Rồng lửa Thần thoại"],
-    requestedItems: ["Kiếm Thần Thoại Vũ Trụ"],
-    offeredCredits: 0,
-    requestedCredits: 150000,
-    status: "pending",
-    createdAt: new Date("2026-06-22T08:30:00Z").toISOString(),
-    expiresAt: new Date("2026-06-25T08:30:00Z").toISOString(),
-    note: "Đề xuất trao đổi rồng lấy kiếm + credits bổ sung.",
-  },
-  {
-    id: "TR-002",
-    fromUser: "OceanQueen",
-    fromUserAvatar: "OQ",
-    toUser: "CommanderZara",
-    toUserAvatar: "CZ",
-    offeredItems: ["Aqua Belle – Tiên cá Huyền thoại"],
-    requestedItems: ["Voltrix – Sói Sấm Huyền thoại"],
-    offeredCredits: 50000,
-    requestedCredits: 0,
-    status: "pending",
-    createdAt: new Date("2026-06-21T14:00:00Z").toISOString(),
-    expiresAt: new Date("2026-06-24T14:00:00Z").toISOString(),
-    note: "Trao đổi pet water vs lightning. Thêm 50K credits.",
-  },
-  {
-    id: "TR-003",
-    fromUser: "CommanderZara",
-    fromUserAvatar: "CZ",
-    toUser: "FootballGod",
-    toUserAvatar: "FG",
-    offeredItems: ["Luminos Prime – Phượng hoàng"],
-    requestedItems: ["El Dios – Cầu thủ Thần thoại"],
-    offeredCredits: 200000,
-    requestedCredits: 0,
-    status: "accepted",
-    createdAt: new Date("2026-06-20T10:00:00Z").toISOString(),
-    expiresAt: new Date("2026-06-23T10:00:00Z").toISOString(),
-    note: "Đề xuất đã được chấp nhận.",
-  },
-  {
-    id: "TR-004",
-    fromUser: "SwordSage_Z",
-    fromUserAvatar: "SS",
-    toUser: "CommanderZara",
-    toUserAvatar: "CZ",
-    offeredItems: ["Giáp Rồng Đen"],
-    requestedItems: ["Tinh Thạch Huyền Bí x10"],
-    offeredCredits: 0,
-    requestedCredits: 0,
-    status: "declined",
-    createdAt: new Date("2026-06-19T09:00:00Z").toISOString(),
-    expiresAt: new Date("2026-06-22T09:00:00Z").toISOString(),
-    note: "Đã từ chối.",
-  },
-  {
-    id: "TR-005",
-    fromUser: "StormPack",
-    fromUserAvatar: "SP",
-    toUser: "CommanderZara",
-    toUserAvatar: "CZ",
-    offeredItems: ["Voltrix – Sói Sấm Huyền thoại"],
-    requestedItems: ["Mỏ Tinh Thể Vũ Trụ"],
-    offeredCredits: 300000,
-    requestedCredits: 0,
-    status: "expired",
-    createdAt: new Date("2026-06-15T12:00:00Z").toISOString(),
-    expiresAt: new Date("2026-06-18T12:00:00Z").toISOString(),
-    note: "Đề xuất đã hết hạn.",
-  },
-];
-
 // ─── State ────────────────────────────────────────────────────────────────────
 
 interface MarketplaceState {
   listings: Listing[];
   auctions: Auction[];
-  trades: TradeOffer[];
+  trades: Trade[];
   transactions: MarketTransaction[];
   stats: MarketplaceStats;
   isLoading: boolean;
@@ -170,9 +72,9 @@ interface MarketplaceActions {
   getHotAuctions: () => Auction[];
   getAuctionsByCategory: (category: ListingCategory) => Auction[];
 
-  getTrade: (id: string) => TradeOffer | undefined;
-  getTradesByStatus: (status: TradeStatus) => TradeOffer[];
-  proposeTrade: (trade: Omit<TradeOffer, "id" | "createdAt">) => void;
+  getTrade: (id: string) => Trade | undefined;
+  getTradesByStatus: (status: TradeStatus) => Trade[];
+  proposeTrade: (trade: Omit<Trade, "id">) => void;
   respondToTrade: (id: string, response: "accepted" | "declined") => void;
 
   getTransaction: (id: string) => MarketTransaction | undefined;
@@ -225,7 +127,7 @@ MarketplaceContext.displayName = "MarketplaceContext";
 export function MarketplaceProvider({ children }: { children: ReactNode }) {
   const [listings, setListings] = useState<Listing[]>(LISTINGS);
   const [auctions, setAuctions] = useState<Auction[]>(AUCTIONS);
-  const [trades, setTrades] = useState<TradeOffer[]>(MOCK_TRADES);
+  const [trades, setTrades] = useState<Trade[]>(TRADES);
   const [transactions, setTransactions] = useState<MarketTransaction[]>(MARKET_TRANSACTIONS);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -302,11 +204,10 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
   );
 
   const proposeTrade = useCallback(
-    (trade: Omit<TradeOffer, "id" | "createdAt">) => {
-      const newTrade: TradeOffer = {
+    (trade: Omit<Trade, "id">) => {
+      const newTrade: Trade = {
         ...trade,
         id: `TR-${Date.now()}`,
-        createdAt: new Date().toISOString(),
       };
       // TODO: POST /api/marketplace/trades
       setTrades((prev) => [newTrade, ...prev]);
@@ -357,7 +258,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
       await new Promise((resolve) => setTimeout(resolve, 800));
       setListings(LISTINGS);
       setAuctions(AUCTIONS);
-      setTrades(MOCK_TRADES);
+      setTrades(TRADES);
       setTransactions(MARKET_TRANSACTIONS);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Lỗi khi tải dữ liệu marketplace");
@@ -400,7 +301,7 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
     try {
       // TODO: const data = await fetch("/api/marketplace/trades").then(r => r.json());
       await new Promise((resolve) => setTimeout(resolve, 500));
-      setTrades(MOCK_TRADES);
+      setTrades(TRADES);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Lỗi khi tải giao dịch trao đổi");
     } finally {
