@@ -78,3 +78,9 @@ externalPort = 3001
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+SUPABASE_URL = "https://jxrgenjtxjntkzitxmpm.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4cmdlbmp0eGpudGt6aXR4bXBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNTQ1NjQsImV4cCI6MjA5NzczMDU2NH0.dGdpB9_CQCOkOj9WCWNmGWjeRkF1DF3-gjlgdgI9HA4"
