@@ -22,6 +22,7 @@ import WorldAssets from "@/pages/inventory/WorldAssets";
 import Tickets from "@/pages/inventory/Tickets";
 import Items from "@/pages/inventory/Items";
 import InventoryAnalytics from "@/pages/inventory/InventoryAnalytics";
+import WarehouseManager from "@/pages/inventory/WarehouseManager";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -46,6 +47,7 @@ function Router() {
       <Route path="/inventory/tickets" component={Tickets} />
       <Route path="/inventory/items" component={Items} />
       <Route path="/inventory/analytics" component={InventoryAnalytics} />
+      <Route path="/inventory/warehouse" component={WarehouseManager} />
       <Route component={NotFound} />
     </Switch>
   );

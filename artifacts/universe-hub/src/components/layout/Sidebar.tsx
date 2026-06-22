@@ -20,6 +20,7 @@ import {
   Ticket,
   Box,
   BarChart2,
+  Warehouse,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -108,7 +109,8 @@ export function Sidebar() {
           <NavItem icon={Globe}     label="Tài sản Thế giới"    path="/inventory/world-assets" />
           <NavItem icon={Ticket}    label="Vé"                  path="/inventory/tickets" />
           <NavItem icon={Box}       label="Vật phẩm"            path="/inventory/items" />
-          <NavItem icon={BarChart2} label="Phân tích Kho"       path="/inventory/analytics" />
+          <NavItem icon={BarChart2}  label="Phân tích Kho"       path="/inventory/analytics" />
+          <NavItem icon={Warehouse} label="Quản lý Kho hàng"   path="/inventory/warehouse" />
         </div>
 
         <div className="pt-1 pb-1">
