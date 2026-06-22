@@ -14,6 +14,13 @@ import Transactions from "@/pages/wallet/Transactions";
 import Rewards from "@/pages/wallet/Rewards";
 import WalletAnalytics from "@/pages/wallet/WalletAnalytics";
 import CreateTransaction from "@/pages/wallet/CreateTransaction";
+import InventoryDashboard from "@/pages/inventory/InventoryDashboard";
+import Pets from "@/pages/inventory/Pets";
+import FootballPlayers from "@/pages/inventory/FootballPlayers";
+import WorldAssets from "@/pages/inventory/WorldAssets";
+import Tickets from "@/pages/inventory/Tickets";
+import Items from "@/pages/inventory/Items";
+import InventoryAnalytics from "@/pages/inventory/InventoryAnalytics";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -31,6 +38,13 @@ function Router() {
       <Route path="/wallet/rewards" component={Rewards} />
       <Route path="/wallet/analytics" component={WalletAnalytics} />
       <Route path="/wallet/create" component={CreateTransaction} />
+      <Route path="/inventory" component={InventoryDashboard} />
+      <Route path="/inventory/pets" component={Pets} />
+      <Route path="/inventory/football" component={FootballPlayers} />
+      <Route path="/inventory/world-assets" component={WorldAssets} />
+      <Route path="/inventory/tickets" component={Tickets} />
+      <Route path="/inventory/items" component={Items} />
+      <Route path="/inventory/analytics" component={InventoryAnalytics} />
       <Route component={NotFound} />
     </Switch>
   );

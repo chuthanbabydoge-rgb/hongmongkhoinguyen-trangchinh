@@ -13,6 +13,13 @@ import {
   Gift,
   TrendingUp,
   PlusCircle,
+  Package,
+  PawPrint,
+  Trophy,
+  Globe,
+  Ticket,
+  Box,
+  BarChart2,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -89,6 +96,19 @@ export function Sidebar() {
           <NavItem icon={ArrowLeftRight}  label="Giao dịch"        path="/wallet/transactions" />
           <NavItem icon={Gift}            label="Phần thưởng"      path="/wallet/rewards" />
           <NavItem icon={TrendingUp}      label="Phân tích Ví"     path="/wallet/analytics" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Kho đồ
+          </p>
+          <NavItem icon={Package}   label="Tổng quan Kho"       path="/inventory" />
+          <NavItem icon={PawPrint}  label="Thú cưng"            path="/inventory/pets" />
+          <NavItem icon={Trophy}    label="Cầu thủ bóng đá"     path="/inventory/football" />
+          <NavItem icon={Globe}     label="Tài sản Thế giới"    path="/inventory/world-assets" />
+          <NavItem icon={Ticket}    label="Vé"                  path="/inventory/tickets" />
+          <NavItem icon={Box}       label="Vật phẩm"            path="/inventory/items" />
+          <NavItem icon={BarChart2} label="Phân tích Kho"       path="/inventory/analytics" />
         </div>
 
         <div className="pt-1 pb-1">
