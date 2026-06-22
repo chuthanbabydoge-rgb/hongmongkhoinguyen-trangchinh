@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { WalletProvider } from "@/context/WalletContext";
 import { InventoryProvider } from "@/context/InventoryContext";
+import { MarketplaceProvider } from "@/context/MarketplaceContext";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/Dashboard";
 import UniverseMap from "@/pages/UniverseMap";
@@ -73,10 +74,12 @@ function App() {
       <TooltipProvider>
         <WalletProvider>
           <InventoryProvider>
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-              <Router />
-            </WouterRouter>
-            <Toaster />
+            <MarketplaceProvider>
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                <Router />
+              </WouterRouter>
+              <Toaster />
+            </MarketplaceProvider>
           </InventoryProvider>
         </WalletProvider>
       </TooltipProvider>
