@@ -44,8 +44,7 @@ import { ProfileService } from "./services/profileService";
 
 // ─── Repository selection ─────────────────────────────────────────────────────
 
-const isProduction = process.env["NODE_ENV"] === "production";
-const useSupabase  = isProduction && isSupabaseConfigured();
+const useSupabase = isSupabaseConfigured();
 
 let userRepo: IUserRepository;
 let avatarRepo: IAvatarRepository;
@@ -54,21 +53,14 @@ let walletRepo: IWalletRepository;
 let inventoryRepo: IInventoryRepository;
 
 if (useSupabase) {
-  logger.info("Container: using Supabase repositories (production)");
+  logger.info("Container: using Supabase repositories");
   userRepo       = new SupabaseUserRepository();
   avatarRepo     = new SupabaseAvatarRepository();
   reputationRepo = new SupabaseReputationRepository();
   walletRepo     = new SupabaseWalletRepository();
   inventoryRepo  = new SupabaseInventoryRepository();
 } else {
-  if (isProduction && !isSupabaseConfigured()) {
-    logger.warn(
-      "Container: SUPABASE_URL / SUPABASE_ANON_KEY not set in production — " +
-      "falling back to Mock repositories. Set the secrets to enable Supabase.",
-    );
-  } else {
-    logger.info("Container: using Mock repositories (development)");
-  }
+  logger.info("Container: using Mock repositories (SUPABASE_URL / SUPABASE_ANON_KEY not set)");
   userRepo       = new MockUserRepository();
   avatarRepo     = new MockAvatarRepository();
   reputationRepo = new MockReputationRepository();
