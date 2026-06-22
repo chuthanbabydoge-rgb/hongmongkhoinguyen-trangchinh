@@ -145,6 +145,26 @@ export const REWARDS: Reward[] = [
   { id: "RW-08", title: "Hoạt động hàng ngày",     description: "Thực hiện ít nhất 1 giao dịch mỗi ngày",  points: 3,    maxPoints: 5,   category: "daily",       categoryLabel: "Hàng ngày",    expiresAt: "Còn 2 ngày",  claimed: false, icon: "📊" },
 ];
 
+// ─── Monthly cash-flow (income / expense breakdown) ──────────────────────────
+
+export interface MonthlyFlow {
+  label: string;
+  month: string;
+  income: number;
+  expense: number;
+  net: number;
+  txCount: number;
+}
+
+export const MONTHLY_FLOW: MonthlyFlow[] = [
+  { label: "T1", month: "Tháng 1/2026", income: 45_200, expense: 28_400, net: 16_800, txCount: 42 },
+  { label: "T2", month: "Tháng 2/2026", income: 52_800, expense: 35_100, net: 17_700, txCount: 51 },
+  { label: "T3", month: "Tháng 3/2026", income: 61_500, expense: 42_300, net: 19_200, txCount: 58 },
+  { label: "T4", month: "Tháng 4/2026", income: 58_000, expense: 38_600, net: 19_400, txCount: 55 },
+  { label: "T5", month: "Tháng 5/2026", income: 73_400, expense: 48_200, net: 25_200, txCount: 67 },
+  { label: "T6", month: "Tháng 6/2026", income: 91_200, expense: 55_300, net: 35_900, txCount: 78 },
+];
+
 // ─── Analytics ───────────────────────────────────────────────────────────────
 
 export const ANALYTICS_WEEKLY: AnalyticPoint[] = [

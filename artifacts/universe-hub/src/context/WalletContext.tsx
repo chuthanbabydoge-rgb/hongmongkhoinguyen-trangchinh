@@ -13,10 +13,12 @@ import {
   ANALYTICS_WEEKLY,
   ANALYTICS_MONTHLY,
   DISTRIBUTION_DATA,
+  MONTHLY_FLOW,
   type CurrencyBalance,
   type Transaction,
   type Reward,
   type AnalyticPoint,
+  type MonthlyFlow,
 } from "@/lib/walletMockData";
 
 interface WalletState {
@@ -26,6 +28,7 @@ interface WalletState {
   analyticsWeekly: AnalyticPoint[];
   analyticsMonthly: AnalyticPoint[];
   distributionData: typeof DISTRIBUTION_DATA;
+  monthlyFlow: MonthlyFlow[];
   isLoading: boolean;
   error: string | null;
 }
@@ -115,6 +118,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       analyticsWeekly: ANALYTICS_WEEKLY,
       analyticsMonthly: ANALYTICS_MONTHLY,
       distributionData: DISTRIBUTION_DATA,
+      monthlyFlow: MONTHLY_FLOW,
       isLoading,
       error,
       getBalance,
