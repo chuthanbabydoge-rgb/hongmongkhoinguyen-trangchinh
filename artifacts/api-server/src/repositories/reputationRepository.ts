@@ -1,13 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Reputation Repository
 //
-// IReputationRepository — contract for all implementations.
-// MockReputationRepository — in-memory implementation for development.
-//
 // PostgreSQL migration path:
-//   Create `DrizzleReputationRepository` that queries the `reputations` and
-//   `reputation_history` tables.  History inserts should use a DB transaction
-//   so the score and row are written atomically.
+//   `reputations` table (one row per user) + `reputation_history` table.
+//   Score updates must be transactional (score + history row written together).
+//   Implement DrizzleReputationRepository and swap the singleton.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Reputation, ReputationHistoryEntry } from "../models/reputation";
@@ -15,22 +12,26 @@ import type { Reputation, ReputationHistoryEntry } from "../models/reputation";
 // ─── Interface ────────────────────────────────────────────────────────────────
 
 export interface IReputationRepository {
-  findByUserId(userId: string): Promise<Reputation | null>;
-  save(reputation: Reputation): Promise<Reputation>;
-  updateScore(
-    userId: string,
-    delta: number,
-    reason: string,
-  ): Promise<Reputation | null>;
+  getByUserId(userId: string): Promise<Reputation | null>;
+  create(reputation: Reputation): Promise<Reputation>;
+  update(reputation: Reputation): Promise<Reputation | null>;
+  applyScoreDelta(userId: string, delta: number, reason: string): Promise<Reputation | null>;
   addBadge(userId: string, badgeId: string): Promise<Reputation | null>;
   removeBadge(userId: string, badgeId: string): Promise<Reputation | null>;
-  getHistory(
-    userId: string,
-    limit?: number,
-  ): Promise<ReputationHistoryEntry[]>;
+  getHistory(userId: string, limit?: number): Promise<ReputationHistoryEntry[]>;
 }
 
-// ─── Mock seed data ───────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function calcTier(score: number): Reputation["tier"] {
+  if (score >= 500) return "diamond";
+  if (score >= 200) return "platinum";
+  if (score >= 100) return "gold";
+  if (score >= 50)  return "silver";
+  return "bronze";
+}
+
+// ─── Seed data ────────────────────────────────────────────────────────────────
 
 const SEED_REPUTATIONS: Reputation[] = [
   {
@@ -41,25 +42,15 @@ const SEED_REPUTATIONS: Reputation[] = [
     downvotes: 12,
     badges: ["early-adopter", "trader", "explorer"],
     history: [
-      { date: "2024-12-01", delta: +5, reason: "Được đánh giá tích cực" },
+      { date: "2024-12-01", delta: +5,  reason: "Được đánh giá tích cực" },
       { date: "2024-11-15", delta: +10, reason: "Hoàn thành nhiệm vụ tuần" },
-      { date: "2024-10-30", delta: -2, reason: "Báo cáo hợp lệ được ghi nhận" },
-      { date: "2024-09-20", delta: +8, reason: "Tham gia sự kiện cộng đồng" },
-      { date: "2024-08-05", delta: +3, reason: "Được đánh giá tích cực" },
+      { date: "2024-10-30", delta: -2,  reason: "Báo cáo hợp lệ được ghi nhận" },
+      { date: "2024-09-20", delta: +8,  reason: "Tham gia sự kiện cộng đồng" },
+      { date: "2024-08-05", delta: +3,  reason: "Được đánh giá tích cực" },
     ],
     updatedAt: "2024-12-01T10:00:00Z",
   },
 ];
-
-// ─── Tier thresholds ──────────────────────────────────────────────────────────
-
-function calcTier(score: number): Reputation["tier"] {
-  if (score >= 500) return "diamond";
-  if (score >= 200) return "platinum";
-  if (score >= 100) return "gold";
-  if (score >= 50) return "silver";
-  return "bronze";
-}
 
 // ─── Mock implementation ──────────────────────────────────────────────────────
 
@@ -68,11 +59,11 @@ export class MockReputationRepository implements IReputationRepository {
     SEED_REPUTATIONS.map((r) => [r.userId, { ...r, history: [...r.history] }]),
   );
 
-  async findByUserId(userId: string): Promise<Reputation | null> {
+  async getByUserId(userId: string): Promise<Reputation | null> {
     return this.store.get(userId) ?? null;
   }
 
-  async save(reputation: Reputation): Promise<Reputation> {
+  async create(reputation: Reputation): Promise<Reputation> {
     const record: Reputation = {
       ...reputation,
       tier: calcTier(reputation.score),
@@ -82,11 +73,18 @@ export class MockReputationRepository implements IReputationRepository {
     return record;
   }
 
-  async updateScore(
-    userId: string,
-    delta: number,
-    reason: string,
-  ): Promise<Reputation | null> {
+  async update(reputation: Reputation): Promise<Reputation | null> {
+    if (!this.store.has(reputation.userId)) return null;
+    const updated: Reputation = {
+      ...reputation,
+      tier: calcTier(reputation.score),
+      updatedAt: new Date().toISOString(),
+    };
+    this.store.set(reputation.userId, updated);
+    return updated;
+  }
+
+  async applyScoreDelta(userId: string, delta: number, reason: string): Promise<Reputation | null> {
     const existing = this.store.get(userId);
     if (!existing) return null;
 
@@ -101,12 +99,11 @@ export class MockReputationRepository implements IReputationRepository {
       ...existing,
       score: newScore,
       tier: calcTier(newScore),
-      upvotes: delta > 0 ? existing.upvotes + 1 : existing.upvotes,
+      upvotes:   delta > 0 ? existing.upvotes + 1   : existing.upvotes,
       downvotes: delta < 0 ? existing.downvotes + 1 : existing.downvotes,
       history: [entry, ...existing.history],
       updatedAt: new Date().toISOString(),
     };
-
     this.store.set(userId, updated);
     return updated;
   }
@@ -115,7 +112,6 @@ export class MockReputationRepository implements IReputationRepository {
     const existing = this.store.get(userId);
     if (!existing) return null;
     if (existing.badges.includes(badgeId)) return existing;
-
     const updated: Reputation = {
       ...existing,
       badges: [...existing.badges, badgeId],
@@ -125,13 +121,9 @@ export class MockReputationRepository implements IReputationRepository {
     return updated;
   }
 
-  async removeBadge(
-    userId: string,
-    badgeId: string,
-  ): Promise<Reputation | null> {
+  async removeBadge(userId: string, badgeId: string): Promise<Reputation | null> {
     const existing = this.store.get(userId);
     if (!existing) return null;
-
     const updated: Reputation = {
       ...existing,
       badges: existing.badges.filter((b) => b !== badgeId),
@@ -141,16 +133,10 @@ export class MockReputationRepository implements IReputationRepository {
     return updated;
   }
 
-  async getHistory(
-    userId: string,
-    limit = 20,
-  ): Promise<ReputationHistoryEntry[]> {
+  async getHistory(userId: string, limit = 20): Promise<ReputationHistoryEntry[]> {
     return (this.store.get(userId)?.history ?? []).slice(0, limit);
   }
 }
 
-// ─── Singleton ────────────────────────────────────────────────────────────────
-// Swap MockReputationRepository for DrizzleReputationRepository here when ready.
-
-export const reputationRepository: IReputationRepository =
-  new MockReputationRepository();
+// ─── Singleton (swap here for Drizzle) ───────────────────────────────────────
+export const reputationRepository: IReputationRepository = new MockReputationRepository();

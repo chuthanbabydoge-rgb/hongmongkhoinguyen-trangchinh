@@ -1,32 +1,32 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Account Service
 //
-// Orchestrates user account data across the four repositories.
-// Controllers call this service; the service calls repositories.
+// Orchestrates all account-domain repositories via constructor injection.
+// No repository is imported directly — all dependencies arrive through the
+// constructor so the real implementations can be swapped without touching
+// this file.
 //
 // Architecture:
-//   Controller → accountService → [userRepository, reputationRepository,
-//                                   walletReferenceRepository,
-//                                   inventoryReferenceRepository]
+//   Controller → AccountService → [IUserRepository, IAvatarRepository,
+//                                   IReputationRepository, IWalletRepository,
+//                                   IInventoryRepository]
 //
-// PostgreSQL migration path:
-//   Only the repository singletons need to change.  This service and its
-//   callers remain unchanged.
+// Usage:
+//   Instantiate via container.ts — do not `new AccountService(...)` elsewhere.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { userRepository } from "../repositories/userRepository";
-import { reputationRepository } from "../repositories/reputationRepository";
-import { walletReferenceRepository } from "../repositories/walletReferenceRepository";
-import { inventoryReferenceRepository } from "../repositories/inventoryReferenceRepository";
+import type { IUserRepository }        from "../repositories/userRepository";
+import type { IAvatarRepository }      from "../repositories/avatarRepository";
+import type { IReputationRepository }  from "../repositories/reputationRepository";
+import type { IWalletRepository }      from "../repositories/walletRepository";
+import type { IInventoryRepository }   from "../repositories/inventoryRepository";
 
-import type { User, Avatar } from "../models/user";
-import type { Reputation } from "../models/reputation";
-import type { WalletReference } from "../models/walletReference";
-import type { InventoryReference } from "../models/inventoryReference";
+import type { User, Avatar }           from "../models/user";
+import type { Reputation }             from "../models/reputation";
+import type { WalletReference }        from "../models/walletReference";
+import type { InventoryReference }     from "../models/inventoryReference";
 
 // ─── Aggregate view ───────────────────────────────────────────────────────────
-// A single object that combines all account-related data.
-// Used by endpoints that need the full picture in one call.
 
 export interface AccountSnapshot {
   user: User;
@@ -36,37 +36,21 @@ export interface AccountSnapshot {
   inventoryRef: InventoryReference | null;
 }
 
-// ─── Service functions ────────────────────────────────────────────────────────
+// ─── Default fallbacks ────────────────────────────────────────────────────────
 
-/**
- * Fetch the full account snapshot for a user in a single call.
- * All repository reads are parallelised.
- */
-export async function getAccountSnapshot(
-  userId: string,
-): Promise<AccountSnapshot | null> {
-  const [user, avatar, reputation, walletRef, inventoryRef] = await Promise.all(
-    [
-      userRepository.findById(userId),
-      userRepository.findAvatarByUserId(userId),
-      reputationRepository.findByUserId(userId),
-      walletReferenceRepository.findByUserId(userId),
-      inventoryReferenceRepository.findByUserId(userId),
-    ],
-  );
-
-  if (!user) return null;
-
-  const resolvedAvatar: Avatar = avatar ?? {
-    userId,
+function defaultAvatar(user: User): Avatar {
+  return {
+    userId: user.id,
     initials: user.username.slice(0, 2).toUpperCase(),
     imageUrl: null,
     frameColor: "#7c3aed",
     badgeIcon: null,
     updatedAt: user.updatedAt,
   };
+}
 
-  const resolvedReputation: Reputation = reputation ?? {
+function defaultReputation(userId: string, updatedAt: string): Reputation {
+  return {
     userId,
     score: 0,
     tier: "bronze",
@@ -74,88 +58,100 @@ export async function getAccountSnapshot(
     downvotes: 0,
     badges: [],
     history: [],
-    updatedAt: user.updatedAt,
-  };
-
-  return {
-    user,
-    avatar: resolvedAvatar,
-    reputation: resolvedReputation,
-    walletRef,
-    inventoryRef,
+    updatedAt,
   };
 }
 
-/**
- * Fetch only the user record + avatar.
- */
-export async function getUser(
-  userId: string,
-): Promise<{ user: User; avatar: Avatar } | null> {
-  const [user, avatar] = await Promise.all([
-    userRepository.findById(userId),
-    userRepository.findAvatarByUserId(userId),
-  ]);
+// ─── Service class ────────────────────────────────────────────────────────────
 
-  if (!user) return null;
+export class AccountService {
+  constructor(
+    private readonly users: IUserRepository,
+    private readonly avatars: IAvatarRepository,
+    private readonly reputations: IReputationRepository,
+    private readonly wallets: IWalletRepository,
+    private readonly inventories: IInventoryRepository,
+  ) {}
 
-  return {
-    user,
-    avatar: avatar ?? {
-      userId,
-      initials: user.username.slice(0, 2).toUpperCase(),
-      imageUrl: null,
-      frameColor: "#7c3aed",
-      badgeIcon: null,
-      updatedAt: user.updatedAt,
-    },
-  };
-}
+  /**
+   * Full account snapshot — all five repositories in a single parallel fetch.
+   */
+  async getAccountSnapshot(userId: string): Promise<AccountSnapshot | null> {
+    const [user, avatar, reputation, walletRef, inventoryRef] =
+      await Promise.all([
+        this.users.getById(userId),
+        this.avatars.getByUserId(userId),
+        this.reputations.getByUserId(userId),
+        this.wallets.getByUserId(userId),
+        this.inventories.getByUserId(userId),
+      ]);
 
-/**
- * Fetch reputation details for a user.
- */
-export async function getReputation(
-  userId: string,
-): Promise<Reputation | null> {
-  return reputationRepository.findByUserId(userId);
-}
+    if (!user) return null;
 
-/**
- * Fetch wallet reference (balance snapshot) for a user.
- */
-export async function getWalletReference(
-  userId: string,
-): Promise<WalletReference | null> {
-  return walletReferenceRepository.findByUserId(userId);
-}
+    return {
+      user,
+      avatar:     avatar      ?? defaultAvatar(user),
+      reputation: reputation  ?? defaultReputation(userId, user.updatedAt),
+      walletRef,
+      inventoryRef,
+    };
+  }
 
-/**
- * Fetch inventory reference (item count snapshot) for a user.
- */
-export async function getInventoryReference(
-  userId: string,
-): Promise<InventoryReference | null> {
-  return inventoryReferenceRepository.findByUserId(userId);
-}
+  /**
+   * User record + avatar only (lightweight).
+   */
+  async getUser(userId: string): Promise<{ user: User; avatar: Avatar } | null> {
+    const [user, avatar] = await Promise.all([
+      this.users.getById(userId),
+      this.avatars.getByUserId(userId),
+    ]);
+    if (!user) return null;
+    return { user, avatar: avatar ?? defaultAvatar(user) };
+  }
 
-/**
- * Apply a reputation score change for a user.
- */
-export async function applyReputationDelta(
-  userId: string,
-  delta: number,
-  reason: string,
-): Promise<Reputation | null> {
-  return reputationRepository.updateScore(userId, delta, reason);
-}
+  /**
+   * Reputation for a user.
+   */
+  async getReputation(userId: string): Promise<Reputation | null> {
+    return this.reputations.getByUserId(userId);
+  }
 
-/**
- * Grant a badge to a user.
- */
-export async function grantBadge(
-  userId: string,
-  badgeId: string,
-): Promise<Reputation | null> {
-  return reputationRepository.addBadge(userId, badgeId);
+  /**
+   * Wallet balance snapshot.
+   */
+  async getWalletReference(userId: string): Promise<WalletReference | null> {
+    return this.wallets.getByUserId(userId);
+  }
+
+  /**
+   * Inventory count snapshot.
+   */
+  async getInventoryReference(userId: string): Promise<InventoryReference | null> {
+    return this.inventories.getByUserId(userId);
+  }
+
+  /**
+   * Apply a reputation score delta (+/-) with an audit reason.
+   */
+  async applyReputationDelta(
+    userId: string,
+    delta: number,
+    reason: string,
+  ): Promise<Reputation | null> {
+    return this.reputations.applyScoreDelta(userId, delta, reason);
+  }
+
+  /**
+   * Grant a badge to a user.
+   */
+  async grantBadge(userId: string, badgeId: string): Promise<Reputation | null> {
+    return this.reputations.addBadge(userId, badgeId);
+  }
+
+  /**
+   * Revoke a badge from a user.
+   */
+  async revokeBadge(userId: string, badgeId: string): Promise<Reputation | null> {
+    return this.reputations.removeBadge(userId, badgeId);
+  }
 }

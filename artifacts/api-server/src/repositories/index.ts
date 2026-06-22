@@ -2,26 +2,17 @@
 // Repositories barrel export
 // ─────────────────────────────────────────────────────────────────────────────
 
-export {
-  userRepository,
-  MockUserRepository,
-} from "./userRepository";
-export type { IUserRepository } from "./userRepository";
+export { userRepository, MockUserRepository }       from "./userRepository";
+export type { IUserRepository }                     from "./userRepository";
 
-export {
-  reputationRepository,
-  MockReputationRepository,
-} from "./reputationRepository";
-export type { IReputationRepository } from "./reputationRepository";
+export { avatarRepository, MockAvatarRepository }   from "./avatarRepository";
+export type { IAvatarRepository }                   from "./avatarRepository";
 
-export {
-  walletReferenceRepository,
-  MockWalletReferenceRepository,
-} from "./walletReferenceRepository";
-export type { IWalletReferenceRepository } from "./walletReferenceRepository";
+export { reputationRepository, MockReputationRepository } from "./reputationRepository";
+export type { IReputationRepository }               from "./reputationRepository";
 
-export {
-  inventoryReferenceRepository,
-  MockInventoryReferenceRepository,
-} from "./inventoryReferenceRepository";
-export type { IInventoryReferenceRepository } from "./inventoryReferenceRepository";
+export { walletRepository, MockWalletRepository }   from "./walletRepository";
+export type { IWalletRepository }                   from "./walletRepository";
+
+export { inventoryRepository, MockInventoryRepository } from "./inventoryRepository";
+export type { IInventoryRepository }                from "./inventoryRepository";
