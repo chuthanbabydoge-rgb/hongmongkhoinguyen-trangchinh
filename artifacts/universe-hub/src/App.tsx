@@ -29,6 +29,7 @@ import Listings from "@/pages/marketplace/Listings";
 import Auctions from "@/pages/marketplace/Auctions";
 import MarketplaceTransactions from "@/pages/marketplace/MarketplaceTransactions";
 import MarketplaceAnalytics from "@/pages/marketplace/MarketplaceAnalytics";
+import Trades from "@/pages/marketplace/Trades";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -59,6 +60,7 @@ function Router() {
       <Route path="/marketplace/auctions" component={Auctions} />
       <Route path="/marketplace/transactions" component={MarketplaceTransactions} />
       <Route path="/marketplace/analytics" component={MarketplaceAnalytics} />
+      <Route path="/marketplace/trades" component={Trades} />
       <Route component={NotFound} />
     </Switch>
   );

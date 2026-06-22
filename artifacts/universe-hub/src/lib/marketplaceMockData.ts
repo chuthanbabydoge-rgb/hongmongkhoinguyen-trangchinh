@@ -359,6 +359,216 @@ export const AUCTIONS: Auction[] = [
   },
 ];
 
+// ─── Rich Trade ───────────────────────────────────────────────────────────────
+
+export interface TradeItem {
+  name:     string;
+  image:    string;
+  category: ListingCategory;
+  rarity:   MarketRarity;
+  value:    number;
+}
+
+export interface RichTrade {
+  id:        string;
+  offered:   TradeItem;
+  requested: TradeItem;
+  from:      string;
+  fromAvatar:string;
+  to:        string;
+  toAvatar:  string;
+  status:    "pending" | "accepted" | "declined" | "cancelled" | "expired";
+  message:   string;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export const CURRENT_USER = "CommanderZara";
+export const CURRENT_AVATAR = "CZ";
+
+export const RICH_TRADES: RichTrade[] = [
+  // ── Open (CZ is recipient, pending) ──────────────────────────────────────
+  {
+    id: "RT-001", status: "pending",
+    offered:   { name: "Infernox – Rồng lửa Thần thoại",   image: "🐉", category: "pets",         rarity: "mythic",    value: 980000 },
+    requested: { name: "Kiếm Thần Thoại Vũ Trụ",           image: "🗡️", category: "items",        rarity: "mythic",    value: 2650000 },
+    from: "DarkElf_V", fromAvatar: "DE", to: CURRENT_USER, toAvatar: CURRENT_AVATAR,
+    message: "Tôi sẵn sàng đổi thêm 500K CR nếu cần!", createdAt: daysAgo(0.5), expiresAt: hoursFromNow(6 * 24 - 12),
+  },
+  {
+    id: "RT-002", status: "pending",
+    offered:   { name: "El Dios – Cầu thủ Thần thoại",     image: "👑", category: "football",     rarity: "mythic",    value: 2350000 },
+    requested: { name: "Vé Chung Kết Universe VIP",         image: "🏆", category: "tickets",      rarity: "mythic",    value: 420000 },
+    from: "FootballBoss", fromAvatar: "FB", to: CURRENT_USER, toAvatar: CURRENT_AVATAR,
+    message: "Tôi cần vé này cho sự kiện tuần sau!", createdAt: daysAgo(1), expiresAt: hoursFromNow(5 * 24),
+  },
+  {
+    id: "RT-003", status: "pending",
+    offered:   { name: "Sân Vận Động Vũ Trụ",              image: "🏟️", category: "world-assets", rarity: "legendary", value: 1750000 },
+    requested: { name: "Giáp Vĩnh Cửu",                   image: "🛡️", category: "items",        rarity: "mythic",    value: 2200000 },
+    from: "CosmicRich", fromAvatar: "CR", to: CURRENT_USER, toAvatar: CURRENT_AVATAR,
+    message: "Đổi 1-1, sân vận động có giá trị tương đương!", createdAt: daysAgo(1.5), expiresAt: hoursFromNow(4.5 * 24),
+  },
+  {
+    id: "RT-004", status: "pending",
+    offered:   { name: "Aqua Belle – Tiên cá Huyền thoại", image: "🧜", category: "pets",         rarity: "legendary", value: 640000 },
+    requested: { name: "Tinh Thạch Huyền Bí x10",          image: "💠", category: "items",        rarity: "epic",      value: 290000 },
+    from: "OceanQueen", fromAvatar: "OQ", to: CURRENT_USER, toAvatar: CURRENT_AVATAR,
+    message: "Aqua Belle rất hiếm – deal tốt đó!", createdAt: daysAgo(2), expiresAt: hoursFromNow(3 * 24),
+  },
+  {
+    id: "RT-005", status: "pending",
+    offered:   { name: "Kai Müller – CM Huyền thoại",      image: "⚽", category: "football",     rarity: "legendary", value: 870000 },
+    requested: { name: "Son Heung-Min – RW Huyền thoại",   image: "⚽", category: "football",     rarity: "legendary", value: 680000 },
+    from: "GermanKing", fromAvatar: "GK", to: CURRENT_USER, toAvatar: CURRENT_AVATAR,
+    message: "Đổi CM lấy RW, tôi nghĩ đây là giao dịch công bằng.", createdAt: daysAgo(2.5), expiresAt: hoursFromNow(2.5 * 24),
+  },
+  {
+    id: "RT-006", status: "pending",
+    offered:   { name: "Luminos Prime – Phượng hoàng",     image: "🔥", category: "pets",         rarity: "mythic",    value: 1420000 },
+    requested: { name: "Mỏ Tinh Thể Vũ Trụ",              image: "💎", category: "world-assets", rarity: "legendary", value: 2100000 },
+    from: "PhantomBid", fromAvatar: "PB", to: CURRENT_USER, toAvatar: CURRENT_AVATAR,
+    message: "Phượng hoàng Mythic cực hiếm – hàng độc!", createdAt: daysAgo(3), expiresAt: hoursFromNow(24),
+  },
+  {
+    id: "RT-007", status: "pending",
+    offered:   { name: "Bản Đồ Kho Báu Huyền Thoại x2",   image: "🗺️", category: "items",        rarity: "legendary", value: 620000 },
+    requested: { name: "Vé Giải Đấu Pet Huyền Thoại",     image: "🎫", category: "tickets",      rarity: "legendary", value: 380000 },
+    from: "TreasureHunter", fromAvatar: "TH", to: CURRENT_USER, toAvatar: CURRENT_AVATAR,
+    message: "2 bản đồ x1 vé – bạn có lãi!", createdAt: daysAgo(3.5), expiresAt: hoursFromNow(12),
+  },
+
+  // ── Pending (CZ sent the offer, waiting for reply) ────────────────────────
+  {
+    id: "RT-008", status: "pending",
+    offered:   { name: "Voltrix – Sói Sấm Huyền thoại",   image: "🐺", category: "pets",         rarity: "legendary", value: 570000 },
+    requested: { name: "Đảo Rồng",                         image: "🏝️", category: "world-assets", rarity: "legendary", value: 1280000 },
+    from: CURRENT_USER, fromAvatar: CURRENT_AVATAR, to: "IslandKing", toAvatar: "IK",
+    message: "Voltrix rất mạnh – hy vọng bạn thích!", createdAt: daysAgo(0.3), expiresAt: hoursFromNow(6.5 * 24),
+  },
+  {
+    id: "RT-009", status: "pending",
+    offered:   { name: "Frostmaw – Gấu Băng Huyền thoại", image: "🐻", category: "pets",         rarity: "legendary", value: 555000 },
+    requested: { name: "Đền Cổ Đại Luminos",               image: "⛩️", category: "world-assets", rarity: "epic",      value: 590000 },
+    from: CURRENT_USER, fromAvatar: CURRENT_AVATAR, to: "AncientOne", toAvatar: "AO",
+    message: "Trao đổi ngang giá, tôi nghĩ đây rất hợp lý.", createdAt: daysAgo(1), expiresAt: hoursFromNow(5 * 24),
+  },
+  {
+    id: "RT-010", status: "pending",
+    offered:   { name: "Shadowfang – Mèo Bóng Đêm",       image: "🐱", category: "pets",         rarity: "legendary", value: 490000 },
+    requested: { name: "Pháo Đài Thiên Không",             image: "🏰", category: "world-assets", rarity: "legendary", value: 1150000 },
+    from: CURRENT_USER, fromAvatar: CURRENT_AVATAR, to: "SkyGuard_X", toAvatar: "SG",
+    message: "Shadowfang exclusive không mua được nữa!", createdAt: daysAgo(1.5), expiresAt: hoursFromNow(4.5 * 24),
+  },
+  {
+    id: "RT-011", status: "pending",
+    offered:   { name: "Giày Tốc Độ Sấm Sét",             image: "👟", category: "items",        rarity: "epic",      value: 79000 },
+    requested: { name: "Nhẫn Sức Mạnh Huyền Bí",          image: "💍", category: "items",        rarity: "epic",      value: 65000 },
+    from: CURRENT_USER, fromAvatar: CURRENT_AVATAR, to: "RingForge", toAvatar: "RF",
+    message: "Đổi item epic lấy item epic nhé!", createdAt: daysAgo(2), expiresAt: hoursFromNow(4 * 24),
+  },
+  {
+    id: "RT-012", status: "pending",
+    offered:   { name: "Đá Linh Hồn Nguyên Thủy Mythic x3", image: "🔮", category: "items",      rarity: "mythic",    value: 920000 },
+    requested: { name: "Novalynx – Mèo Thiên Hà Mythic",  image: "🦁", category: "pets",         rarity: "mythic",    value: 1100000 },
+    from: CURRENT_USER, fromAvatar: CURRENT_AVATAR, to: "NightHunter_K", toAvatar: "NK",
+    message: "3 đá Mythic rare lắm – cân nhắc nhé bạn!", createdAt: daysAgo(2.5), expiresAt: hoursFromNow(3.5 * 24),
+  },
+  {
+    id: "RT-013", status: "pending",
+    offered:   { name: "Cây Quyền Trượng Hỗn Nguyên",     image: "🪄", category: "items",        rarity: "mythic",    value: 1800000 },
+    requested: { name: "Tháp Thiên Hà Nguyên Thủy",       image: "🗼", category: "world-assets", rarity: "mythic",    value: 9200000 },
+    from: CURRENT_USER, fromAvatar: CURRENT_AVATAR, to: "CosmicLord_7", toAvatar: "CL",
+    message: "Biết là giá khác xa nhau nhưng Quyền Trượng cực kỳ hiếm!", createdAt: daysAgo(3), expiresAt: hoursFromNow(3 * 24),
+  },
+  {
+    id: "RT-014", status: "pending",
+    offered:   { name: "Stormclaw – Sư Tử Giông Bão Epic", image: "🦁", category: "pets",        rarity: "epic",      value: 210000 },
+    requested: { name: "Vé Galaxy Music Festival",         image: "🎵", category: "tickets",      rarity: "legendary", value: 155000 },
+    from: CURRENT_USER, fromAvatar: CURRENT_AVATAR, to: "MusicLover", toAvatar: "ML",
+    message: "Pet Epic lấy vé nhạc, win-win!", createdAt: daysAgo(3.5), expiresAt: hoursFromNow(2.5 * 24),
+  },
+
+  // ── Completed ─────────────────────────────────────────────────────────────
+  {
+    id: "RT-015", status: "accepted",
+    offered:   { name: "Crystaline – Bướm Tinh Thể Rare",  image: "🦋", category: "pets",        rarity: "rare",      value: 82000 },
+    requested: { name: "Pyrex – Cáo Lửa Rare",             image: "🦊", category: "pets",        rarity: "rare",      value: 95000 },
+    from: CURRENT_USER, fromAvatar: CURRENT_AVATAR, to: "PetShop_X", toAvatar: "PX",
+    message: "Đổi rare pet!", createdAt: daysAgo(5), expiresAt: daysAgo(0),
+  },
+  {
+    id: "RT-016", status: "accepted",
+    offered:   { name: "Luis Vargas – GK Iron Wall",        image: "🧤", category: "football",   rarity: "legendary", value: 450000 },
+    requested: { name: "Yuki Tanaka – LW Speed",            image: "⚽", category: "football",   rarity: "legendary", value: 510000 },
+    from: "WarGod_X", fromAvatar: "WG", to: CURRENT_USER, toAvatar: CURRENT_AVATAR,
+    message: "GK lấy LW – hoán đổi vị trí!", createdAt: daysAgo(6), expiresAt: daysAgo(0),
+  },
+  {
+    id: "RT-017", status: "accepted",
+    offered:   { name: "Giáp Rồng Đen",                    image: "🛡️", category: "items",       rarity: "legendary", value: 820000 },
+    requested: { name: "Thuốc Tăng Sức Mạnh Cấp S x5",    image: "⚗️", category: "items",       rarity: "epic",      value: 52000 },
+    from: CURRENT_USER, fromAvatar: CURRENT_AVATAR, to: "AlchemistPro", toAvatar: "AP",
+    message: "Giáp đổi potion nhé!", createdAt: daysAgo(8), expiresAt: daysAgo(0),
+  },
+  {
+    id: "RT-018", status: "declined",
+    offered:   { name: "Tháp Ngân Hà",                     image: "🌌", category: "world-assets", rarity: "legendary", value: 980000 },
+    requested: { name: "Hầm Ngục Rồng Cổ Đại",            image: "🏚️", category: "world-assets", rarity: "legendary", value: 1580000 },
+    from: CURRENT_USER, fromAvatar: CURRENT_AVATAR, to: "DungeonLord", toAvatar: "DL",
+    message: "Tháp Ngân Hà lấy Hầm Ngục?", createdAt: daysAgo(10), expiresAt: daysAgo(3),
+  },
+  {
+    id: "RT-019", status: "declined",
+    offered:   { name: "Đảo Nổi Mây – Rare Land",         image: "☁️", category: "world-assets", rarity: "rare",     value: 168000 },
+    requested: { name: "Mỏ Kim Cương Alpha",               image: "💠", category: "world-assets", rarity: "legendary", value: 2100000 },
+    from: CURRENT_USER, fromAvatar: CURRENT_AVATAR, to: "DiamondHunter", toAvatar: "DH",
+    message: "Thử may mắn 😄", createdAt: daysAgo(12), expiresAt: daysAgo(5),
+  },
+  {
+    id: "RT-020", status: "cancelled",
+    offered:   { name: "Vé Hòa Nhạc Ánh Sao",             image: "🎻", category: "tickets",     rarity: "epic",      value: 55000 },
+    requested: { name: "Vé Pet Battle Championship",       image: "⚔️", category: "tickets",     rarity: "epic",      value: 64000 },
+    from: CURRENT_USER, fromAvatar: CURRENT_AVATAR, to: "BattleFan_Z", toAvatar: "BF",
+    message: "Đổi vé sự kiện!", createdAt: daysAgo(14), expiresAt: daysAgo(7),
+  },
+  {
+    id: "RT-021", status: "expired",
+    offered:   { name: "Park Joon-Ho – Epic RW",           image: "⚽", category: "football",    rarity: "epic",      value: 275000 },
+    requested: { name: "Adama Diallo – CDM Epic",          image: "⚽", category: "football",    rarity: "epic",      value: 305000 },
+    from: CURRENT_USER, fromAvatar: CURRENT_AVATAR, to: "MidBlock_X", toAvatar: "MB",
+    message: "Epic lấy epic – cân bằng đội hình!", createdAt: daysAgo(15), expiresAt: daysAgo(8),
+  },
+  {
+    id: "RT-022", status: "accepted",
+    offered:   { name: "Trái Tim Tinh Thể x8",             image: "💎", category: "items",       rarity: "rare",      value: 20000 },
+    requested: { name: "Hầm Kho Báu Cổ",                  image: "🏺", category: "world-assets", rarity: "rare",     value: 148000 },
+    from: "TreasureSeeker", fromAvatar: "TS", to: CURRENT_USER, toAvatar: CURRENT_AVATAR,
+    message: "8 crystal lấy kho báu nhé!", createdAt: daysAgo(18), expiresAt: daysAgo(11),
+  },
+  {
+    id: "RT-023", status: "declined",
+    offered:   { name: "Rừng Tinh Linh – Epic Land",      image: "🌲", category: "world-assets",  rarity: "epic",     value: 455000 },
+    requested: { name: "Đồng Bằng Tinh Khiết",            image: "🌾", category: "world-assets",  rarity: "rare",     value: 168000 },
+    from: "NatureOwner", fromAvatar: "NO", to: CURRENT_USER, toAvatar: CURRENT_AVATAR,
+    message: "Land đổi land nhé!", createdAt: daysAgo(20), expiresAt: daysAgo(13),
+  },
+  {
+    id: "RT-024", status: "expired",
+    offered:   { name: "Bộ Giáp Vĩnh Cửu Fragment",       image: "🛡️", category: "items",       rarity: "epic",      value: 168000 },
+    requested: { name: "Nhẫn Sức Mạnh Huyền Bí",          image: "💍", category: "items",       rarity: "epic",      value: 65000 },
+    from: "ArmorCollect", fromAvatar: "AC", to: CURRENT_USER, toAvatar: CURRENT_AVATAR,
+    message: "Fragment đổi ring!", createdAt: daysAgo(22), expiresAt: daysAgo(15),
+  },
+  {
+    id: "RT-025", status: "cancelled",
+    offered:   { name: "Vé Đấu Giá Universe Pass",        image: "🎟️", category: "tickets",     rarity: "legendary", value: 280000 },
+    requested: { name: "Crystaline – Bướm Tinh Thể",      image: "🦋", category: "pets",        rarity: "rare",      value: 82000 },
+    from: "EventMaster", fromAvatar: "EM", to: CURRENT_USER, toAvatar: CURRENT_AVATAR,
+    message: "Pass lấy pet nhé!", createdAt: daysAgo(25), expiresAt: daysAgo(18),
+  },
+];
+
 // ─── Trades (20) ─────────────────────────────────────────────────────────────
 
 export const TRADES: Trade[] = [

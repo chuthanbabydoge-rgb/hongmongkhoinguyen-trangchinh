@@ -25,6 +25,7 @@ import {
   Gavel,
   Receipt,
   Store,
+  Repeat2,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -124,6 +125,7 @@ export function Sidebar() {
           <NavItem icon={Store}       label="Bảng điều khiển Chợ" path="/marketplace" />
           <NavItem icon={ShoppingBag} label="Danh sách sản phẩm"  path="/marketplace/listings" />
           <NavItem icon={Gavel}       label="Đấu giá"             path="/marketplace/auctions" />
+          <NavItem icon={Repeat2}     label="Trao đổi"            path="/marketplace/trades" />
           <NavItem icon={Receipt}     label="Giao dịch"           path="/marketplace/transactions" />
           <NavItem icon={BarChart3}   label="Phân tích Chợ"       path="/marketplace/analytics" />
         </div>
