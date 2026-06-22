@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Supabase Reputation Repository
 //
-// Table: reputation
+// Table: reputations
 // Columns:
 //   user_id, score, tier, upvotes, downvotes, badges (text[]), history (jsonb),
 //   updated_at
@@ -12,7 +12,7 @@
 // Supabase Edge Function or Postgres trigger for atomic increments.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { getSupabaseClient } from "../../database/supabase";
+import { getSupabaseClient, isValidUuid } from "../../database/supabase";
 import type { IReputationRepository } from "../reputationRepository";
 import type { Reputation, ReputationHistoryEntry } from "../../models/reputation";
 
@@ -60,8 +60,9 @@ export class SupabaseReputationRepository implements IReputationRepository {
   private get db() { return getSupabaseClient(); }
 
   async getByUserId(userId: string): Promise<Reputation | null> {
+    if (!isValidUuid(userId)) return null;
     const { data, error } = await this.db
-      .from("reputation")
+      .from("reputations")
       .select("*")
       .eq("user_id", userId)
       .maybeSingle();
@@ -71,7 +72,7 @@ export class SupabaseReputationRepository implements IReputationRepository {
 
   async create(reputation: Reputation): Promise<Reputation> {
     const { data, error } = await this.db
-      .from("reputation")
+      .from("reputations")
       .insert({ ...toRow(reputation), tier: calcTier(reputation.score) })
       .select()
       .single();
@@ -81,7 +82,7 @@ export class SupabaseReputationRepository implements IReputationRepository {
 
   async update(reputation: Reputation): Promise<Reputation | null> {
     const { data, error } = await this.db
-      .from("reputation")
+      .from("reputations")
       .update({ ...toRow(reputation), tier: calcTier(reputation.score) })
       .eq("user_id", reputation.userId)
       .select()

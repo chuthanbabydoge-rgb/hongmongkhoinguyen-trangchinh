@@ -7,7 +7,7 @@
 //   digital_asset_count, item_count, total_count, last_synced_at
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { getSupabaseClient } from "../../database/supabase";
+import { getSupabaseClient, isValidUuid } from "../../database/supabase";
 import type { IInventoryRepository } from "../inventoryRepository";
 import type { InventoryReference, InventoryItemCounts } from "../../models/inventoryReference";
 
@@ -49,6 +49,7 @@ export class SupabaseInventoryRepository implements IInventoryRepository {
   private get db() { return getSupabaseClient(); }
 
   async getByUserId(userId: string): Promise<InventoryReference | null> {
+    if (!isValidUuid(userId)) return null;
     const { data, error } = await this.db
       .from("inventories")
       .select("*")

@@ -9,6 +9,8 @@ export async function handleGetProfile(req: Request, res: Response): Promise<voi
     const profile = await profileService.getProfile(userId);
     res.json({ ok: true, data: profile });
   } catch (err) {
-    res.status(500).json({ ok: false, error: "Không thể tải hồ sơ người dùng." });
+    const msg = err instanceof Error ? err.message : String(err);
+    req.log.error({ err }, `profileController error: ${msg}`);
+    res.status(500).json({ ok: false, error: "Không thể tải hồ sơ người dùng.", detail: msg });
   }
 }

@@ -7,7 +7,7 @@
 //   joined_at, created_at, updated_at
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { getSupabaseClient } from "../../database/supabase";
+import { getSupabaseClient, isValidUuid } from "../../database/supabase";
 import type { IUserRepository } from "../userRepository";
 import type { User } from "../../models/user";
 
@@ -50,6 +50,7 @@ export class SupabaseUserRepository implements IUserRepository {
   private get db() { return getSupabaseClient(); }
 
   async getById(id: string): Promise<User | null> {
+    if (!isValidUuid(id)) return null;
     const { data, error } = await this.db
       .from("users")
       .select("*")

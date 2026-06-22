@@ -6,7 +6,7 @@
 //   user_id, wallet_id, credits, coins, tokens, last_synced_at
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { getSupabaseClient } from "../../database/supabase";
+import { getSupabaseClient, isValidUuid } from "../../database/supabase";
 import type { IWalletRepository } from "../walletRepository";
 import type { WalletReference, WalletCurrency } from "../../models/walletReference";
 
@@ -42,6 +42,7 @@ export class SupabaseWalletRepository implements IWalletRepository {
   private get db() { return getSupabaseClient(); }
 
   async getByUserId(userId: string): Promise<WalletReference | null> {
+    if (!isValidUuid(userId)) return null;
     const { data, error } = await this.db
       .from("wallets")
       .select("*")

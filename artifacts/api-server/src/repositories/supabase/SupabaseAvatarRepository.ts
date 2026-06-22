@@ -6,7 +6,7 @@
 //   user_id, initials, image_url, frame_color, badge_icon, updated_at
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { getSupabaseClient } from "../../database/supabase";
+import { getSupabaseClient, isValidUuid } from "../../database/supabase";
 import type { IAvatarRepository } from "../avatarRepository";
 import type { Avatar } from "../../models/user";
 
@@ -40,6 +40,7 @@ export class SupabaseAvatarRepository implements IAvatarRepository {
   private get db() { return getSupabaseClient(); }
 
   async getByUserId(userId: string): Promise<Avatar | null> {
+    if (!isValidUuid(userId)) return null;
     const { data, error } = await this.db
       .from("avatars")
       .select("*")
