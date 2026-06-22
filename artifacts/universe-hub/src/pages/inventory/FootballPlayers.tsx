@@ -135,7 +135,7 @@ export default function FootballPlayers() {
                 className="w-full pl-8 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder:text-muted-foreground/30 focus:outline-none focus:border-blue-400/40 font-mono" />
             </div>
             <div className="flex flex-wrap gap-2">
-              {(["all", "common", "uncommon", "rare", "epic", "legendary"] as const).map(r => (
+              {(["all", "common", "rare", "epic", "legendary"] as const).map(r => (
                 <Chip key={r} label={r === "all" ? "Tất cả độ hiếm" : RARITY_META[r as Rarity]?.label ?? r} active={filterRarity === r} onClick={() => setFilterRarity(r)} />
               ))}
             </div>

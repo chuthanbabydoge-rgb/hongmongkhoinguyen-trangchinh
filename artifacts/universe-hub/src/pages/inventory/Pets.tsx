@@ -143,7 +143,7 @@ export default function Pets() {
             </div>
             <div className="flex flex-wrap gap-2">
               <SlidersHorizontal className="w-3.5 h-3.5 text-muted-foreground/30 mt-0.5" />
-              {(["all", "common", "uncommon", "rare", "epic", "legendary"] as const).map(r => (
+              {(["all", "common", "rare", "epic", "legendary"] as const).map(r => (
                 <Chip key={r} label={r === "all" ? "Tất cả" : RARITY_META[r as Rarity]?.label ?? r} active={filterRarity === r} onClick={() => setFilterRarity(r)} />
               ))}
             </div>

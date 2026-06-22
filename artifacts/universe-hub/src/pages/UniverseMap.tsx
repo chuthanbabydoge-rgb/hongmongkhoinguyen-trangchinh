@@ -47,12 +47,22 @@ function nodePosition(index: number, total: number) {
   };
 }
 
-function HexPath({ cx, cy, r }: { cx: number; cy: number; r: number }) {
+interface HexPathProps {
+  cx: number;
+  cy: number;
+  r: number;
+  fill?: string;
+  stroke?: string;
+  strokeWidth?: number | string;
+  strokeOpacity?: number | string;
+}
+
+function HexPath({ cx, cy, r, fill, stroke, strokeWidth, strokeOpacity }: HexPathProps) {
   const pts = Array.from({ length: 6 }, (_, i) => {
     const a = (i * Math.PI) / 3 - Math.PI / 6;
     return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
   });
-  return <polygon points={pts.join(" ")} />;
+  return <polygon points={pts.join(" ")} fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeOpacity={strokeOpacity} />;
 }
 
 interface DetailPanelProps {

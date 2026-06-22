@@ -96,7 +96,7 @@ export default function Items() {
     return ITEMS
       .filter(it => {
         if (filterRarity !== "all" && it.rarity !== filterRarity) return false;
-        if (filterCat !== "all" && it.category !== filterCat) return false;
+        if (filterCat !== "all" && it.itemCategory !== filterCat) return false;
         if (search && !it.name.toLowerCase().includes(search.toLowerCase())) return false;
         return true;
       })
@@ -154,7 +154,7 @@ export default function Items() {
               </select>
             </div>
             <div className="flex flex-wrap gap-2">
-              {(["all", "common", "uncommon", "rare", "epic", "legendary"] as const).map(r => (
+              {(["all", "common", "rare", "epic", "legendary"] as const).map(r => (
                 <Chip key={r} label={r === "all" ? "Tất cả" : RARITY_META[r as Rarity]?.label ?? r} active={filterRarity === r} onClick={() => setFilterRarity(r)} />
               ))}
             </div>
