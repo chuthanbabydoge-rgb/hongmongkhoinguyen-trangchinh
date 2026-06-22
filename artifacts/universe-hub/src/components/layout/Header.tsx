@@ -1,11 +1,12 @@
-import { Bell, Search, Menu } from "lucide-react";
+import { Search, Menu } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAccount } from "@/hooks/useAccount";
+import { NotificationDropdown } from "@/components/notifications/NotificationDropdown";
 
 export function Header() {
-  const { profile, avatar, unreadCount, loading } = useAccount();
+  const { profile, avatar, loading } = useAccount();
 
   const initials = avatar?.initials ?? profile?.username?.slice(0, 2).toUpperCase() ?? "..";
   const displayName = profile?.username ?? "";
@@ -26,17 +27,12 @@ export function Header() {
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        {/* Bell with live unread badge */}
-        <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-primary transition-colors">
-          <Bell className="w-5 h-5" />
-          {unreadCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full animate-pulse-slow shadow-[0_0_8px_hsl(var(--primary))]" />
-          )}
-        </Button>
+      <div className="flex items-center gap-2">
+        {/* Notification bell with dropdown */}
+        <NotificationDropdown />
 
         {/* User identity */}
-        <div className="flex items-center gap-3 pl-4 border-l border-white/10">
+        <div className="flex items-center gap-3 pl-3 ml-1 border-l border-white/10">
           <div className="text-right hidden md:block">
             {loading ? (
               <>
