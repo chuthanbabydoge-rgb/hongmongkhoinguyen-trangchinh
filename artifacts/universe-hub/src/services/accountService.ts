@@ -1,13 +1,17 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Universe Account Service
 //
-// Lớp tích hợp tài khoản Universe Hub.
-// Hiện tại sử dụng mock data dựa trên Promise.
-// Để kết nối API thực: thay thế phần thân các hàm trong `UniverseAccountService`
-// bằng lệnh gọi fetch tới endpoint tương ứng.
+// Façade consumed by useAccount().
+// Delegates to profileService and notificationService which call the real API.
+//
+// To swap endpoints: update the underlying services only — this file and
+// useAccount.ts do not need to change.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+import { fetchProfile } from "./profileService";
+import { fetchNotifications } from "./notificationService";
+
+// ─── Frontend types (contract with useAccount / components) ───────────────────
 
 export interface UserProfile {
   id: string;
@@ -68,186 +72,117 @@ export interface Notification {
   createdAt: string;
 }
 
-// ─── Config ──────────────────────────────────────────────────────────────────
+// ─── Rank label map ───────────────────────────────────────────────────────────
 
-/**
- * Đổi BASE_URL thành endpoint thực khi sẵn sàng kết nối.
- * Ví dụ: "https://api.universe.io/v1"
- */
-const API_CONFIG = {
-  BASE_URL: "",
-  MOCK_DELAY_MS: 300,
-} as const;
-
-// ─── Mock data ────────────────────────────────────────────────────────────────
-
-const MOCK_PROFILE: UserProfile = {
-  id: "user-001",
-  username: "HỒNG MÔN SINH LINH",
-  title: "HỒNG MÔNG ĐẠI ĐẠO",
-  status: "online",
-  level: 47,
-  xp: 84320,
-  maxXp: 100000,
-  reputation: 142,
-  joinedAt: "2022-03-15T08:00:00Z",
+const REPUTATION_TIER_RANK: Record<UserReputation["tier"], string> = {
+  bronze:   "Đồng",
+  silver:   "Bạc",
+  gold:     "Ưu tú",
+  platinum: "Bạch kim",
+  diamond:  "Kim cương",
 };
-
-const MOCK_AVATAR: UserAvatar = {
-  userId: "user-001",
-  initials: "CZ",
-  imageUrl: null,
-  frameColor: "#7c3aed",
-  badgeIcon: "shield",
-};
-
-const MOCK_LEVEL: UserLevel = {
-  current: 47,
-  xp: 84320,
-  maxXp: 100000,
-  progressPercent: Math.round((84320 / 100000) * 100),
-  rank: "Ưu tú",
-};
-
-const MOCK_XP: UserXP = {
-  total: 84320,
-  thisWeek: 1240,
-  thisMonth: 4870,
-  lastActivity: new Date().toISOString(),
-};
-
-const MOCK_REPUTATION: UserReputation = {
-  score: 142,
-  tier: "gold",
-  upvotes: 198,
-  downvotes: 12,
-  badges: ["early-adopter", "trader", "explorer"],
-};
-
-const MOCK_NOTIFICATIONS: Notification[] = [
-  {
-    id: "notif-001",
-    type: "reward",
-    title: "Phần thưởng hàng ngày",
-    message: "Bạn nhận được 500 xu từ phần thưởng đăng nhập hàng ngày.",
-    isRead: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-  },
-  {
-    id: "notif-002",
-    type: "marketplace",
-    title: "Giao dịch thành công",
-    message: "Thú cưng Rồng Lửa của bạn đã được bán với giá 12.000 tín dụng.",
-    isRead: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-  },
-  {
-    id: "notif-003",
-    type: "system",
-    title: "Cập nhật hệ thống",
-    message: "Universe Hub v4.8.0 đã phát hành. Nhiều tính năng mới.",
-    isRead: true,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-  },
-  {
-    id: "notif-004",
-    type: "social",
-    title: "Lời mời kết bạn",
-    message: "StarLord99 muốn kết bạn với bạn.",
-    isRead: true,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-  },
-];
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-/**
- * Mô phỏng độ trễ mạng. Xóa khi dùng API thực.
- */
-function simulateDelay<T>(data: T): Promise<T> {
-  return new Promise((resolve) =>
-    setTimeout(() => resolve(data), API_CONFIG.MOCK_DELAY_MS),
-  );
-}
-
-/**
- * Khi dùng API thực, thay thế `simulateDelay` bằng hàm này:
- *
- *   async function apiFetch<T>(path: string): Promise<T> {
- *     const res = await fetch(`${API_CONFIG.BASE_URL}${path}`, {
- *       headers: { Authorization: `Bearer ${getAuthToken()}` },
- *     });
- *     if (!res.ok) throw new Error(`API error ${res.status}: ${path}`);
- *     return res.json() as Promise<T>;
- *   }
- */
 
 // ─── Service class ────────────────────────────────────────────────────────────
 
 class UniverseAccountService {
   /**
-   * Lấy toàn bộ thông tin hồ sơ người dùng.
-   *
-   * API thực: GET /accounts/me
+   * Full user profile — calls GET /api/profile.
    */
   async getUserProfile(): Promise<UserProfile> {
-    return simulateDelay(MOCK_PROFILE);
+    const data = await fetchProfile();
+    return {
+      id: data.id,
+      username: data.username,
+      title: data.title,
+      status: data.status,
+      level: data.level,
+      xp: data.xp,
+      maxXp: data.maxXp,
+      reputation: data.reputation,
+      joinedAt: data.joinedAt,
+    };
   }
 
   /**
-   * Lấy thông tin avatar của người dùng.
-   *
-   * API thực: GET /accounts/me/avatar
+   * Avatar data — derived from GET /api/profile.
    */
   async getUserAvatar(): Promise<UserAvatar> {
-    return simulateDelay(MOCK_AVATAR);
+    const data = await fetchProfile();
+    return {
+      userId: data.id,
+      initials: data.avatar.initials,
+      imageUrl: data.avatar.imageUrl,
+      frameColor: data.avatar.frameColor,
+      badgeIcon: data.badges[0] ?? null,
+    };
   }
 
   /**
-   * Lấy cấp độ và tiến trình XP hiện tại.
-   *
-   * API thực: GET /accounts/me/level
+   * Level + XP progress — derived from GET /api/profile.
    */
   async getUserLevel(): Promise<UserLevel> {
-    return simulateDelay(MOCK_LEVEL);
+    const data = await fetchProfile();
+    return {
+      current: data.level,
+      xp: data.xp,
+      maxXp: data.maxXp,
+      progressPercent: data.progressPercent,
+      rank: REPUTATION_TIER_RANK[data.reputationTier] ?? data.reputationTier,
+    };
   }
 
   /**
-   * Lấy thống kê điểm kinh nghiệm (XP).
-   *
-   * API thực: GET /accounts/me/xp
+   * XP statistics — derived from GET /api/profile.
+   * (thisWeek / thisMonth will be wired to a dedicated endpoint later.)
    */
   async getUserXP(): Promise<UserXP> {
-    return simulateDelay(MOCK_XP);
+    const data = await fetchProfile();
+    return {
+      total: data.xp,
+      thisWeek: 0,
+      thisMonth: 0,
+      lastActivity: new Date().toISOString(),
+    };
   }
 
   /**
-   * Lấy điểm danh tiếng và huy hiệu.
-   *
-   * API thực: GET /accounts/me/reputation
+   * Reputation details — derived from GET /api/profile.
    */
   async getUserReputation(): Promise<UserReputation> {
-    return simulateDelay(MOCK_REPUTATION);
+    const data = await fetchProfile();
+    return {
+      score: data.reputation,
+      tier: data.reputationTier,
+      upvotes: 0,
+      downvotes: 0,
+      badges: data.badges,
+    };
   }
 
   /**
-   * Lấy danh sách thông báo. Trả về chưa đọc trước.
-   *
-   * API thực: GET /accounts/me/notifications?limit=50
+   * Notifications list — calls GET /api/notifications.
+   * Sorted: unread first.
    */
   async getNotifications(): Promise<Notification[]> {
-    const sorted = [...MOCK_NOTIFICATIONS].sort(
-      (a, b) => Number(a.isRead) - Number(b.isRead),
-    );
-    return simulateDelay(sorted);
+    const { notifications } = await fetchNotifications();
+    return notifications
+      .map((n) => ({
+        id: n.id,
+        type: n.type as NotificationType,
+        title: n.title,
+        message: n.message,
+        isRead: n.isRead,
+        createdAt: n.createdAt,
+      }))
+      .sort((a, b) => Number(a.isRead) - Number(b.isRead));
   }
 
   /**
-   * Đếm số thông báo chưa đọc.
+   * Count of unread notifications — derived from GET /api/notifications.
    */
   async getUnreadNotificationCount(): Promise<number> {
-    const notifications = await this.getNotifications();
-    return notifications.filter((n) => !n.isRead).length;
+    const { unreadCount } = await fetchNotifications();
+    return unreadCount;
   }
 }
 
