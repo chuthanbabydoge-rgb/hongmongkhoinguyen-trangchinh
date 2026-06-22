@@ -19,7 +19,7 @@ const BG = () => (
 
 function ItemCard({ item, index }: { item: typeof ITEMS[0]; index: number }) {
   const rm = RARITY_META[item.rarity];
-  const cm = ITEM_CATEGORY_META[item.category];
+  const cm = ITEM_CATEGORY_META[item.itemCategory];
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(index * 0.04, 0.4) }}
@@ -35,7 +35,7 @@ function ItemCard({ item, index }: { item: typeof ITEMS[0]; index: number }) {
 
         <div className="flex items-start gap-3 mb-3">
           <div className={cn("w-12 h-12 rounded-xl border flex items-center justify-center text-2xl flex-shrink-0", rm.bg, rm.border)}>
-            {item.icon}
+            {item.image}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-bold text-white truncate">{item.name}</p>

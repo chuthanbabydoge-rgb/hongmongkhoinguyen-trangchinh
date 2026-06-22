@@ -30,7 +30,7 @@ function StatBar({ value, max = 1000, color }: { value: number; max?: number; co
 function PetCard({ pet, index }: { pet: typeof PETS[0]; index: number }) {
   const rm = RARITY_META[pet.rarity];
   const em = ELEMENT_META[pet.element];
-  const sm = PET_STATUS_META[pet.status];
+  const sm = PET_STATUS_META[pet.petStatus];
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(index * 0.05, 0.4) }}
       className={cn("glass-panel rounded-2xl border p-4 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300", rm.border, rm.glow)}>
@@ -40,7 +40,7 @@ function PetCard({ pet, index }: { pet: typeof PETS[0]; index: number }) {
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className={cn("w-12 h-12 rounded-xl border flex items-center justify-center text-2xl", rm.bg, rm.border)}>
-              {pet.icon}
+              {pet.image}
             </div>
             <div>
               <p className="text-xs font-bold text-white">{pet.name}</p>
@@ -92,7 +92,7 @@ function PetCard({ pet, index }: { pet: typeof PETS[0]; index: number }) {
           ))}
         </div>
 
-        <p className="text-[9px] font-mono text-muted-foreground/30 mt-2">Nhận: {pet.acquiredAt}</p>
+        <p className="text-[9px] font-mono text-muted-foreground/30 mt-2">Nhận: {new Date(pet.createdAt).toLocaleDateString("vi-VN")}</p>
       </div>
     </motion.div>
   );
@@ -107,7 +107,7 @@ export default function Pets() {
   const filtered = useMemo(() => PETS.filter(p => {
     if (filterRarity !== "all" && p.rarity !== filterRarity) return false;
     if (filterElement !== "all" && p.element !== filterElement) return false;
-    if (filterStatus !== "all" && p.status !== filterStatus) return false;
+    if (filterStatus !== "all" && p.petStatus !== filterStatus) return false;
     if (search && !p.name.toLowerCase().includes(search.toLowerCase()) && !p.species.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   }), [search, filterRarity, filterElement, filterStatus]);

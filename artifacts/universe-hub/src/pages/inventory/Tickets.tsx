@@ -19,20 +19,20 @@ const BG = () => (
 
 function TicketCard({ ticket, index }: { ticket: typeof TICKETS[0]; index: number }) {
   const rm = RARITY_META[ticket.rarity];
-  const tm = TICKET_TYPE_META[ticket.type];
-  const sm = TICKET_STATUS_META[ticket.status];
+  const tm = TICKET_TYPE_META[ticket.ticketType];
+  const sm = TICKET_STATUS_META[ticket.ticketValidity];
 
-  const StatusIcon = ticket.status === "valid" ? CheckCircle2 : ticket.status === "used" ? Clock : XCircle;
+  const StatusIcon = ticket.ticketValidity === "valid" ? CheckCircle2 : ticket.ticketValidity === "used" ? Clock : XCircle;
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(index * 0.07, 0.4) }}
-      className={cn("glass-panel rounded-2xl border relative overflow-hidden group hover:-translate-y-1 transition-all duration-300", rm.border, rm.glow, ticket.status !== "valid" && "opacity-60")}>
+      className={cn("glass-panel rounded-2xl border relative overflow-hidden group hover:-translate-y-1 transition-all duration-300", rm.border, rm.glow, ticket.ticketValidity !== "valid" && "opacity-60")}>
       {/* Top stripe */}
       <div className={cn("h-1.5 w-full", ticket.rarity === "legendary" ? "bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500" : ticket.rarity === "epic" ? "bg-purple-500" : ticket.rarity === "rare" ? "bg-blue-500" : "bg-gray-500")} />
 
       <div className="p-5">
         <div className="flex items-start justify-between mb-3">
-          <div className="text-3xl">{ticket.icon}</div>
+          <div className="text-3xl">{ticket.image}</div>
           <div className="flex flex-col items-end gap-1">
             <div className={cn("text-[9px] font-mono font-bold px-2 py-0.5 rounded border", rm.color, rm.bg, rm.border)}>{rm.label}</div>
             <div className={cn("flex items-center gap-1 text-[9px] font-mono font-bold px-2 py-0.5 rounded border", sm.color, sm.bg, sm.border)}>
@@ -93,7 +93,7 @@ function TicketCard({ ticket, index }: { ticket: typeof TICKETS[0]; index: numbe
               <div key={i} className="bg-white/20" style={{ width: Math.random() > 0.5 ? 2 : 1, height: 20 }} />
             ))}
           </div>
-          <p className="text-[10px] font-mono font-bold text-emerald-400">{ticket.price.toLocaleString("vi-VN")} CR</p>
+          <p className="text-[10px] font-mono font-bold text-emerald-400">{ticket.value.toLocaleString("vi-VN")} CR</p>
         </div>
       </div>
     </motion.div>
@@ -108,8 +108,8 @@ export default function Tickets() {
 
   const filtered = useMemo(() => TICKETS.filter(t => {
     if (filterRarity !== "all" && t.rarity !== filterRarity) return false;
-    if (filterType !== "all" && t.type !== filterType) return false;
-    if (filterStatus !== "all" && t.status !== filterStatus) return false;
+    if (filterType !== "all" && t.ticketType !== filterType) return false;
+    if (filterStatus !== "all" && t.ticketValidity !== filterStatus) return false;
     if (search && !t.name.toLowerCase().includes(search.toLowerCase()) && !t.event.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   }), [search, filterRarity, filterType, filterStatus]);

@@ -1,298 +1,202 @@
-// ─── Shared ──────────────────────────────────────────────────────────────────
+import type {
+  Pet, FootballPlayer, WorldAsset, Ticket, InventoryItem,
+} from "@/types/inventory";
 
-export type Rarity = "common" | "uncommon" | "rare" | "epic" | "legendary";
-
-export const RARITY_META: Record<Rarity, { label: string; color: string; bg: string; border: string; glow: string }> = {
-  common:    { label: "Phổ thông",  color: "text-gray-400",   bg: "bg-gray-400/10",   border: "border-gray-400/25",   glow: "" },
-  uncommon:  { label: "Không phổ", color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/25", glow: "shadow-[0_0_16px_rgba(52,211,153,0.15)]" },
-  rare:      { label: "Hiếm",      color: "text-blue-400",    bg: "bg-blue-400/10",    border: "border-blue-400/25",    glow: "shadow-[0_0_16px_rgba(96,165,250,0.15)]" },
-  epic:      { label: "Sử thi",    color: "text-purple-400",  bg: "bg-purple-400/10",  border: "border-purple-400/25",  glow: "shadow-[0_0_16px_rgba(192,132,252,0.18)]" },
-  legendary: { label: "Huyền thoại", color: "text-amber-400", bg: "bg-amber-400/10",   border: "border-amber-400/25",   glow: "shadow-[0_0_20px_rgba(251,191,36,0.22)]" },
-};
-
-// ─── Pets ────────────────────────────────────────────────────────────────────
-
-export type PetElement = "fire" | "water" | "earth" | "air" | "lightning" | "dark" | "light";
-export type PetStatus  = "active" | "resting" | "training" | "battle";
-
-export interface Pet {
-  id: string;
-  name: string;
-  species: string;
-  element: PetElement;
-  rarity: Rarity;
-  level: number;
-  maxLevel: number;
-  power: number;
-  hp: number;
-  attack: number;
-  defense: number;
-  speed: number;
-  status: PetStatus;
-  acquiredAt: string;
-  icon: string;
-  description: string;
-}
-
-export const ELEMENT_META: Record<PetElement, { label: string; color: string; bg: string }> = {
-  fire:      { label: "Lửa",      color: "text-orange-400",  bg: "bg-orange-400/15" },
-  water:     { label: "Nước",     color: "text-blue-400",    bg: "bg-blue-400/15" },
-  earth:     { label: "Đất",      color: "text-amber-600",   bg: "bg-amber-600/15" },
-  air:       { label: "Gió",      color: "text-cyan-300",    bg: "bg-cyan-300/15" },
-  lightning: { label: "Sấm",      color: "text-yellow-400",  bg: "bg-yellow-400/15" },
-  dark:      { label: "Bóng tối", color: "text-purple-400",  bg: "bg-purple-400/15" },
-  light:     { label: "Ánh sáng", color: "text-yellow-200",  bg: "bg-yellow-200/15" },
-};
-
-export const PET_STATUS_META: Record<PetStatus, { label: string; color: string; dot: string }> = {
-  active:   { label: "Hoạt động",   color: "text-emerald-400", dot: "bg-emerald-400 animate-pulse" },
-  resting:  { label: "Nghỉ ngơi",   color: "text-blue-400",    dot: "bg-blue-400" },
-  training: { label: "Huấn luyện",  color: "text-amber-400",   dot: "bg-amber-400 animate-pulse" },
-  battle:   { label: "Chiến đấu",   color: "text-red-400",     dot: "bg-red-400 animate-pulse" },
-};
+// ─── Pets (20) ────────────────────────────────────────────────────────────────
 
 export const PETS: Pet[] = [
-  { id: "PET-001", name: "Infernox",    species: "Rồng lửa",     element: "fire",      rarity: "legendary", level: 85, maxLevel: 100, power: 9240, hp: 8800, attack: 920, defense: 680, speed: 790, status: "active",   acquiredAt: "15/01/2026", icon: "🐉", description: "Rồng huyền thoại từ núi lửa cổ đại, sức mạnh thiêu đốt mọi thứ." },
-  { id: "PET-002", name: "Aqua Belle",  species: "Tiên cá",      element: "water",     rarity: "epic",      level: 72, maxLevel: 100, power: 7100, hp: 7200, attack: 710, defense: 750, speed: 850, status: "resting",  acquiredAt: "03/02/2026", icon: "🧜", description: "Tiên cá sử thi từ đại dương sâu thẳm, có thể kiểm soát sóng biển." },
-  { id: "PET-003", name: "Voltrix",     species: "Sói sấm",      element: "lightning", rarity: "epic",      level: 68, maxLevel: 100, power: 6850, hp: 6500, attack: 830, defense: 600, speed: 920, status: "training", acquiredAt: "20/02/2026", icon: "⚡🐺", description: "Sói huyền bí mang trong mình sức mạnh của sét." },
-  { id: "PET-004", name: "Sylphina",    species: "Nữ thần gió",  element: "air",       rarity: "rare",      level: 55, maxLevel: 80,  power: 5200, hp: 5500, attack: 620, defense: 540, speed: 980, status: "active",   acquiredAt: "08/03/2026", icon: "🌪️", description: "Thần gió nhỏ bé nhưng cực kỳ nhanh nhẹn." },
-  { id: "PET-005", name: "Gaia Stone",  species: "Rùa đất",      element: "earth",     rarity: "rare",      level: 48, maxLevel: 80,  power: 4800, hp: 9200, attack: 420, defense: 980, speed: 280, status: "resting",  acquiredAt: "22/03/2026", icon: "🐢", description: "Rùa cổ đại với lớp mai vô cùng cứng chắc." },
-  { id: "PET-006", name: "Luminos",     species: "Phượng hoàng", element: "light",     rarity: "legendary", level: 90, maxLevel: 100, power: 9800, hp: 8200, attack: 880, defense: 720, speed: 860, status: "battle",   acquiredAt: "01/01/2026", icon: "🦅", description: "Phượng hoàng ánh sáng, biểu tượng của sự hồi sinh và hy vọng." },
-  { id: "PET-007", name: "Shadowfang",  species: "Mèo bóng đêm", element: "dark",      rarity: "epic",      level: 60, maxLevel: 100, power: 6400, hp: 6000, attack: 780, defense: 620, speed: 900, status: "active",   acquiredAt: "14/04/2026", icon: "🐱", description: "Mèo ma thuật ẩn trong bóng tối, kẻ thù không bao giờ nhìn thấy nó." },
-  { id: "PET-008", name: "Crystaline",  species: "Bướm pha lê",  element: "light",     rarity: "uncommon",  level: 32, maxLevel: 60,  power: 2900, hp: 3200, attack: 310, defense: 380, speed: 720, status: "resting",  acquiredAt: "10/05/2026", icon: "🦋", description: "Bướm được tạo từ pha lê thuần khiết, tỏa sáng trong đêm tối." },
-  { id: "PET-009", name: "Mudkins",     species: "Ếch đất",      element: "earth",     rarity: "common",    level: 15, maxLevel: 50,  power: 1200, hp: 2100, attack: 180, defense: 290, speed: 320, status: "training", acquiredAt: "01/06/2026", icon: "🐸", description: "Ếch đơn giản nhưng trung thành, bắt đầu hành trình của bạn." },
-  { id: "PET-010", name: "Pyrex",       species: "Cáo lửa",      element: "fire",      rarity: "uncommon",  level: 38, maxLevel: 60,  power: 3400, hp: 3600, attack: 420, defense: 340, speed: 680, status: "active",   acquiredAt: "18/05/2026", icon: "🦊", description: "Cáo nhỏ nhưng nhanh nhẹn, chuyên tấn công bằng lửa nhỏ." },
-  { id: "PET-011", name: "Tideborn",    species: "Cá kiếm",      element: "water",     rarity: "rare",      level: 50, maxLevel: 80,  power: 4600, hp: 5800, attack: 560, defense: 490, speed: 740, status: "active",   acquiredAt: "05/04/2026", icon: "🐋", description: "Cá kiếm khổng lồ từ vùng biển sâu, mạnh mẽ và nguy hiểm." },
-  { id: "PET-012", name: "Stormclaw",   species: "Đại bàng sét", element: "lightning", rarity: "rare",      level: 58, maxLevel: 80,  power: 5600, hp: 5200, attack: 720, defense: 520, speed: 880, status: "battle",   acquiredAt: "12/03/2026", icon: "🦅", description: "Đại bàng mang theo luồng sét, vua bầu trời." },
+  { id: "PET-001", name: "Infernox",     category: "pets", rarity: "mythic",    quantity: 1, value: 1200000, status: "active",   image: "🐉", createdAt: "2026-01-05T08:00:00Z", species: "Rồng lửa",      element: "fire",      level: 95, maxLevel: 100, power: 9800,  hp: 9200,  attack: 980,  defense: 720,  speed: 820,  petStatus: "battle",   description: "Rồng thần thoại từ lõi núi lửa cổ đại, sức mạnh thiêu đốt cả vũ trụ." },
+  { id: "PET-002", name: "Luminos Prime",category: "pets", rarity: "mythic",    quantity: 1, value: 1050000, status: "active",   image: "🦅", createdAt: "2026-01-10T10:00:00Z", species: "Phượng hoàng",  element: "light",     level: 92, maxLevel: 100, power: 9600,  hp: 8800,  attack: 920,  defense: 760,  speed: 890,  petStatus: "active",   description: "Phượng hoàng thần thoại toả ánh sáng vĩnh cửu, biểu tượng của sự hồi sinh." },
+  { id: "PET-003", name: "Aqua Belle",   category: "pets", rarity: "legendary", quantity: 1, value: 680000,  status: "active",   image: "🧜", createdAt: "2026-01-20T09:00:00Z", species: "Tiên cá",       element: "water",     level: 80, maxLevel: 100, power: 7800,  hp: 7500,  attack: 760,  defense: 800,  speed: 870,  petStatus: "resting",  description: "Tiên cá huyền thoại từ đại dương sâu thẳm, kiểm soát sóng biển." },
+  { id: "PET-004", name: "Voltrix",      category: "pets", rarity: "legendary", quantity: 1, value: 620000,  status: "active",   image: "🐺", createdAt: "2026-02-01T07:30:00Z", species: "Sói sấm",       element: "lightning", level: 75, maxLevel: 100, power: 7500,  hp: 6800,  attack: 880,  defense: 620,  speed: 940,  petStatus: "training", description: "Sói huyền bí mang trong mình sức mạnh của ngàn tia sét." },
+  { id: "PET-005", name: "Frostmaw",     category: "pets", rarity: "legendary", quantity: 1, value: 580000,  status: "active",   image: "🐻", createdAt: "2026-02-10T11:00:00Z", species: "Gấu băng",      element: "ice",       level: 78, maxLevel: 100, power: 7300,  hp: 8600,  attack: 720,  defense: 920,  speed: 600,  petStatus: "active",   description: "Gấu khổng lồ với bộ lông băng giá, đóng băng mọi thứ nó chạm vào." },
+  { id: "PET-006", name: "Shadowfang",   category: "pets", rarity: "legendary", quantity: 1, value: 520000,  status: "equipped", image: "🐱", createdAt: "2026-02-15T14:00:00Z", species: "Mèo bóng đêm", element: "dark",      level: 72, maxLevel: 100, power: 7100,  hp: 6400,  attack: 820,  defense: 660,  speed: 950,  petStatus: "battle",   description: "Mèo ma thuật ẩn trong bóng tối, kẻ thù không bao giờ nhìn thấy nó." },
+  { id: "PET-007", name: "Sylphina",     category: "pets", rarity: "epic",      quantity: 1, value: 280000,  status: "active",   image: "🌪️", createdAt: "2026-02-28T08:00:00Z", species: "Nữ thần gió",  element: "air",       level: 60, maxLevel: 80,  power: 5800,  hp: 5600,  attack: 640,  defense: 560,  speed: 990,  petStatus: "active",   description: "Thần gió nhỏ bé nhưng cực kỳ nhanh nhẹn, vô hình khi bay." },
+  { id: "PET-008", name: "Gaia Stone",   category: "pets", rarity: "epic",      quantity: 1, value: 260000,  status: "active",   image: "🐢", createdAt: "2026-03-05T10:00:00Z", species: "Rùa đất",       element: "earth",     level: 58, maxLevel: 80,  power: 5400,  hp: 9800,  attack: 440,  defense: 980,  speed: 280,  petStatus: "resting",  description: "Rùa cổ đại với lớp mai vô cùng cứng chắc như kim cương." },
+  { id: "PET-009", name: "Tideborn",     category: "pets", rarity: "epic",      quantity: 1, value: 240000,  status: "active",   image: "🐋", createdAt: "2026-03-12T09:30:00Z", species: "Cá kiếm",       element: "water",     level: 55, maxLevel: 80,  power: 5200,  hp: 6200,  attack: 600,  defense: 520,  speed: 760,  petStatus: "training", description: "Cá kiếm khổng lồ từ vùng biển sâu, mạnh mẽ và cực kỳ nguy hiểm." },
+  { id: "PET-010", name: "Stormclaw",    category: "pets", rarity: "epic",      quantity: 1, value: 220000,  status: "active",   image: "🦁", createdAt: "2026-03-20T12:00:00Z", species: "Sư tử sấm",    element: "lightning", level: 52, maxLevel: 80,  power: 5000,  hp: 5800,  attack: 760,  defense: 540,  speed: 880,  petStatus: "battle",   description: "Sư tử chúa tể thảo nguyên, tiếng gầm mang theo sấm sét." },
+  { id: "PET-011", name: "Venomara",     category: "pets", rarity: "epic",      quantity: 1, value: 200000,  status: "active",   image: "🐍", createdAt: "2026-03-28T08:00:00Z", species: "Rắn độc",       element: "poison",    level: 50, maxLevel: 80,  power: 4800,  hp: 5200,  attack: 840,  defense: 480,  speed: 830,  petStatus: "active",   description: "Rắn khổng lồ sải chất độc cực mạnh, mọi kẻ thù đều tan chảy." },
+  { id: "PET-012", name: "Pyrex",        category: "pets", rarity: "rare",      quantity: 1, value: 95000,   status: "active",   image: "🦊", createdAt: "2026-04-02T10:00:00Z", species: "Cáo lửa",       element: "fire",      level: 42, maxLevel: 60,  power: 3800,  hp: 3900,  attack: 460,  defense: 360,  speed: 720,  petStatus: "active",   description: "Cáo nhỏ nhưng nhanh nhẹn, chuyên tấn công bằng lửa nhỏ." },
+  { id: "PET-013", name: "Crystaline",   category: "pets", rarity: "rare",      quantity: 1, value: 88000,   status: "active",   image: "🦋", createdAt: "2026-04-10T07:00:00Z", species: "Bướm pha lê",  element: "light",     level: 38, maxLevel: 60,  power: 3400,  hp: 3500,  attack: 340,  defense: 420,  speed: 780,  petStatus: "resting",  description: "Bướm được tạo từ pha lê thuần khiết, tỏa sáng trong đêm tối." },
+  { id: "PET-014", name: "Glacius",      category: "pets", rarity: "rare",      quantity: 1, value: 82000,   status: "trading",  image: "🐧", createdAt: "2026-04-18T09:00:00Z", species: "Cánh cụt băng", element: "ice",       level: 36, maxLevel: 60,  power: 3200,  hp: 4200,  attack: 310,  defense: 500,  speed: 540,  petStatus: "resting",  description: "Cánh cụt với khả năng kiểm soát nhiệt độ, làm đông cứng kẻ thù." },
+  { id: "PET-015", name: "Thornback",    category: "pets", rarity: "rare",      quantity: 1, value: 76000,   status: "active",   image: "🦎", createdAt: "2026-04-25T11:00:00Z", species: "Thằn lằn đất",  element: "earth",     level: 33, maxLevel: 60,  power: 2900,  hp: 4500,  attack: 280,  defense: 580,  speed: 420,  petStatus: "training", description: "Thằn lằn với gai cứng như thép, phòng thủ cực kỳ kiên cố." },
+  { id: "PET-016", name: "Mistwhisper",  category: "pets", rarity: "rare",      quantity: 1, value: 70000,   status: "active",   image: "🦉", createdAt: "2026-05-02T08:30:00Z", species: "Cú sương",      element: "dark",      level: 30, maxLevel: 60,  power: 2700,  hp: 3100,  attack: 320,  defense: 390,  speed: 860,  petStatus: "active",   description: "Cú bí ẩn bay trong màn sương, đọc được suy nghĩ kẻ thù." },
+  { id: "PET-017", name: "Mudkins",      category: "pets", rarity: "common",    quantity: 1, value: 18000,   status: "active",   image: "🐸", createdAt: "2026-05-10T10:00:00Z", species: "Ếch đất",       element: "earth",     level: 18, maxLevel: 50,  power: 1400,  hp: 2200,  attack: 190,  defense: 310,  speed: 330,  petStatus: "training", description: "Ếch đơn giản nhưng trung thành, bắt đầu hành trình của bạn." },
+  { id: "PET-018", name: "Emberpup",     category: "pets", rarity: "common",    quantity: 1, value: 15000,   status: "inactive", image: "🐕", createdAt: "2026-05-18T09:00:00Z", species: "Chó lửa con",   element: "fire",      level: 12, maxLevel: 50,  power: 1100,  hp: 1800,  attack: 160,  defense: 200,  speed: 480,  petStatus: "resting",  description: "Chó con lửa mới trưởng thành, còn đang học kiểm soát ngọn lửa." },
+  { id: "PET-019", name: "Aquapup",      category: "pets", rarity: "common",    quantity: 1, value: 12000,   status: "inactive", image: "🐬", createdAt: "2026-05-25T11:00:00Z", species: "Cá heo",        element: "water",     level: 10, maxLevel: 50,  power: 980,   hp: 1600,  attack: 140,  defense: 220,  speed: 560,  petStatus: "resting",  description: "Cá heo thông minh và nhanh nhẹn, hay nghịch ngợm trong nước." },
+  { id: "PET-020", name: "Sparkle",      category: "pets", rarity: "common",    quantity: 1, value: 9000,    status: "inactive", image: "⭐", createdAt: "2026-06-01T08:00:00Z", species: "Tinh linh",     element: "light",     level: 5,  maxLevel: 50,  power: 620,   hp: 1100,  attack: 100,  defense: 150,  speed: 640,  petStatus: "resting",  description: "Tinh linh nhỏ bé phát sáng yếu ớt, tiềm năng vô hạn trong tương lai." },
 ];
 
-// ─── Football Players ─────────────────────────────────────────────────────────
-
-export type Position = "GK" | "CB" | "LB" | "RB" | "CDM" | "CM" | "CAM" | "LW" | "RW" | "ST";
-
-export interface PlayerStats {
-  pace: number; shooting: number; passing: number;
-  dribbling: number; defending: number; physical: number;
-}
-
-export interface FootballPlayer {
-  id: string;
-  name: string;
-  position: Position;
-  team: string;
-  nationality: string;
-  flag: string;
-  rarity: Rarity;
-  rating: number;
-  level: number;
-  stats: PlayerStats;
-  value: number;
-  acquiredAt: string;
-  icon: string;
-  specialAbility: string;
-}
-
-export const POSITION_META: Record<Position, { color: string; bg: string }> = {
-  GK:  { color: "text-yellow-400",  bg: "bg-yellow-400/15" },
-  CB:  { color: "text-blue-400",    bg: "bg-blue-400/15" },
-  LB:  { color: "text-blue-300",    bg: "bg-blue-300/15" },
-  RB:  { color: "text-blue-300",    bg: "bg-blue-300/15" },
-  CDM: { color: "text-green-400",   bg: "bg-green-400/15" },
-  CM:  { color: "text-green-300",   bg: "bg-green-300/15" },
-  CAM: { color: "text-orange-400",  bg: "bg-orange-400/15" },
-  LW:  { color: "text-red-400",     bg: "bg-red-400/15" },
-  RW:  { color: "text-red-400",     bg: "bg-red-400/15" },
-  ST:  { color: "text-red-500",     bg: "bg-red-500/15" },
-};
+// ─── Football Players (20) ────────────────────────────────────────────────────
 
 export const FOOTBALL_PLAYERS: FootballPlayer[] = [
-  { id: "FP-001", name: "Ronaldo Silva",   position: "ST",  team: "Football Universe FC", nationality: "Brazil",      flag: "🇧🇷", rarity: "legendary", rating: 99, level: 10, stats: { pace: 94, shooting: 99, passing: 82, dribbling: 96, defending: 38, physical: 89 }, value: 280000, acquiredAt: "10/01/2026", icon: "⚽", specialAbility: "Hattrick King" },
-  { id: "FP-002", name: "Kai Müller",      position: "CM",  team: "Galactic United",      nationality: "Đức",         flag: "🇩🇪", rarity: "legendary", rating: 97, level: 10, stats: { pace: 78, shooting: 82, passing: 98, dribbling: 91, defending: 75, physical: 82 }, value: 195000, acquiredAt: "15/01/2026", icon: "⚽", specialAbility: "Vision Master" },
-  { id: "FP-003", name: "Luis Vargas",     position: "GK",  team: "Star Phoenix",         nationality: "Argentina",   flag: "🇦🇷", rarity: "epic",      rating: 94, level: 8,  stats: { pace: 62, shooting: 15, passing: 72, dribbling: 55, defending: 96, physical: 88 }, value: 120000, acquiredAt: "22/01/2026", icon: "🧤", specialAbility: "Iron Wall" },
-  { id: "FP-004", name: "Yuki Tanaka",     position: "LW",  team: "Galaxy Strikers",      nationality: "Nhật Bản",    flag: "🇯🇵", rarity: "epic",      rating: 92, level: 7,  stats: { pace: 98, shooting: 87, passing: 80, dribbling: 95, defending: 42, physical: 68 }, value: 98000,  acquiredAt: "05/02/2026", icon: "⚽", specialAbility: "Lightning Speed" },
-  { id: "FP-005", name: "Marco De Rossi",  position: "CB",  team: "Cosmos Defenders",     nationality: "Ý",           flag: "🇮🇹", rarity: "epic",      rating: 91, level: 7,  stats: { pace: 72, shooting: 42, passing: 78, dribbling: 68, defending: 96, physical: 92 }, value: 88000,  acquiredAt: "18/02/2026", icon: "🛡️", specialAbility: "Tactical Block" },
-  { id: "FP-006", name: "Adama Diallo",    position: "CDM", team: "Orbital Warriors",     nationality: "Pháp",        flag: "🇫🇷", rarity: "rare",      rating: 87, level: 5,  stats: { pace: 82, shooting: 64, passing: 80, dribbling: 78, defending: 90, physical: 94 }, value: 52000,  acquiredAt: "03/03/2026", icon: "⚽", specialAbility: "Intercept Pro" },
-  { id: "FP-007", name: "Park Joon-Ho",    position: "RW",  team: "Nova FC",              nationality: "Hàn Quốc",    flag: "🇰🇷", rarity: "rare",      rating: 85, level: 5,  stats: { pace: 96, shooting: 78, passing: 72, dribbling: 90, defending: 38, physical: 72 }, value: 46000,  acquiredAt: "12/03/2026", icon: "⚽", specialAbility: "Cross Specialist" },
-  { id: "FP-008", name: "Tom Harrison",    position: "RB",  team: "Universe City FC",     nationality: "Anh",         flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", rarity: "rare",      rating: 83, level: 4,  stats: { pace: 88, shooting: 58, passing: 80, dribbling: 75, defending: 84, physical: 80 }, value: 38000,  acquiredAt: "25/03/2026", icon: "⚽", specialAbility: "Overlap Run" },
-  { id: "FP-009", name: "Carlos Mendez",   position: "ST",  team: "Planet Rovers",        nationality: "Colombia",    flag: "🇨🇴", rarity: "uncommon",  rating: 78, level: 3,  stats: { pace: 85, shooting: 80, passing: 62, dribbling: 82, defending: 30, physical: 76 }, value: 18000,  acquiredAt: "10/04/2026", icon: "⚽", specialAbility: "Poacher" },
-  { id: "FP-010", name: "Ali Hassan",      position: "CAM", team: "Desert Storm FC",      nationality: "Ai Cập",      flag: "🇪🇬", rarity: "uncommon",  rating: 76, level: 2,  stats: { pace: 74, shooting: 72, passing: 82, dribbling: 85, defending: 38, physical: 64 }, value: 14000,  acquiredAt: "20/04/2026", icon: "⚽", specialAbility: "Free Kick Expert" },
-  { id: "FP-011", name: "Ivan Petrov",     position: "LB",  team: "Crimson Stars",        nationality: "Nga",         flag: "🇷🇺", rarity: "common",    rating: 71, level: 1,  stats: { pace: 78, shooting: 42, passing: 72, dribbling: 68, defending: 76, physical: 84 }, value: 6000,   acquiredAt: "01/05/2026", icon: "⚽", specialAbility: "Solid Defense" },
-  { id: "FP-012", name: "Nguyen Van A",    position: "CM",  team: "Dragon United",        nationality: "Việt Nam",    flag: "🇻🇳", rarity: "common",    rating: 68, level: 1,  stats: { pace: 72, shooting: 60, passing: 74, dribbling: 70, defending: 58, physical: 70 }, value: 4500,   acquiredAt: "10/05/2026", icon: "⚽", specialAbility: "Endurance Run" },
+  { id: "FP-001", name: "El Dios",         category: "football", rarity: "mythic",    quantity: 1, value: 2500000, status: "active",   image: "👑", createdAt: "2026-01-03T09:00:00Z", position: "ST",  team: "Universe All Stars",   nationality: "Argentina",  flag: "🇦🇷", rating: 100, level: 10, stats: { pace: 96, shooting: 100, passing: 95, dribbling: 100, defending: 42, physical: 88 }, specialAbility: "God Touch" },
+  { id: "FP-002", name: "Ronaldo Silva",   category: "football", rarity: "mythic",    quantity: 1, value: 2200000, status: "active",   image: "⚽", createdAt: "2026-01-08T10:00:00Z", position: "ST",  team: "Football Universe FC", nationality: "Brazil",     flag: "🇧🇷", rating: 99,  level: 10, stats: { pace: 96, shooting: 99, passing: 84, dribbling: 98, defending: 40, physical: 92 }, specialAbility: "Hattrick King" },
+  { id: "FP-003", name: "Kai Müller",      category: "football", rarity: "legendary", quantity: 1, value: 980000,  status: "active",   image: "⚽", createdAt: "2026-01-15T11:00:00Z", position: "CM",  team: "Galactic United",      nationality: "Đức",        flag: "🇩🇪", rating: 97,  level: 10, stats: { pace: 80, shooting: 84, passing: 99, dribbling: 93, defending: 77, physical: 84 }, specialAbility: "Vision Master" },
+  { id: "FP-004", name: "Yuki Tanaka",     category: "football", rarity: "legendary", quantity: 1, value: 860000,  status: "active",   image: "⚽", createdAt: "2026-01-22T08:30:00Z", position: "LW",  team: "Galaxy Strikers",      nationality: "Nhật Bản",   flag: "🇯🇵", rating: 95,  level: 9,  stats: { pace: 99, shooting: 89, passing: 82, dribbling: 97, defending: 44, physical: 70 }, specialAbility: "Lightning Speed" },
+  { id: "FP-005", name: "Luis Vargas",     category: "football", rarity: "legendary", quantity: 1, value: 780000,  status: "active",   image: "🧤", createdAt: "2026-02-01T09:00:00Z", position: "GK",  team: "Star Phoenix",         nationality: "Colombia",   flag: "🇨🇴", rating: 94,  level: 9,  stats: { pace: 64, shooting: 15, passing: 74, dribbling: 58, defending: 98, physical: 90 }, specialAbility: "Iron Wall" },
+  { id: "FP-006", name: "Marco De Rossi",  category: "football", rarity: "legendary", quantity: 1, value: 720000,  status: "equipped", image: "🛡️", createdAt: "2026-02-08T10:30:00Z", position: "CB",  team: "Cosmos Defenders",     nationality: "Ý",          flag: "🇮🇹", rating: 93,  level: 8,  stats: { pace: 74, shooting: 44, passing: 80, dribbling: 70, defending: 98, physical: 94 }, specialAbility: "Tactical Block" },
+  { id: "FP-007", name: "Son Heung-Min",   category: "football", rarity: "legendary", quantity: 1, value: 660000,  status: "active",   image: "⚽", createdAt: "2026-02-14T08:00:00Z", position: "RW",  team: "Cosmos Elite",         nationality: "Hàn Quốc",  flag: "🇰🇷", rating: 92,  level: 8,  stats: { pace: 97, shooting: 91, passing: 83, dribbling: 94, defending: 46, physical: 74 }, specialAbility: "Counter Attack" },
+  { id: "FP-008", name: "Adama Diallo",    category: "football", rarity: "epic",      quantity: 1, value: 320000,  status: "active",   image: "⚽", createdAt: "2026-02-20T09:00:00Z", position: "CDM", team: "Orbital Warriors",     nationality: "Pháp",       flag: "🇫🇷", rating: 89,  level: 7,  stats: { pace: 84, shooting: 66, passing: 82, dribbling: 80, defending: 92, physical: 96 }, specialAbility: "Intercept Pro" },
+  { id: "FP-009", name: "Park Joon-Ho",    category: "football", rarity: "epic",      quantity: 1, value: 290000,  status: "active",   image: "⚽", createdAt: "2026-02-28T11:00:00Z", position: "RW",  team: "Nova FC",              nationality: "Hàn Quốc",  flag: "🇰🇷", rating: 87,  level: 6,  stats: { pace: 98, shooting: 80, passing: 74, dribbling: 92, defending: 40, physical: 74 }, specialAbility: "Cross Specialist" },
+  { id: "FP-010", name: "Tom Harrison",    category: "football", rarity: "epic",      quantity: 1, value: 260000,  status: "active",   image: "⚽", createdAt: "2026-03-05T10:00:00Z", position: "RB",  team: "Universe City FC",     nationality: "Anh",        flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", rating: 85,  level: 6,  stats: { pace: 90, shooting: 60, passing: 82, dribbling: 77, defending: 86, physical: 82 }, specialAbility: "Overlap Run" },
+  { id: "FP-011", name: "Rodrigo Santos",  category: "football", rarity: "epic",      quantity: 1, value: 240000,  status: "active",   image: "⚽", createdAt: "2026-03-12T09:30:00Z", position: "CAM", team: "Planet Rovers",        nationality: "Brazil",     flag: "🇧🇷", rating: 84,  level: 5,  stats: { pace: 78, shooting: 80, passing: 88, dribbling: 92, defending: 42, physical: 68 }, specialAbility: "Dribble King" },
+  { id: "FP-012", name: "Amara Keita",     category: "football", rarity: "epic",      quantity: 1, value: 220000,  status: "trading",  image: "⚽", createdAt: "2026-03-20T08:00:00Z", position: "CM",  team: "Desert Storm FC",      nationality: "Senegal",    flag: "🇸🇳", rating: 82,  level: 5,  stats: { pace: 86, shooting: 72, passing: 84, dribbling: 80, defending: 76, physical: 94 }, specialAbility: "Power Drive" },
+  { id: "FP-013", name: "Carlos Mendez",   category: "football", rarity: "rare",      quantity: 1, value: 96000,   status: "active",   image: "⚽", createdAt: "2026-03-28T10:00:00Z", position: "ST",  team: "Crimson Stars",        nationality: "Colombia",   flag: "🇨🇴", rating: 79,  level: 4,  stats: { pace: 87, shooting: 82, passing: 64, dribbling: 84, defending: 32, physical: 78 }, specialAbility: "Poacher" },
+  { id: "FP-014", name: "Ali Hassan",      category: "football", rarity: "rare",      quantity: 1, value: 82000,   status: "active",   image: "⚽", createdAt: "2026-04-05T09:00:00Z", position: "CAM", team: "Pharaoh FC",           nationality: "Ai Cập",    flag: "🇪🇬", rating: 77,  level: 3,  stats: { pace: 76, shooting: 74, passing: 84, dribbling: 87, defending: 40, physical: 66 }, specialAbility: "Free Kick Expert" },
+  { id: "FP-015", name: "Luca Bianchi",    category: "football", rarity: "rare",      quantity: 1, value: 74000,   status: "active",   image: "⚽", createdAt: "2026-04-12T11:00:00Z", position: "LB",  team: "Azzurri Space FC",     nationality: "Ý",          flag: "🇮🇹", rating: 75,  level: 3,  stats: { pace: 82, shooting: 48, passing: 78, dribbling: 72, defending: 80, physical: 84 }, specialAbility: "Wing Overlap" },
+  { id: "FP-016", name: "Ivan Petrov",     category: "football", rarity: "rare",      quantity: 1, value: 64000,   status: "active",   image: "⚽", createdAt: "2026-04-20T08:30:00Z", position: "CB",  team: "Bear Fortress FC",     nationality: "Nga",        flag: "🇷🇺", rating: 73,  level: 2,  stats: { pace: 74, shooting: 40, passing: 70, dribbling: 66, defending: 82, physical: 92 }, specialAbility: "Solid Defense" },
+  { id: "FP-017", name: "Nguyen Van A",    category: "football", rarity: "rare",      quantity: 1, value: 56000,   status: "active",   image: "⚽", createdAt: "2026-04-28T10:00:00Z", position: "CM",  team: "Dragon United",        nationality: "Việt Nam",   flag: "🇻🇳", rating: 71,  level: 2,  stats: { pace: 74, shooting: 62, passing: 76, dribbling: 72, defending: 60, physical: 72 }, specialAbility: "Endurance Run" },
+  { id: "FP-018", name: "Max Schneider",   category: "football", rarity: "common",    quantity: 1, value: 22000,   status: "inactive", image: "⚽", createdAt: "2026-05-05T09:00:00Z", position: "GK",  team: "Alpine Stars",         nationality: "Đức",        flag: "🇩🇪", rating: 66,  level: 1,  stats: { pace: 52, shooting: 12, passing: 62, dribbling: 44, defending: 72, physical: 80 }, specialAbility: "Safe Hands" },
+  { id: "FP-019", name: "Pedro Lima",      category: "football", rarity: "common",    quantity: 1, value: 18000,   status: "inactive", image: "⚽", createdAt: "2026-05-14T11:00:00Z", position: "LW",  team: "Samba Rovers",         nationality: "Brazil",     flag: "🇧🇷", rating: 63,  level: 1,  stats: { pace: 80, shooting: 56, passing: 60, dribbling: 74, defending: 30, physical: 64 }, specialAbility: "Samba Dribble" },
+  { id: "FP-020", name: "Tan Manh",        category: "football", rarity: "common",    quantity: 1, value: 14000,   status: "inactive", image: "⚽", createdAt: "2026-05-22T08:00:00Z", position: "ST",  team: "Phoenix Youth FC",     nationality: "Việt Nam",   flag: "🇻🇳", rating: 60,  level: 1,  stats: { pace: 76, shooting: 58, passing: 56, dribbling: 66, defending: 28, physical: 68 }, specialAbility: "Rising Star" },
 ];
 
-// ─── World Assets ─────────────────────────────────────────────────────────────
-
-export type AssetType   = "land" | "building" | "monument" | "portal" | "resource";
-export type AssetStatus = "owned" | "renting" | "developing" | "idle";
-
-export interface WorldAsset {
-  id: string;
-  name: string;
-  type: AssetType;
-  world: string;
-  coordinates: string;
-  size: number;
-  value: number;
-  rarity: Rarity;
-  status: AssetStatus;
-  acquiredAt: string;
-  icon: string;
-  description: string;
-  income: number;
-}
-
-export const ASSET_TYPE_META: Record<AssetType, { label: string; color: string; icon: string }> = {
-  land:      { label: "Đất",          color: "text-amber-600", icon: "🏔️" },
-  building:  { label: "Công trình",   color: "text-blue-400",  icon: "🏛️" },
-  monument:  { label: "Di tích",      color: "text-purple-400",icon: "🗿" },
-  portal:    { label: "Cổng không gian",color: "text-cyan-400",icon: "🌀" },
-  resource:  { label: "Mỏ tài nguyên",color: "text-emerald-400",icon: "💎" },
-};
-
-export const ASSET_STATUS_META: Record<AssetStatus, { label: string; color: string; bg: string }> = {
-  owned:      { label: "Sở hữu",       color: "text-emerald-400", bg: "bg-emerald-400/10" },
-  renting:    { label: "Cho thuê",     color: "text-blue-400",    bg: "bg-blue-400/10" },
-  developing: { label: "Đang xây dựng",color: "text-amber-400",   bg: "bg-amber-400/10" },
-  idle:       { label: "Bỏ trống",     color: "text-gray-400",    bg: "bg-gray-400/10" },
-};
+// ─── World Assets (20) ────────────────────────────────────────────────────────
 
 export const WORLD_ASSETS: WorldAsset[] = [
-  { id: "WA-001", name: "Tháp Ngân Hà",        type: "building",  world: "World Creator Alpha",   coordinates: "X:420, Y:880", size: 2400, value: 850000, rarity: "legendary", status: "renting",    acquiredAt: "10/01/2026", icon: "🗼", description: "Tòa tháp cao nhất trong vũ trụ, nhìn thấy từ mọi thế giới.", income: 12000 },
-  { id: "WA-002", name: "Mỏ Kim Cương Alpha",  type: "resource",  world: "World Creator Alpha",   coordinates: "X:150, Y:320", size: 800,  value: 620000, rarity: "legendary", status: "owned",      acquiredAt: "15/01/2026", icon: "💎", description: "Mỏ kim cương lớn nhất, nguồn tài nguyên quý hiếm vô tận.", income: 8500 },
-  { id: "WA-003", name: "Cổng Chiều Không Gian",type: "portal",    world: "Universe Map",          coordinates: "X:0, Y:0",     size: 500,  value: 520000, rarity: "epic",      status: "owned",      acquiredAt: "22/01/2026", icon: "🌀", description: "Cổng kết nối các thế giới, tạo điều kiện du hành tức thì.", income: 6200 },
-  { id: "WA-004", name: "Đảo Rồng",            type: "land",      world: "Animal Evolution",      coordinates: "X:780, Y:240", size: 5600, value: 380000, rarity: "epic",      status: "developing", acquiredAt: "05/02/2026", icon: "🏝️", description: "Hòn đảo huyền bí nơi những con rồng cổ đại sinh sống.", income: 0 },
-  { id: "WA-005", name: "Sân Vận Động Vũ Trụ", type: "building",  world: "Football Universe",     coordinates: "X:300, Y:600", size: 8000, value: 320000, rarity: "epic",      status: "renting",    acquiredAt: "18/02/2026", icon: "🏟️", description: "Sân vận động lớn nhất, chứa 500,000 khán giả toàn vũ trụ.", income: 4800 },
-  { id: "WA-006", name: "Đền Cổ Đại Luminos",  type: "monument",  world: "World Creator Beta",    coordinates: "X:550, Y:120", size: 1200, value: 240000, rarity: "rare",      status: "owned",      acquiredAt: "03/03/2026", icon: "🏛️", description: "Đền thờ 1000 năm tuổi với phép thuật cổ đại bảo vệ.", income: 2200 },
-  { id: "WA-007", name: "Đồng Bằng Tinh Khiết",type: "land",      world: "Animal Evolution",      coordinates: "X:920, Y:750", size: 3200, value: 145000, rarity: "rare",      status: "idle",       acquiredAt: "20/03/2026", icon: "🌾", description: "Đồng bằng phì nhiêu với nguồn nước trong lành từ tự nhiên.", income: 0 },
-  { id: "WA-008", name: "Mỏ Năng Lượng Mặt Trời",type:"resource", world: "Football Universe",     coordinates: "X:100, Y:800", size: 600,  value: 92000,  rarity: "uncommon",  status: "owned",      acquiredAt: "10/04/2026", icon: "☀️", description: "Nguồn năng lượng sạch từ mặt trời, cung cấp điện cho khu vực.", income: 1100 },
-  { id: "WA-009", name: "Khu Đất Trống 7",     type: "land",      world: "World Creator Alpha",   coordinates: "X:200, Y:450", size: 900,  value: 35000,  rarity: "common",    status: "idle",       acquiredAt: "01/05/2026", icon: "🏕️", description: "Khu đất bằng phẳng chưa được khai thác, tiềm năng lớn.", income: 0 },
+  { id: "WA-001", name: "Tháp Thiên Hà Nguyên Thủy", category: "world-assets", rarity: "mythic",    quantity: 1, value: 9800000, status: "active",   image: "🗼", createdAt: "2025-12-01T09:00:00Z", assetType: "building",  world: "Universe Core",       coordinates: "X:0, Y:0",     size: 8800, assetStatus: "owned",      income: 88000, description: "Tháp cổ nhất vũ trụ, nơi năng lượng vũ trụ hội tụ." },
+  { id: "WA-002", name: "Mỏ Tinh Thể Vũ Trụ",        category: "world-assets", rarity: "mythic",    quantity: 1, value: 7500000, status: "active",   image: "💎", createdAt: "2025-12-15T10:00:00Z", assetType: "resource",  world: "World Creator Alpha", coordinates: "X:120, Y:300", size: 2400, assetStatus: "owned",      income: 62000, description: "Mỏ tinh thể lớn nhất, nguồn năng lượng cho toàn vũ trụ." },
+  { id: "WA-003", name: "Cổng Chiều Thứ Chín",        category: "world-assets", rarity: "mythic",    quantity: 1, value: 6200000, status: "active",   image: "🌀", createdAt: "2026-01-05T08:00:00Z", assetType: "portal",    world: "Universe Map",        coordinates: "X:0, Y:0",     size: 1200, assetStatus: "owned",      income: 48000, description: "Cổng kết nối chiều không gian thứ 9, vô cùng hiếm." },
+  { id: "WA-004", name: "Tháp Ngân Hà",              category: "world-assets", rarity: "legendary", quantity: 1, value: 2800000, status: "active",   image: "🏛️", createdAt: "2026-01-10T09:00:00Z", assetType: "building",  world: "World Creator Alpha", coordinates: "X:420, Y:880", size: 4400, assetStatus: "renting",    income: 24000, description: "Tòa tháp cao nhất trong thế giới creator, nhìn thấy từ mọi góc." },
+  { id: "WA-005", name: "Mỏ Kim Cương Alpha",        category: "world-assets", rarity: "legendary", quantity: 1, value: 2400000, status: "active",   image: "💠", createdAt: "2026-01-18T11:00:00Z", assetType: "resource",  world: "World Creator Alpha", coordinates: "X:150, Y:320", size: 1800, assetStatus: "owned",      income: 18000, description: "Mỏ kim cương lớn nhất, nguồn tài nguyên quý hiếm vô tận." },
+  { id: "WA-006", name: "Sân Vận Động Vũ Trụ",       category: "world-assets", rarity: "legendary", quantity: 1, value: 1900000, status: "active",   image: "🏟️", createdAt: "2026-01-25T10:00:00Z", assetType: "building",  world: "Football Universe",   coordinates: "X:300, Y:600", size: 9200, assetStatus: "renting",    income: 14000, description: "Sân vận động lớn nhất vũ trụ, chứa 500,000 khán giả." },
+  { id: "WA-007", name: "Hầm Ngục Rồng Cổ Đại",     category: "world-assets", rarity: "legendary", quantity: 1, value: 1600000, status: "active",   image: "🏚️", createdAt: "2026-02-01T09:00:00Z", assetType: "dungeon",   world: "Animal Evolution",    coordinates: "X:660, Y:140", size: 3600, assetStatus: "owned",      income: 12000, description: "Hầm ngục ẩn chứa rồng cổ đại và kho báu vô giá." },
+  { id: "WA-008", name: "Đảo Rồng",                  category: "world-assets", rarity: "legendary", quantity: 1, value: 1380000, status: "active",   image: "🏝️", createdAt: "2026-02-08T11:00:00Z", assetType: "land",      world: "Animal Evolution",    coordinates: "X:780, Y:240", size: 7200, assetStatus: "developing", income: 0,     description: "Hòn đảo huyền bí nơi những con rồng cổ đại sinh sống." },
+  { id: "WA-009", name: "Đền Cổ Đại Luminos",        category: "world-assets", rarity: "epic",      quantity: 1, value: 620000,  status: "active",   image: "⛩️", createdAt: "2026-02-15T08:00:00Z", assetType: "monument",  world: "World Creator Beta",  coordinates: "X:550, Y:120", size: 2200, assetStatus: "owned",      income: 6800,  description: "Đền thờ 1000 năm tuổi với phép thuật cổ đại bảo vệ." },
+  { id: "WA-010", name: "Cổng Thiên Đình",           category: "world-assets", rarity: "epic",      quantity: 1, value: 540000,  status: "active",   image: "🌈", createdAt: "2026-02-22T10:00:00Z", assetType: "portal",    world: "World Creator Alpha", coordinates: "X:900, Y:400", size: 800,  assetStatus: "owned",      income: 5800,  description: "Cổng kết nối tới thiên đình, nơi các vị thần ngự trị." },
+  { id: "WA-011", name: "Rừng Tinh Linh",            category: "world-assets", rarity: "epic",      quantity: 1, value: 480000,  status: "active",   image: "🌲", createdAt: "2026-03-01T09:30:00Z", assetType: "land",      world: "Animal Evolution",    coordinates: "X:340, Y:560", size: 5600, assetStatus: "renting",    income: 4400,  description: "Rừng cổ thụ nơi các tinh linh sinh sống và bảo vệ." },
+  { id: "WA-012", name: "Mỏ Năng Lượng Mặt Trời",   category: "world-assets", rarity: "epic",      quantity: 1, value: 420000,  status: "active",   image: "☀️", createdAt: "2026-03-08T11:00:00Z", assetType: "resource",  world: "Football Universe",   coordinates: "X:100, Y:800", size: 1200, assetStatus: "owned",      income: 3800,  description: "Nguồn năng lượng sạch từ mặt trời, cung cấp điện cho khu vực." },
+  { id: "WA-013", name: "Tháp Canh Biên Giới",       category: "world-assets", rarity: "epic",      quantity: 1, value: 360000,  status: "locked",   image: "🏰", createdAt: "2026-03-15T08:00:00Z", assetType: "building",  world: "World Creator Beta",  coordinates: "X:980, Y:980", size: 1800, assetStatus: "owned",      income: 3200,  description: "Tháp canh tại biên giới thế giới, kiểm soát toàn bộ khu vực." },
+  { id: "WA-014", name: "Đồng Bằng Tinh Khiết",     category: "world-assets", rarity: "rare",      quantity: 1, value: 180000,  status: "active",   image: "🌾", createdAt: "2026-03-22T10:00:00Z", assetType: "land",      world: "Animal Evolution",    coordinates: "X:920, Y:750", size: 4200, assetStatus: "idle",       income: 0,     description: "Đồng bằng phì nhiêu với nguồn nước trong lành từ tự nhiên." },
+  { id: "WA-015", name: "Hầm Kho Báu Cổ",           category: "world-assets", rarity: "rare",      quantity: 1, value: 155000,  status: "active",   image: "🏺", createdAt: "2026-03-30T09:00:00Z", assetType: "dungeon",   world: "World Creator Alpha", coordinates: "X:440, Y:220", size: 800,  assetStatus: "owned",      income: 2200,  description: "Hầm tối ẩn chứa kho báu của nền văn minh cổ đại." },
+  { id: "WA-016", name: "Đảo Nổi Mây",              category: "world-assets", rarity: "rare",      quantity: 1, value: 135000,  status: "active",   image: "☁️", createdAt: "2026-04-06T11:00:00Z", assetType: "land",      world: "Universe Map",        coordinates: "X:500, Y:900", size: 2400, assetStatus: "idle",       income: 0,     description: "Hòn đảo trôi nổi trên những đám mây, cảnh quan tuyệt đẹp." },
+  { id: "WA-017", name: "Trạm Quan Sát Ngân Hà",    category: "world-assets", rarity: "rare",      quantity: 1, value: 115000,  status: "active",   image: "🔭", createdAt: "2026-04-14T08:30:00Z", assetType: "building",  world: "Universe Map",        coordinates: "X:720, Y:180", size: 600,  assetStatus: "owned",      income: 1800,  description: "Trạm quan sát hiện đại giúp theo dõi toàn bộ thiên hà." },
+  { id: "WA-018", name: "Mỏ Đá Quý Thông Thường",   category: "world-assets", rarity: "common",    quantity: 1, value: 42000,   status: "active",   image: "⛰️", createdAt: "2026-04-22T10:00:00Z", assetType: "resource",  world: "World Creator Alpha", coordinates: "X:260, Y:460", size: 600,  assetStatus: "idle",       income: 0,     description: "Mỏ đá quý nhỏ, thu nhập không đáng kể nhưng tiềm năng tốt." },
+  { id: "WA-019", name: "Khu Đất Trống 7",          category: "world-assets", rarity: "common",    quantity: 1, value: 32000,   status: "inactive", image: "🏕️", createdAt: "2026-05-01T09:00:00Z", assetType: "land",      world: "World Creator Alpha", coordinates: "X:200, Y:450", size: 1200, assetStatus: "idle",       income: 0,     description: "Khu đất bằng phẳng chưa được khai thác, tiềm năng lớn." },
+  { id: "WA-020", name: "Bãi Đất Hoang Biên",       category: "world-assets", rarity: "common",    quantity: 1, value: 22000,   status: "inactive", image: "🌵", createdAt: "2026-05-10T11:00:00Z", assetType: "land",      world: "World Creator Beta",  coordinates: "X:860, Y:840", size: 900,  assetStatus: "idle",       income: 0,     description: "Bãi đất hoang tại vùng biên giới, khí hậu khắc nghiệt." },
 ];
 
-// ─── Tickets ──────────────────────────────────────────────────────────────────
-
-export type TicketType   = "match" | "concert" | "tournament" | "vip" | "festival";
-export type TicketStatus = "valid" | "used" | "expired";
-
-export interface Ticket {
-  id: string;
-  name: string;
-  event: string;
-  type: TicketType;
-  date: string;
-  time: string;
-  venue: string;
-  price: number;
-  rarity: Rarity;
-  status: TicketStatus;
-  icon: string;
-  perks: string[];
-  seatInfo: string;
-}
-
-export const TICKET_TYPE_META: Record<TicketType, { label: string; color: string; bg: string; border: string }> = {
-  match:      { label: "Trận đấu",   color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20" },
-  concert:    { label: "Hòa nhạc",   color: "text-pink-400",    bg: "bg-pink-400/10",    border: "border-pink-400/20" },
-  tournament: { label: "Giải đấu",   color: "text-amber-400",   bg: "bg-amber-400/10",   border: "border-amber-400/20" },
-  vip:        { label: "VIP",        color: "text-purple-400",  bg: "bg-purple-400/10",  border: "border-purple-400/20" },
-  festival:   { label: "Lễ hội",     color: "text-cyan-400",    bg: "bg-cyan-400/10",    border: "border-cyan-400/20" },
-};
-
-export const TICKET_STATUS_META: Record<TicketStatus, { label: string; color: string; bg: string; border: string }> = {
-  valid:   { label: "Hợp lệ",     color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20" },
-  used:    { label: "Đã sử dụng", color: "text-gray-400",    bg: "bg-gray-400/10",    border: "border-gray-400/20" },
-  expired: { label: "Hết hạn",   color: "text-red-400",     bg: "bg-red-400/10",     border: "border-red-400/20" },
-};
+// ─── Tickets (20) ─────────────────────────────────────────────────────────────
 
 export const TICKETS: Ticket[] = [
-  { id: "TK-001", name: "Chung Kết Football Universe",   event: "Football Universe World Cup Final", type: "vip",        date: "28/06/2026", time: "20:00", venue: "Sân VĐ Vũ Trụ", price: 85000, rarity: "legendary", status: "valid",   icon: "🏆", perks: ["Phòng VIP", "Gặp gỡ cầu thủ", "Quà lưu niệm", "Bữa tối sang trọng"], seatInfo: "VIP Box A-01" },
-  { id: "TK-002", name: "Galaxy Music Festival",          event: "Galaxy Music Fest 2026",            type: "festival",   date: "15/07/2026", time: "18:00", venue: "Quảng Trường Ngân Hà", price: 42000, rarity: "epic", status: "valid",   icon: "🎵", perks: ["Khu VIP", "Backstage pass", "Poster signed"], seatInfo: "Festival Zone B" },
-  { id: "TK-003", name: "Giải Đấu Thú Cưng Mùa Hè",    event: "Pet Battle Championship S3",        type: "tournament", date: "10/07/2026", time: "14:00", venue: "Đấu Trường Thú Cưng", price: 28000, rarity: "epic", status: "valid",   icon: "⚔️", perks: ["Ghế đầu sân", "Bình luận trực tiếp", "Voucher 5000CR"], seatInfo: "Ring Side R-12" },
-  { id: "TK-004", name: "Bán Kết Cúp Thế Giới",         event: "World Cup 2026 Semi-Final",         type: "match",      date: "22/06/2026", time: "21:00", venue: "Sân VĐ Vũ Trụ", price: 35000, rarity: "rare", status: "valid",   icon: "⚽", perks: ["Ghế khán đài A", "Bữa nhẹ miễn phí"], seatInfo: "Stand A - Row 5, Seat 28" },
-  { id: "TK-005", name: "Hòa Nhạc Ánh Sao",             event: "StarLight Orchestra Night",         type: "concert",    date: "05/06/2026", time: "19:30", venue: "Nhà Hát Vũ Trụ", price: 18000,  rarity: "rare", status: "used",    icon: "🎻", perks: ["Chỗ ngồi hạng nhất"], seatInfo: "Premium - Row 3, Seat 14" },
-  { id: "TK-006", name: "Tứ Kết World Cup",             event: "World Cup 2026 Quarter-Final",      type: "match",      date: "18/06/2026", time: "17:00", venue: "Sân VĐ Vũ Trụ", price: 22000, rarity: "uncommon", status: "used", icon: "⚽", perks: ["Ghế thường"], seatInfo: "Stand C - Row 12, Seat 45" },
-  { id: "TK-007", name: "Lễ Hội Mùa Xuân Vũ Trụ",      event: "Universe Spring Festival",          type: "festival",   date: "20/03/2026", time: "10:00", venue: "Công Viên Vũ Trụ", price: 8000,  rarity: "common", status: "used",    icon: "🌸", perks: ["Vào cửa tự do"], seatInfo: "Open Area" },
-  { id: "TK-008", name: "Giải Đấu Khu Vực Phía Đông",  event: "Eastern Region Football League",    type: "tournament", date: "12/04/2026", time: "15:00", venue: "Sân Địa Phương", price: 5000,   rarity: "common", status: "expired", icon: "🏅", perks: ["Ghế thường"], seatInfo: "Stand B - General" },
+  { id: "TK-001", name: "Chung Kết Vũ Trụ – Hộp VIP Thần Thoại", category: "tickets", rarity: "mythic",    quantity: 1, value: 480000,  status: "active",  image: "🏆", createdAt: "2026-01-20T09:00:00Z", ticketType: "exclusive", event: "Universe Grand Championship Final", date: "30/06/2026", time: "20:00", venue: "Đấu Trường Vũ Trụ Tối Thượng", seatInfo: "Mythic Box M-00",          ticketValidity: "valid",   perks: ["Chuyên cơ riêng", "Phòng khách sạn 7 sao", "Gặp gỡ huyền thoại", "Quà lưu niệm thần thoại", "Tiệc sau lễ"] },
+  { id: "TK-002", name: "Chung Kết Football Universe – VIP",      category: "tickets", rarity: "mythic",    quantity: 1, value: 380000,  status: "active",  image: "⭐", createdAt: "2026-02-01T10:00:00Z", ticketType: "exclusive", event: "Football Universe World Cup Final", date: "28/06/2026", time: "21:00", venue: "Sân VĐ Vũ Trụ Tối Thượng",    seatInfo: "Exclusive Zone EX-01",     ticketValidity: "valid",   perks: ["Phòng VIP đặc quyền", "Trực tiếp cùng huyền thoại", "Áo đấu signed", "Bữa tối sang trọng"] },
+  { id: "TK-003", name: "Giải Đấu Pet Huyền Thoại – VIP Box",    category: "tickets", rarity: "legendary", quantity: 1, value: 185000,  status: "active",  image: "🎖️", createdAt: "2026-02-15T09:00:00Z", ticketType: "vip",      event: "Pet Battle World Championship",    date: "20/07/2026", time: "16:00", venue: "Đấu Trường Thú Cưng",          seatInfo: "VIP Box A-01",             ticketValidity: "valid",   perks: ["Phòng VIP", "Gặp nhà vô địch", "Poster signed", "Voucher 20,000 CR"] },
+  { id: "TK-004", name: "Galaxy Music Festival – Huyền Thoại",    category: "tickets", rarity: "legendary", quantity: 1, value: 162000,  status: "active",  image: "🎵", createdAt: "2026-02-22T11:00:00Z", ticketType: "festival", event: "Galaxy Music Fest 2026",            date: "15/07/2026", time: "18:00", venue: "Quảng Trường Ngân Hà",         seatInfo: "Legendary Stage L-02",     ticketValidity: "valid",   perks: ["Khu VIP", "Backstage pass", "Gặp nghệ sĩ", "Poster signed", "Bộ đồ lưu niệm"] },
+  { id: "TK-005", name: "Bán Kết Football Universe – VIP",        category: "tickets", rarity: "legendary", quantity: 1, value: 128000,  status: "active",  image: "🏅", createdAt: "2026-03-01T08:30:00Z", ticketType: "vip",      event: "Football Universe World Cup SF",    date: "24/06/2026", time: "20:00", venue: "Sân VĐ Vũ Trụ",               seatInfo: "VIP Stand V-05",           ticketValidity: "valid",   perks: ["Ghế VIP", "Buffet miễn phí", "Áo signed"] },
+  { id: "TK-006", name: "Giải Đấu Thú Cưng Mùa Hè – Sử Thi",   category: "tickets", rarity: "epic",      quantity: 1, value: 68000,   status: "active",  image: "⚔️", createdAt: "2026-03-10T10:00:00Z", ticketType: "tournament", event: "Pet Battle Championship S3",       date: "10/07/2026", time: "14:00", venue: "Đấu Trường Thú Cưng",          seatInfo: "Ring Side R-12",           ticketValidity: "valid",   perks: ["Ghế đầu sân", "Bình luận trực tiếp", "Voucher 5,000 CR"] },
+  { id: "TK-007", name: "Hòa Nhạc Ánh Sao – Hàng Ghế Đầu",     category: "tickets", rarity: "epic",      quantity: 1, value: 58000,   status: "active",  image: "🎻", createdAt: "2026-03-18T09:00:00Z", ticketType: "concert",  event: "StarLight Orchestra Night 2026",    date: "05/08/2026", time: "19:30", venue: "Nhà Hát Vũ Trụ",               seatInfo: "Front Row F-03",           ticketValidity: "valid",   perks: ["Hàng ghế đầu", "Chương trình lưu niệm"] },
+  { id: "TK-008", name: "Tứ Kết World Cup – Hạng Nhất",         category: "tickets", rarity: "epic",      quantity: 1, value: 52000,   status: "active",  image: "⚽", createdAt: "2026-03-25T11:00:00Z", ticketType: "match",    event: "World Cup 2026 Quarter-Final",     date: "20/06/2026", time: "17:00", venue: "Sân VĐ Vũ Trụ",               seatInfo: "Stand A – Row 3, Seat 14", ticketValidity: "valid",   perks: ["Ghế hạng nhất", "Bữa nhẹ miễn phí"] },
+  { id: "TK-009", name: "Lễ Hội Ngân Hà – Khu Sử Thi",         category: "tickets", rarity: "epic",      quantity: 1, value: 44000,   status: "active",  image: "🌌", createdAt: "2026-04-01T08:00:00Z", ticketType: "festival", event: "Galaxy Grand Festival 2026",        date: "12/08/2026", time: "16:00", venue: "Công Viên Ngân Hà",            seatInfo: "Epic Zone EP-04",          ticketValidity: "valid",   perks: ["Khu Epic riêng", "Ăn uống tự chọn", "Souvenir pack"] },
+  { id: "TK-010", name: "Vòng 16 World Cup",                    category: "tickets", rarity: "rare",      quantity: 1, value: 28000,   status: "active",  image: "⚽", createdAt: "2026-04-08T10:00:00Z", ticketType: "match",    event: "World Cup 2026 Round of 16",       date: "14/06/2026", time: "18:00", venue: "Sân VĐ Vũ Trụ",               seatInfo: "Stand B – Row 8, Seat 22", ticketValidity: "valid",   perks: ["Ghế thường", "Nước giải khát"] },
+  { id: "TK-011", name: "Giải Đấu Khu Vực Phía Bắc",           category: "tickets", rarity: "rare",      quantity: 1, value: 22000,   status: "active",  image: "🏆", createdAt: "2026-04-15T09:00:00Z", ticketType: "tournament", event: "Northern Region Championship",     date: "18/07/2026", time: "15:00", venue: "Sân Địa Phương Bắc",          seatInfo: "Stand A – Row 5",          ticketValidity: "valid",   perks: ["Ghế khán đài", "Chương trình sự kiện"] },
+  { id: "TK-012", name: "Concert Pop Vũ Trụ",                   category: "tickets", rarity: "rare",      quantity: 2, value: 18000,   status: "active",  image: "🎤", createdAt: "2026-04-22T11:00:00Z", ticketType: "concert",  event: "Universe Pop Night",               date: "25/07/2026", time: "20:00", venue: "Nhà Hát Vũ Trụ",               seatInfo: "Zone B – Row 5, Seat 10",  ticketValidity: "valid",   perks: ["Ghế thường", "Souvenir nhỏ"] },
+  { id: "TK-013", name: "Vòng Bảng World Cup (Trận 1)",         category: "tickets", rarity: "common",    quantity: 1, value: 8800,    status: "used",    image: "⚽", createdAt: "2026-05-01T08:00:00Z", ticketType: "match",    event: "World Cup 2026 Group Stage",       date: "02/06/2026", time: "15:00", venue: "Sân VĐ Vũ Trụ",               seatInfo: "Stand D – Row 18, Seat 40", ticketValidity: "used",   perks: ["Vào cửa thường"] },
+  { id: "TK-014", name: "Vòng Bảng World Cup (Trận 2)",         category: "tickets", rarity: "common",    quantity: 1, value: 8800,    status: "used",    image: "⚽", createdAt: "2026-05-01T08:30:00Z", ticketType: "match",    event: "World Cup 2026 Group Stage",       date: "05/06/2026", time: "18:00", venue: "Sân VĐ Vũ Trụ",               seatInfo: "Stand D – Row 18, Seat 41", ticketValidity: "used",   perks: ["Vào cửa thường"] },
+  { id: "TK-015", name: "Lễ Hội Mùa Xuân Vũ Trụ",             category: "tickets", rarity: "common",    quantity: 1, value: 6400,    status: "used",    image: "🌸", createdAt: "2026-05-08T10:00:00Z", ticketType: "festival", event: "Universe Spring Festival",          date: "20/03/2026", time: "10:00", venue: "Công Viên Vũ Trụ",             seatInfo: "Open Area",                ticketValidity: "used",    perks: ["Vào cửa tự do"] },
+  { id: "TK-016", name: "Trận Giao Hữu Quốc Tế",              category: "tickets", rarity: "common",    quantity: 1, value: 5200,    status: "used",    image: "🤝", createdAt: "2026-05-15T09:00:00Z", ticketType: "match",    event: "International Friendly Match",     date: "10/05/2026", time: "17:00", venue: "Sân Giao Hữu",                seatInfo: "General – Row 10",         ticketValidity: "used",    perks: ["Ghế thường"] },
+  { id: "TK-017", name: "Giải Đấu Khu Vực Phía Đông",         category: "tickets", rarity: "common",    quantity: 1, value: 4800,    status: "expired", image: "🏅", createdAt: "2026-04-10T11:00:00Z", ticketType: "tournament", event: "Eastern Region Football League",   date: "12/04/2026", time: "15:00", venue: "Sân Địa Phương",              seatInfo: "Stand B – General",        ticketValidity: "expired", perks: ["Ghế thường"] },
+  { id: "TK-018", name: "Triển Lãm Thú Cưng Mùa Đông",        category: "tickets", rarity: "common",    quantity: 1, value: 4200,    status: "expired", image: "🐾", createdAt: "2026-03-05T08:00:00Z", ticketType: "festival", event: "Winter Pet Exhibition",             date: "28/02/2026", time: "09:00", venue: "Trung Tâm Triển Lãm",          seatInfo: "General Entrance",         ticketValidity: "expired", perks: ["Vào cửa tự do"] },
+  { id: "TK-019", name: "Hội Chợ Vật Phẩm Vũ Trụ",           category: "tickets", rarity: "common",    quantity: 1, value: 3800,    status: "expired", image: "🎪", createdAt: "2026-02-20T10:00:00Z", ticketType: "festival", event: "Universe Item Fair 2026",           date: "15/02/2026", time: "10:00", venue: "Hội Chợ Vũ Trụ",              seatInfo: "Zone A",                   ticketValidity: "expired", perks: ["Voucher mua hàng 500 CR"] },
+  { id: "TK-020", name: "Lễ Khai Mạc Mùa Giải 2026",         category: "tickets", rarity: "common",    quantity: 1, value: 3200,    status: "expired", image: "🎊", createdAt: "2026-01-15T09:00:00Z", ticketType: "match",    event: "Season 2026 Opening Ceremony",     date: "01/01/2026", time: "20:00", venue: "Sân VĐ Vũ Trụ",               seatInfo: "Stand C – General",        ticketValidity: "expired", perks: ["Vào cửa thường", "Pháo hoa"] },
 ];
 
-// ─── Items ────────────────────────────────────────────────────────────────────
-
-export type ItemCategory = "equipment" | "consumable" | "material" | "decoration" | "special";
-
-export interface InventoryItem {
-  id: string;
-  name: string;
-  category: ItemCategory;
-  rarity: Rarity;
-  quantity: number;
-  power: number;
-  value: number;
-  description: string;
-  icon: string;
-  usableIn: string[];
-  effect?: string;
-}
-
-export const ITEM_CATEGORY_META: Record<ItemCategory, { label: string; color: string; bg: string; border: string }> = {
-  equipment:  { label: "Trang bị",    color: "text-blue-400",   bg: "bg-blue-400/10",   border: "border-blue-400/20" },
-  consumable: { label: "Tiêu hao",    color: "text-emerald-400",bg: "bg-emerald-400/10",border: "border-emerald-400/20" },
-  material:   { label: "Nguyên liệu", color: "text-amber-400",  bg: "bg-amber-400/10",  border: "border-amber-400/20" },
-  decoration: { label: "Trang trí",   color: "text-pink-400",   bg: "bg-pink-400/10",   border: "border-pink-400/20" },
-  special:    { label: "Đặc biệt",    color: "text-purple-400", bg: "bg-purple-400/10", border: "border-purple-400/20" },
-};
+// ─── Items (20) ───────────────────────────────────────────────────────────────
 
 export const ITEMS: InventoryItem[] = [
-  { id: "IT-001", name: "Kiếm Ngân Hà",         category: "equipment",  rarity: "legendary", quantity: 1,   power: 9500, value: 450000, description: "Kiếm huyền thoại đúc từ thiên thạch ngàn năm tuổi.", icon: "⚔️", usableIn: ["Pet Battle", "World Creator"], effect: "+95% Sát thương" },
-  { id: "IT-002", name: "Giáp Rồng Đen",        category: "equipment",  rarity: "legendary", quantity: 1,   power: 8800, value: 380000, description: "Giáp làm từ vảy rồng đen huyền bí, bất khả xâm phạm.", icon: "🛡️", usableIn: ["Pet Battle"], effect: "+88% Phòng thủ" },
-  { id: "IT-003", name: "Tinh Thạch Huyền Bí",  category: "material",   rarity: "epic",      quantity: 12,  power: 0,    value: 85000,  description: "Nguyên liệu quý hiếm để chế tạo vũ khí cấp cao.", icon: "💠", usableIn: ["Crafting"], effect: "Nguyên liệu chế tạo" },
-  { id: "IT-004", name: "Thuốc Tăng Sức Mạnh",  category: "consumable", rarity: "epic",      quantity: 5,   power: 0,    value: 28000,  description: "Tăng sức mạnh tạm thời cho thú cưng trong 24h.", icon: "⚗️", usableIn: ["Pet Battle"], effect: "+50% Sức mạnh (24h)" },
-  { id: "IT-005", name: "Cờ Hiệu Đội Tuyển",    category: "decoration", rarity: "epic",      quantity: 3,   power: 0,    value: 42000,  description: "Cờ của Football Universe FC, biểu tượng danh dự.", icon: "🚩", usableIn: ["World Creator", "Football Universe"], effect: "+5% Tinh thần đội" },
-  { id: "IT-006", name: "Bản Đồ Kho Báu",       category: "special",    rarity: "rare",      quantity: 2,   power: 0,    value: 65000,  description: "Bản đồ dẫn đến kho báu ẩn trong World Creator.", icon: "🗺️", usableIn: ["World Creator"], effect: "Mở khóa khu vực ẩn" },
-  { id: "IT-007", name: "Trái Tim Tinh Thể",    category: "material",   rarity: "rare",      quantity: 8,   power: 0,    value: 18000,  description: "Trái tim tinh thể thu nhập từ các thú cưng huyền thoại.", icon: "💎", usableIn: ["Crafting", "Pet Upgrade"], effect: "Nâng cấp thú cưng" },
-  { id: "IT-008", name: "Giày Tốc Độ Sấm",      category: "equipment",  rarity: "rare",      quantity: 1,   power: 4200, value: 55000,  description: "Giày ma thuật tăng tốc độ di chuyển tối đa.", icon: "👟", usableIn: ["Football Universe", "Pet Battle"], effect: "+42% Tốc độ" },
-  { id: "IT-009", name: "Nước Phục Hồi Cấp S",  category: "consumable", rarity: "rare",      quantity: 20,  power: 0,    value: 8500,   description: "Phục hồi toàn bộ HP của thú cưng ngay lập tức.", icon: "🧪", usableIn: ["Pet Battle"], effect: "Hồi 100% HP" },
-  { id: "IT-010", name: "Đèn Lồng Vũ Trụ",      category: "decoration", rarity: "uncommon",  quantity: 6,   power: 0,    value: 12000,  description: "Đèn lồng phát sáng đẹp mắt để trang trí tài sản.", icon: "🏮", usableIn: ["World Creator"], effect: "+Vẻ đẹp công trình" },
-  { id: "IT-011", name: "Quặng Sắt Tinh",       category: "material",   rarity: "uncommon",  quantity: 45,  power: 0,    value: 2200,   description: "Quặng sắt chất lượng cao dùng để chế tạo trang bị.", icon: "⛏️", usableIn: ["Crafting"], effect: "Nguyên liệu cơ bản" },
-  { id: "IT-012", name: "Thuốc Mana Nhỏ",       category: "consumable", rarity: "common",    quantity: 88,  power: 0,    value: 350,    description: "Phục hồi một lượng nhỏ mana khi cần thiết.", icon: "🔵", usableIn: ["Pet Battle", "World Creator"], effect: "Hồi 25% Mana" },
-  { id: "IT-013", name: "Hạt Giống Ma Thuật",   category: "material",   rarity: "common",    quantity: 120, power: 0,    value: 180,    description: "Hạt giống có thể trồng trong World Creator.", icon: "🌱", usableIn: ["World Creator"], effect: "Trồng cây đặc biệt" },
-  { id: "IT-014", name: "Vé Xổ Số Vũ Trụ",     category: "special",    rarity: "uncommon",  quantity: 3,   power: 0,    value: 5000,   description: "Vé xổ số có cơ hội trúng vật phẩm huyền thoại.", icon: "🎫", usableIn: ["Lottery"], effect: "Cơ hội nhận quà" },
+  { id: "IT-001", name: "Kiếm Thần Thoại Vũ Trụ",    category: "items", rarity: "mythic",    quantity: 1,   value: 2800000, status: "equipped", image: "🗡️", createdAt: "2025-12-20T09:00:00Z", itemCategory: "weapon",     power: 12000, effect: "+120% Sát thương toàn cục",   usableIn: ["Pet Battle", "World Creator", "Football Universe"], description: "Kiếm thần thoại được đúc từ lõi ngôi sao chết, chứa đựng sức mạnh vũ trụ." },
+  { id: "IT-002", name: "Giáp Vĩnh Cửu",             category: "items", rarity: "mythic",    quantity: 1,   value: 2400000, status: "equipped", image: "🛡️", createdAt: "2026-01-02T10:00:00Z", itemCategory: "armor",      power: 11500, effect: "+115% Phòng thủ vĩnh cửu",   usableIn: ["Pet Battle", "World Creator"],                      description: "Giáp bất hoại được tạo từ vật chất tối, không có vũ khí nào xuyên thủng." },
+  { id: "IT-003", name: "Kiếm Ngân Hà",              category: "items", rarity: "legendary", quantity: 1,   value: 980000,  status: "equipped", image: "⚔️", createdAt: "2026-01-10T11:00:00Z", itemCategory: "weapon",     power: 9500,  effect: "+95% Sát thương",             usableIn: ["Pet Battle", "World Creator"],                      description: "Kiếm huyền thoại đúc từ thiên thạch ngàn năm tuổi." },
+  { id: "IT-004", name: "Giáp Rồng Đen",             category: "items", rarity: "legendary", quantity: 1,   value: 840000,  status: "active",   image: "🛡️", createdAt: "2026-01-18T09:00:00Z", itemCategory: "armor",      power: 8800,  effect: "+88% Phòng thủ",             usableIn: ["Pet Battle"],                                       description: "Giáp làm từ vảy rồng đen huyền bí, bất khả xâm phạm." },
+  { id: "IT-005", name: "Bản Đồ Kho Báu Huyền Thoại",category: "items", rarity: "legendary", quantity: 2,   value: 650000,  status: "active",   image: "🗺️", createdAt: "2026-01-25T10:00:00Z", itemCategory: "special",    power: 0,     effect: "Mở khóa vùng đất ẩn bậc S", usableIn: ["World Creator"],                                    description: "Bản đồ cực hiếm dẫn đến kho báu huyền thoại ẩn sâu." },
+  { id: "IT-006", name: "Tinh Thạch Huyền Bí (x10)", category: "items", rarity: "epic",      quantity: 10,  value: 320000,  status: "active",   image: "💠", createdAt: "2026-02-01T09:00:00Z", itemCategory: "material",   power: 0,     effect: "Nguyên liệu chế tạo cấp S", usableIn: ["Crafting"],                                         description: "Tinh thạch quý hiếm dùng để chế tạo vũ khí và giáp cấp cao nhất." },
+  { id: "IT-007", name: "Thuốc Tăng Sức Mạnh Cấp S", category: "items", rarity: "epic",      quantity: 5,   value: 58000,   status: "active",   image: "⚗️", createdAt: "2026-02-08T11:00:00Z", itemCategory: "consumable", power: 0,     effect: "+60% Sức mạnh (48h)",        usableIn: ["Pet Battle"],                                       description: "Tăng sức mạnh tối đa tạm thời, hiệu quả mạnh nhất hiện có." },
+  { id: "IT-008", name: "Cờ Hiệu Đội Tuyển VIP",     category: "items", rarity: "epic",      quantity: 3,   value: 48000,   status: "active",   image: "🚩", createdAt: "2026-02-15T08:00:00Z", itemCategory: "decoration", power: 0,     effect: "+8% Tinh thần đội",           usableIn: ["World Creator", "Football Universe"],               description: "Cờ hiệu VIP của Football Universe FC, biểu tượng danh dự." },
+  { id: "IT-009", name: "Giày Tốc Độ Sấm Sét",       category: "items", rarity: "epic",      quantity: 1,   value: 88000,   status: "equipped", image: "👟", createdAt: "2026-02-22T10:00:00Z", itemCategory: "equipment",  power: 5200,  effect: "+52% Tốc độ di chuyển",      usableIn: ["Football Universe", "Pet Battle"],                  description: "Giày ma thuật tăng tốc độ tối đa, nhanh như tia sét." },
+  { id: "IT-010", name: "Nhẫn Sức Mạnh Huyền Bí",    category: "items", rarity: "epic",      quantity: 1,   value: 72000,   status: "active",   image: "💍", createdAt: "2026-03-01T09:00:00Z", itemCategory: "equipment",  power: 4400,  effect: "+44% Sức tấn công",           usableIn: ["Pet Battle", "World Creator"],                      description: "Nhẫn cổ đại tăng cường sức mạnh tấn công đáng kể." },
+  { id: "IT-011", name: "Nước Phục Hồi Cấp S (x20)", category: "items", rarity: "rare",      quantity: 20,  value: 12000,   status: "active",   image: "🧪", createdAt: "2026-03-08T11:00:00Z", itemCategory: "consumable", power: 0,     effect: "Hồi 100% HP tức thì",        usableIn: ["Pet Battle"],                                       description: "Phục hồi toàn bộ HP của thú cưng ngay lập tức." },
+  { id: "IT-012", name: "Trái Tim Tinh Thể (x8)",     category: "items", rarity: "rare",      quantity: 8,   value: 22000,   status: "active",   image: "💎", createdAt: "2026-03-15T08:30:00Z", itemCategory: "material",   power: 0,     effect: "Nâng cấp thú cưng",           usableIn: ["Crafting", "Pet Upgrade"],                          description: "Trái tim tinh thể thu thập từ các thú cưng huyền thoại." },
+  { id: "IT-013", name: "Bản Đồ Kho Báu",            category: "items", rarity: "rare",      quantity: 2,   value: 38000,   status: "active",   image: "🗺️", createdAt: "2026-03-22T10:00:00Z", itemCategory: "special",    power: 0,     effect: "Mở khóa khu vực ẩn",         usableIn: ["World Creator"],                                    description: "Bản đồ dẫn đến kho báu ẩn trong World Creator." },
+  { id: "IT-014", name: "Đèn Lồng Vũ Trụ (x6)",      category: "items", rarity: "rare",      quantity: 6,   value: 14000,   status: "active",   image: "🏮", createdAt: "2026-04-01T09:00:00Z", itemCategory: "decoration", power: 0,     effect: "+Vẻ đẹp công trình cao",     usableIn: ["World Creator"],                                    description: "Đèn lồng phát sáng đẹp mắt để trang trí tài sản." },
+  { id: "IT-015", name: "Vé Xổ Số Vũ Trụ (x3)",      category: "items", rarity: "rare",      quantity: 3,   value: 8800,    status: "active",   image: "🎫", createdAt: "2026-04-08T11:00:00Z", itemCategory: "special",    power: 0,     effect: "Cơ hội nhận quà huyền thoại",usableIn: ["Lottery"],                                          description: "Vé xổ số có cơ hội trúng vật phẩm huyền thoại." },
+  { id: "IT-016", name: "Quặng Sắt Tinh (x45)",       category: "items", rarity: "common",    quantity: 45,  value: 2800,    status: "active",   image: "⛏️", createdAt: "2026-04-15T08:00:00Z", itemCategory: "material",   power: 0,     effect: "Nguyên liệu cơ bản",          usableIn: ["Crafting"],                                         description: "Quặng sắt chất lượng cao dùng để chế tạo trang bị." },
+  { id: "IT-017", name: "Thuốc Mana Nhỏ (x88)",       category: "items", rarity: "common",    quantity: 88,  value: 350,     status: "active",   image: "🔵", createdAt: "2026-04-22T10:00:00Z", itemCategory: "consumable", power: 0,     effect: "Hồi 25% Mana",               usableIn: ["Pet Battle", "World Creator"],                      description: "Phục hồi một lượng nhỏ mana khi cần thiết." },
+  { id: "IT-018", name: "Hạt Giống Ma Thuật (x120)",  category: "items", rarity: "common",    quantity: 120, value: 200,     status: "active",   image: "🌱", createdAt: "2026-05-01T09:00:00Z", itemCategory: "material",   power: 0,     effect: "Trồng cây đặc biệt",          usableIn: ["World Creator"],                                    description: "Hạt giống có thể trồng trong World Creator để tạo cảnh quan." },
+  { id: "IT-019", name: "Bùa Hộ Mệnh Nhỏ",           category: "items", rarity: "common",    quantity: 4,   value: 1800,    status: "active",   image: "🧿", createdAt: "2026-05-08T11:00:00Z", itemCategory: "equipment",  power: 800,   effect: "+8% Phòng thủ cơ bản",       usableIn: ["Pet Battle"],                                       description: "Bùa hộ mệnh nhỏ giúp tăng sức bền trong chiến đấu." },
+  { id: "IT-020", name: "Bột Phép Màu (x200)",        category: "items", rarity: "common",    quantity: 200, value: 80,      status: "active",   image: "✨", createdAt: "2026-05-15T08:00:00Z", itemCategory: "material",   power: 0,     effect: "Nguyên liệu phép thuật",      usableIn: ["Crafting", "World Creator"],                        description: "Bột phép thuật cơ bản dùng trong nhiều công thức chế tạo." },
 ];
 
-// ─── Inventory Analytics ──────────────────────────────────────────────────────
+// ─── Analytics ────────────────────────────────────────────────────────────────
 
 export const INVENTORY_STATS = {
-  totalItems:    PETS.length + FOOTBALL_PLAYERS.length + WORLD_ASSETS.length + TICKETS.length + ITEMS.length,
-  totalValue:    PETS.reduce((s, _) => s + 15000, 0)
-               + FOOTBALL_PLAYERS.reduce((s, p) => s + p.value, 0)
-               + WORLD_ASSETS.reduce((s, a) => s + a.value, 0)
-               + TICKETS.reduce((s, t) => s + t.price, 0)
-               + ITEMS.reduce((s, i) => s + i.value * i.quantity, 0),
-  legendaryCount: [
-    ...PETS, ...FOOTBALL_PLAYERS, ...WORLD_ASSETS, ...TICKETS, ...ITEMS
-  ].filter(x => x.rarity === "legendary").length,
-  weeklyIncome:  WORLD_ASSETS.reduce((s, a) => s + a.income, 0),
+  totalItems:     PETS.length + FOOTBALL_PLAYERS.length + WORLD_ASSETS.length + TICKETS.length + ITEMS.length,
+  totalValue:     [...PETS, ...FOOTBALL_PLAYERS, ...WORLD_ASSETS, ...TICKETS, ...ITEMS].reduce((s, i) => s + i.value * i.quantity, 0),
+  legendaryCount: [...PETS, ...FOOTBALL_PLAYERS, ...WORLD_ASSETS, ...TICKETS, ...ITEMS].filter(x => x.rarity === "legendary").length,
+  mythicCount:    [...PETS, ...FOOTBALL_PLAYERS, ...WORLD_ASSETS, ...TICKETS, ...ITEMS].filter(x => x.rarity === "mythic").length,
+  weeklyIncome:   WORLD_ASSETS.reduce((s, a) => s + a.income, 0),
 };
 
 export const INVENTORY_VALUE_TREND = [
-  { label: "T1", value: 1200000 },
-  { label: "T2", value: 1480000 },
-  { label: "T3", value: 1650000 },
-  { label: "T4", value: 1820000 },
-  { label: "T5", value: 2100000 },
-  { label: "T6", value: 2380000 },
+  { label: "T1", value: 8200000  },
+  { label: "T2", value: 9800000  },
+  { label: "T3", value: 11400000 },
+  { label: "T4", value: 13200000 },
+  { label: "T5", value: 15600000 },
+  { label: "T6", value: 18400000 },
 ];
 
 export const CATEGORY_BREAKDOWN = [
-  { name: "Thú cưng",     count: PETS.length,             value: 680000,  color: "#c084fc" },
-  { name: "Cầu thủ",     count: FOOTBALL_PLAYERS.length, value: 960000,  color: "#60a5fa" },
-  { name: "Tài sản TG",  count: WORLD_ASSETS.length,     value: 3204000, color: "#34d399" },
-  { name: "Vé",          count: TICKETS.length,           value: 243000,  color: "#fbbf24" },
-  { name: "Vật phẩm",   count: ITEMS.length,             value: 420000,  color: "#f87171" },
+  { name: "Thú cưng",     count: PETS.length,             value: PETS.reduce((s, p) => s + p.value, 0),             color: "#c084fc" },
+  { name: "Cầu thủ",     count: FOOTBALL_PLAYERS.length, value: FOOTBALL_PLAYERS.reduce((s, p) => s + p.value, 0), color: "#60a5fa" },
+  { name: "Tài sản TG",  count: WORLD_ASSETS.length,     value: WORLD_ASSETS.reduce((s, a) => s + a.value, 0),     color: "#34d399" },
+  { name: "Vé",          count: TICKETS.length,           value: TICKETS.reduce((s, t) => s + t.value, 0),          color: "#fbbf24" },
+  { name: "Vật phẩm",   count: ITEMS.length,             value: ITEMS.reduce((s, i) => s + i.value * i.quantity, 0), color: "#f87171" },
 ];
 
 export const RARITY_BREAKDOWN = [
-  { name: "Huyền thoại", count: 6,  color: "#fbbf24" },
-  { name: "Sử thi",      count: 12, color: "#c084fc" },
-  { name: "Hiếm",        count: 18, color: "#60a5fa" },
-  { name: "Không phổ",  count: 14, color: "#34d399" },
-  { name: "Phổ thông",  count: 10, color: "#9ca3af" },
+  { name: "Thần thoại",  count: [...PETS, ...FOOTBALL_PLAYERS, ...WORLD_ASSETS, ...TICKETS, ...ITEMS].filter(x => x.rarity === "mythic").length,    color: "#fb7185" },
+  { name: "Huyền thoại", count: [...PETS, ...FOOTBALL_PLAYERS, ...WORLD_ASSETS, ...TICKETS, ...ITEMS].filter(x => x.rarity === "legendary").length, color: "#fbbf24" },
+  { name: "Sử thi",      count: [...PETS, ...FOOTBALL_PLAYERS, ...WORLD_ASSETS, ...TICKETS, ...ITEMS].filter(x => x.rarity === "epic").length,      color: "#c084fc" },
+  { name: "Hiếm",        count: [...PETS, ...FOOTBALL_PLAYERS, ...WORLD_ASSETS, ...TICKETS, ...ITEMS].filter(x => x.rarity === "rare").length,      color: "#60a5fa" },
+  { name: "Thông thường",count: [...PETS, ...FOOTBALL_PLAYERS, ...WORLD_ASSETS, ...TICKETS, ...ITEMS].filter(x => x.rarity === "common").length,    color: "#9ca3af" },
 ];
+
+// ─── Re-export everything from types so existing imports keep working ─────────
+
+export type {
+  Pet, FootballPlayer, WorldAsset, Ticket, InventoryItem,
+  Rarity, InventoryCategory, ItemStatus, AnyInventoryItem,
+  PetElement, PetStatus,
+  Position, PlayerStats,
+  AssetType, AssetStatus,
+  TicketType, ItemCategory,
+} from "@/types/inventory";
+
+// TicketStatus was the old name — keep as alias for backward compat
+export type { TicketValidity as TicketStatus } from "@/types/inventory";
+
+export {
+  RARITY_META,
+  ELEMENT_META, PET_STATUS_META,
+  POSITION_META,
+  ASSET_TYPE_META,
+  ITEM_CATEGORY_META,
+  TICKET_TYPE_META,
+  STATUS_META,
+} from "@/types/inventory";
+
+// ASSET_STATUS_META backward compat (old shape: label/color/bg)
+export const ASSET_STATUS_META = {
+  owned:      { label: "Sở hữu",          color: "text-emerald-400", bg: "bg-emerald-400/10" },
+  renting:    { label: "Cho thuê",        color: "text-blue-400",    bg: "bg-blue-400/10" },
+  developing: { label: "Đang xây dựng",   color: "text-amber-400",   bg: "bg-amber-400/10" },
+  idle:       { label: "Bỏ trống",        color: "text-gray-400",    bg: "bg-gray-400/10" },
+} as const;
+
+// TICKET_STATUS_META backward compat (old: valid/used/expired)
+export const TICKET_STATUS_META = {
+  valid:   { label: "Hợp lệ",      color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20" },
+  used:    { label: "Đã sử dụng",  color: "text-gray-400",    bg: "bg-gray-400/10",    border: "border-gray-400/20" },
+  expired: { label: "Hết hạn",    color: "text-red-400",     bg: "bg-red-400/10",     border: "border-red-400/20" },
+} as const;

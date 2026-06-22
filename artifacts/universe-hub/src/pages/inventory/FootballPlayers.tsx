@@ -84,7 +84,7 @@ function PlayerCard({ player, index }: { player: typeof FOOTBALL_PLAYERS[0]; ind
           </div>
           <div className="flex-1 text-center">
             <p className="text-[9px] font-mono text-muted-foreground/30">NGÀY</p>
-            <p className="text-[9px] font-mono text-muted-foreground/40">{player.acquiredAt}</p>
+            <p className="text-[9px] font-mono text-muted-foreground/40">{new Date(player.createdAt).toLocaleDateString("vi-VN")}</p>
           </div>
         </div>
       </div>

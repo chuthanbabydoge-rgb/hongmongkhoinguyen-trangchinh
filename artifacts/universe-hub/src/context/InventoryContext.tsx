@@ -16,33 +16,21 @@ import {
   INVENTORY_VALUE_TREND,
   CATEGORY_BREAKDOWN,
   RARITY_BREAKDOWN,
-  type Pet,
-  type FootballPlayer,
-  type WorldAsset,
-  type Ticket,
-  type InventoryItem,
-  type Rarity,
 } from "@/lib/inventoryMockData";
-
-// ─── Category identifier ──────────────────────────────────────────────────────
-
-export type InventoryCategory =
-  | "pets"
-  | "football"
-  | "world-assets"
-  | "tickets"
-  | "items";
-
-export const INVENTORY_CATEGORIES: Record<
+import type {
+  Pet,
+  FootballPlayer,
+  WorldAsset,
+  Ticket,
+  InventoryItem,
+  Rarity,
   InventoryCategory,
-  { label: string; icon: string }
-> = {
-  pets:          { label: "Thú cưng",         icon: "🐾" },
-  football:      { label: "Cầu thủ bóng đá",  icon: "⚽" },
-  "world-assets":{ label: "Tài sản thế giới", icon: "🌍" },
-  tickets:       { label: "Vé",               icon: "🎫" },
-  items:         { label: "Vật phẩm",         icon: "🎒" },
-};
+  ItemStatus,
+} from "@/types/inventory";
+
+// ─── Re-export types for convenience ─────────────────────────────────────────
+
+export type { InventoryCategory, Rarity, ItemStatus };
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
@@ -63,27 +51,21 @@ interface InventoryState {
 // ─── Actions ──────────────────────────────────────────────────────────────────
 
 interface InventoryActions {
-  // Pets
   getPet: (id: string) => Pet | undefined;
   getPetsByRarity: (rarity: Rarity) => Pet[];
 
-  // Football Players
   getPlayer: (id: string) => FootballPlayer | undefined;
   getPlayersByRarity: (rarity: Rarity) => FootballPlayer[];
 
-  // World Assets
   getAsset: (id: string) => WorldAsset | undefined;
   getAssetsByRarity: (rarity: Rarity) => WorldAsset[];
 
-  // Tickets
   getTicket: (id: string) => Ticket | undefined;
   getValidTickets: () => Ticket[];
 
-  // Items
   getItem: (id: string) => InventoryItem | undefined;
   getItemsByRarity: (rarity: Rarity) => InventoryItem[];
 
-  // Global
   searchAll: (query: string) => {
     pets: Pet[];
     footballPlayers: FootballPlayer[];
@@ -91,9 +73,10 @@ interface InventoryActions {
     tickets: Ticket[];
     items: InventoryItem[];
   };
+
   getTotalValue: () => number;
 
-  // API-ready refresh (simulates network call; swap body for real fetch later)
+  // API-ready: swap the stub body for a real fetch() when the backend is ready
   refreshInventory: () => Promise<void>;
   refreshCategory: (category: InventoryCategory) => Promise<void>;
 }
@@ -127,7 +110,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     [pets],
   );
 
-  // ── Football Players ───────────────────────────────────────────────────────
+  // ── Football Players ──────────────────────────────────────────────────────
   const getPlayer = useCallback(
     (id: string) => footballPlayers.find((p) => p.id === id),
     [footballPlayers],
@@ -153,7 +136,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     [tickets],
   );
   const getValidTickets = useCallback(
-    () => tickets.filter((t) => t.status === "valid"),
+    () => tickets.filter((t) => t.ticketValidity === "valid"),
     [tickets],
   );
 
@@ -167,7 +150,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     [items],
   );
 
-  // ── Search across all categories ──────────────────────────────────────────
+  // ── Cross-category search ─────────────────────────────────────────────────
   const searchAll = useCallback(
     (query: string) => {
       const q = query.toLowerCase().trim();
@@ -200,17 +183,14 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     [pets, footballPlayers, worldAssets, tickets, items],
   );
 
-  // ── Total value ───────────────────────────────────────────────────────────
   const getTotalValue = useCallback(
     () =>
-      footballPlayers.reduce((s, p) => s + p.value, 0) +
-      worldAssets.reduce((s, a) => s + a.value, 0) +
-      tickets.reduce((s, t) => s + t.price, 0) +
-      items.reduce((s, i) => s + i.value * i.quantity, 0),
-    [footballPlayers, worldAssets, tickets, items],
+      [...pets, ...footballPlayers, ...worldAssets, ...tickets, ...items]
+        .reduce((s, i) => s + i.value * i.quantity, 0),
+    [pets, footballPlayers, worldAssets, tickets, items],
   );
 
-  // ── Refresh all (API-ready stub) ─────────────────────────────────────────
+  // ── Refresh all (API-ready stub) ──────────────────────────────────────────
   const refreshInventory = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -236,45 +216,31 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ── Refresh single category (API-ready stub) ──────────────────────────────
-  const refreshCategory = useCallback(
-    async (category: InventoryCategory) => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        // TODO: replace with a targeted fetch, e.g.:
-        // const data = await fetch(`/api/inventory/${category}`).then(r => r.json());
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        switch (category) {
-          case "pets":
-            setPets(PETS);
-            break;
-          case "football":
-            setFootballPlayers(FOOTBALL_PLAYERS);
-            break;
-          case "world-assets":
-            setWorldAssets(WORLD_ASSETS);
-            break;
-          case "tickets":
-            setTickets(TICKETS);
-            break;
-          case "items":
-            setItems(ITEMS);
-            break;
-        }
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : `Lỗi khi tải danh mục: ${category}`,
-        );
-      } finally {
-        setIsLoading(false);
+  const refreshCategory = useCallback(async (category: InventoryCategory) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // TODO: const data = await fetch(`/api/inventory/${category}`).then(r => r.json());
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      switch (category) {
+        case "pets":          setPets(PETS);                         break;
+        case "football":      setFootballPlayers(FOOTBALL_PLAYERS); break;
+        case "world-assets":  setWorldAssets(WORLD_ASSETS);         break;
+        case "tickets":       setTickets(TICKETS);                   break;
+        case "items":         setItems(ITEMS);                       break;
       }
-    },
-    [],
-  );
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : `Lỗi khi tải danh mục: ${category}`,
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  // ── Memoised context value ────────────────────────────────────────────────
+  // ── Memoised value ────────────────────────────────────────────────────────
   const value = useMemo<InventoryContextValue>(
     () => ({
       pets,

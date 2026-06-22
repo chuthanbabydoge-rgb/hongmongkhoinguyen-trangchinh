@@ -19,8 +19,8 @@ const BG = () => (
 
 function AssetCard({ asset, index }: { asset: typeof WORLD_ASSETS[0]; index: number }) {
   const rm = RARITY_META[asset.rarity];
-  const tm = ASSET_TYPE_META[asset.type];
-  const sm = ASSET_STATUS_META[asset.status];
+  const tm = ASSET_TYPE_META[asset.assetType];
+  const sm = ASSET_STATUS_META[asset.assetStatus];
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(index * 0.06, 0.4) }}
@@ -29,7 +29,7 @@ function AssetCard({ asset, index }: { asset: typeof WORLD_ASSETS[0]; index: num
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-3">
           <div className={cn("w-12 h-12 rounded-xl border flex items-center justify-center text-2xl flex-shrink-0", rm.bg, rm.border)}>
-            {asset.icon}
+            {asset.image}
           </div>
           <div className="flex flex-col items-end gap-1">
             <div className={cn("text-[9px] font-mono font-bold px-2 py-0.5 rounded border", rm.color, rm.bg, rm.border)}>{rm.label}</div>
@@ -82,8 +82,8 @@ export default function WorldAssets() {
 
   const filtered = useMemo(() => WORLD_ASSETS.filter(a => {
     if (filterRarity !== "all" && a.rarity !== filterRarity) return false;
-    if (filterType !== "all" && a.type !== filterType) return false;
-    if (filterStatus !== "all" && a.status !== filterStatus) return false;
+    if (filterType !== "all" && a.assetType !== filterType) return false;
+    if (filterStatus !== "all" && a.assetStatus !== filterStatus) return false;
     if (search && !a.name.toLowerCase().includes(search.toLowerCase()) && !a.world.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   }), [search, filterRarity, filterType, filterStatus]);
