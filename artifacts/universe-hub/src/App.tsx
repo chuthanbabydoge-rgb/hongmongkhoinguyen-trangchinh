@@ -23,6 +23,11 @@ import Tickets from "@/pages/inventory/Tickets";
 import Items from "@/pages/inventory/Items";
 import InventoryAnalytics from "@/pages/inventory/InventoryAnalytics";
 import WarehouseManager from "@/pages/inventory/WarehouseManager";
+import MarketplaceDashboard from "@/pages/marketplace/MarketplaceDashboard";
+import Listings from "@/pages/marketplace/Listings";
+import Auctions from "@/pages/marketplace/Auctions";
+import MarketplaceTransactions from "@/pages/marketplace/MarketplaceTransactions";
+import MarketplaceAnalytics from "@/pages/marketplace/MarketplaceAnalytics";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -48,6 +53,11 @@ function Router() {
       <Route path="/inventory/items" component={Items} />
       <Route path="/inventory/analytics" component={InventoryAnalytics} />
       <Route path="/inventory/warehouse" component={WarehouseManager} />
+      <Route path="/marketplace" component={MarketplaceDashboard} />
+      <Route path="/marketplace/listings" component={Listings} />
+      <Route path="/marketplace/auctions" component={Auctions} />
+      <Route path="/marketplace/transactions" component={MarketplaceTransactions} />
+      <Route path="/marketplace/analytics" component={MarketplaceAnalytics} />
       <Route component={NotFound} />
     </Switch>
   );

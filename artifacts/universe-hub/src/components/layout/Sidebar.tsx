@@ -21,6 +21,10 @@ import {
   Box,
   BarChart2,
   Warehouse,
+  ShoppingBag,
+  Gavel,
+  Receipt,
+  Store,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -111,6 +115,17 @@ export function Sidebar() {
           <NavItem icon={Box}       label="Vật phẩm"            path="/inventory/items" />
           <NavItem icon={BarChart2}  label="Phân tích Kho"       path="/inventory/analytics" />
           <NavItem icon={Warehouse} label="Quản lý Kho hàng"   path="/inventory/warehouse" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Chợ trực tuyến
+          </p>
+          <NavItem icon={Store}       label="Bảng điều khiển Chợ" path="/marketplace" />
+          <NavItem icon={ShoppingBag} label="Danh sách sản phẩm"  path="/marketplace/listings" />
+          <NavItem icon={Gavel}       label="Đấu giá"             path="/marketplace/auctions" />
+          <NavItem icon={Receipt}     label="Giao dịch"           path="/marketplace/transactions" />
+          <NavItem icon={BarChart3}   label="Phân tích Chợ"       path="/marketplace/analytics" />
         </div>
 
         <div className="pt-1 pb-1">
