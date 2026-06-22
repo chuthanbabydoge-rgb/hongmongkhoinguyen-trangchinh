@@ -83,8 +83,8 @@ const API_CONFIG = {
 
 const MOCK_PROFILE: UserProfile = {
   id: "user-001",
-  username: "Commander Zara",
-  title: "Galactic Architect",
+  username: "HỒNG MÔN SINH LINH",
+  title: "HỒNG MÔNG ĐẠI ĐẠO",
   status: "online",
   level: 47,
   xp: 84320,
@@ -236,8 +236,8 @@ class UniverseAccountService {
    * API thực: GET /accounts/me/notifications?limit=50
    */
   async getNotifications(): Promise<Notification[]> {
-    const sorted = [...MOCK_NOTIFICATIONS].sort((a, b) =>
-      Number(a.isRead) - Number(b.isRead),
+    const sorted = [...MOCK_NOTIFICATIONS].sort(
+      (a, b) => Number(a.isRead) - Number(b.isRead),
     );
     return simulateDelay(sorted);
   }
