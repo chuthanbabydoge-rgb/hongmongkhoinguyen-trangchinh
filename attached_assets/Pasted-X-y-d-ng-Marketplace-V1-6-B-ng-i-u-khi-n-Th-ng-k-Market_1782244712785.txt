@@ -1,0 +1,373 @@
+Xây dựng Marketplace V1.6 — Bảng điều khiển Thống kê Marketplace
+
+Các mô-đun đã hoàn thành hiện tại:
+
+* Danh sách sản phẩm
+* Đấu giá
+* Thanh toán tự động
+* Thanh toán qua ví điện tử
+* Lịch sử thanh toán
+* Bảng điều khiển Kho bạc
+
+Mục tiêu:
+
+Hiển thị các phân tích thị trường và số liệu kinh doanh cho bảng điều khiển.
+
+=========================================
+
+1. Lớp Kho lưu trữ
+
+=========================================
+
+Tạo:
+
+repositories/marketplaceStatsRepository.ts
+
+Giao diện:
+
+IMarketplaceStatsRepository
+
+Các phương thức:
+
+getMarketplaceStats()
+
+getTopSellers(limit:number)
+
+getTopBuyers(limit:number)
+
+getTopItems(limit:number)
+
+getVolumeStats()
+
+=========================================
+2. Thống kê Dịch vụ
+================
+
+Tạo:
+
+services/marketplaceStatsService.ts
+
+Phương thức:
+
+getDashboard()
+
+Trả về:
+
+{
+tổng quan:{
+
+số lượng danh sách đang hoạt động:number;
+
+số lượng đấu giá đang hoạt động:number;
+
+
+```
+tổng số giao dịch:number;
+
+tổng khối lượng thị trường:number;
+
+tổng doanh thu:number;
+
+```
+
+},
+
+khối lượng:{
+24 giờ gần nhất:number;
+
+7 ngày gần nhất:number;
+
+30 ngày gần nhất:number;
+
+tất cả thời gian:number;
+
+},
+
+Người bán hàng đầu:[],
+
+Người mua hàng đầu:[],
+
+Mặt hàng hàng đầu:[]
+
+}
+
+=========================================
+3. Người bán hàng đầu
+==============
+
+Dựa trên lịch sử thanh toán.
+
+Trả về:
+
+[ {
+{
+mã người bán: chuỗi,
+
+số giao dịch: số,
+
+khối lượng: số,
+
+doanh thu: số
+
+}
+
+]
+
+Sắp xếp giảm dần theo doanh thu.
+
+=========================================
+4. Khách hàng hàng đầu
+=============
+
+Kết quả trả về:
+
+[ {
+buyerId:string,
+transactionCount:number,
+volume:number
+
+}
+
+]
+
+Sắp xếp giảm dần theo khối lượng.
+
+=========================================
+5. Sản phẩm hàng đầu
+============
+
+Kết quả trả về:
+
+[ {
+Tên sản phẩm:string,
+doanh số:number,
+khối lượng:number
+
+}
+
+]
+
+Sắp xếp giảm dần theo doanh số.
+
+=========================================
+6. Phân tích khối lượng
+===================
+
+Tính toán:
+
+Khối lượng 24 giờ
+
+Khối lượng 7 ngày
+
+Khối lượng 30 ngày
+
+Khối lượng toàn thời gian
+
+Sử dụng dữ liệu thanh toán của sàn giao dịch.
+
+=========================================
+7. Bộ điều khiển
+=============
+
+Tạo:
+
+controllers/marketplaceStatsController.ts
+
+Điểm cuối:
+
+GET /api/marketplace/stats
+
+GET /api/marketplace/stats/top-sellers
+
+GET /api/marketplace/stats/top-buyers
+
+GET /api/marketplace/stats/top-items
+
+=========================================
+8. Tuyến đường
+=========
+
+Tệp:
+
+routes/marketplace.ts
+
+Thêm:
+
+GET /marketplace/stats
+
+GET /marketplace/stats/top-sellers
+
+GET /marketplace/stats/top-buyers
+
+GET /marketplace/stats/top-items
+
+==========================================
+9. Kết nối Container
+===================
+
+Đăng ký:
+
+marketplaceStatsRepository
+
+marketplaceStatsService
+
+marketplaceStatsController
+
+=========================================
+10. Supabase Cách triển khai
+===========================
+
+Tạo:
+
+repositories/supabase/SupabaseMarketplaceStatsRepository.ts
+
+Sử dụng:
+
+marketplace_listings
+
+marketplace_auctions
+
+marketplace_transactions
+
+marketplace_payments
+
+Tổng hợp trực tiếp từ Supabase.
+
+=========================================
+11. Kiểm thử
+=========
+
+Tạo:
+
+services/**tests**/marketplaceStatsService.test.ts
+
+Các bài kiểm thử tối thiểu:
+
+✔ Số lượng sản phẩm đang bán
+
+✔ Số lượng phiên đấu giá đang hoạt động
+
+✔ Số lượng giao dịch
+
+✔ Khối lượng giao dịch trên thị trường
+
+✔ Doanh thu trên thị trường
+
+✔ Xếp hạng người bán hàng đầu
+
+✔ Xếp hạng người mua hàng đầu
+
+✔ Xếp hạng sản phẩm hàng đầu
+
+✔ Khối lượng giao dịch 24h
+
+✔ Khối lượng giao dịch 7 ngày
+
+✔ Khối lượng giao dịch 30 ngày
+
+✔ Cơ sở dữ liệu trống trả về giá trị 0
+
+Mục tiêu:
+
+Tất cả các bài kiểm thử đều đạt
+
+===========================================
+12. API Ví dụ
+===============
+
+GET /api/marketplace/stats
+
+Phản hồi:
+
+{
+"ok": true,
+
+"data": {
+"overview": {
+"activeListings": 128,
+
+"activeAuctions": 41,
+
+"totalTransactions": 725,
+
+"totalMarketplaceVolume": 1450000,
+
+"totalRevenue": 72500
+
+},
+
+```
+"volume": {
+
+"last24h": 12000,
+
+"last7d": 91000,
+
+"last30d": 340000,
+
+"allTime": 1450000
+
+},
+
+"topSellers": [
+
+{
+
+"sellerId":"u1",
+
+"transactionCount":30,
+
+"volume":100000,
+
+"revenue":95000
+
+}
+],
+
+"topBuyers":[
+
+{
+
+"buyerId":"u2",
+
+"transactionCount":22,
+
+"volume":80000
+
+}
+],
+
+"topItems":[
+
+{
+
+"itemName":"Rồng",
+
+"sales":15,
+
+"volume":50000
+
+}
+
+]
+```
+
+}
+
+}
+
+Yêu cầu:
+
+* Không thay đổi gây ảnh hưởng đến tính tương thích ngược
+* Tái sử dụng lịch sử thanh toán hiện có
+* Tái sử dụng các tính toán kho bạc
+* Kiểm thử toàn diện
+* Trả về báo cáo cuối cùng với:
+
+* các tệp đã sửa đổi
+
+* các điểm cuối API
+
+* kết quả kiểm thử
+
+* các phản hồi mẫu

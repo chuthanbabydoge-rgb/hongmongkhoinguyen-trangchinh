@@ -18,6 +18,7 @@ import {
   handleGetPayments,
   handleGetPayment,
 } from "../controllers/marketplacePaymentController";
+import { handleGetTreasury } from "../controllers/marketplaceTreasuryController";
 
 const router: IRouter = Router();
 
@@ -45,5 +46,8 @@ router.post(   "/marketplace/auctions/:id/bid",                handlePlaceBid);
 // ─── Payment history ──────────────────────────────────────────────────────────
 router.get("/marketplace/payments",     handleGetPayments);
 router.get("/marketplace/payments/:id", handleGetPayment);
+
+// ─── Treasury ─────────────────────────────────────────────────────────────────
+router.get("/marketplace/treasury", handleGetTreasury);
 
 export default router;

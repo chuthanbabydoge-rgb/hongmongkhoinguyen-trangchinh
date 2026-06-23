@@ -40,6 +40,9 @@ import {
 } from "./repositories/supabase";
 import { SupabaseMarketplaceStatsRepository }       from "./repositories/supabase/SupabaseMarketplaceStatsRepository";
 import { SupabaseInventoryItemsMutationRepository } from "./repositories/supabase/SupabaseInventoryItemsMutationRepository";
+import { SupabaseTreasuryRepository }              from "./repositories/supabase/SupabaseTreasuryRepository";
+import { MockTreasuryRepository }                  from "./repositories/marketplaceTreasuryRepository";
+import { MarketplaceTreasuryService }              from "./services/marketplaceTreasuryService";
 
 import type { User } from "./models/user";
 import type { Avatar } from "./models/user";
@@ -230,3 +233,12 @@ export const marketplaceService = new MarketplaceService(
   inventoryMutationRepo,
   marketplacePaymentService,
 );
+
+// ─── Treasury ─────────────────────────────────────────────────────────────────
+
+const treasuryRepo = useSupabase
+  ? new SupabaseTreasuryRepository()
+  : new MockTreasuryRepository();
+logger.info(`Container: treasury → ${useSupabase ? "Supabase" : "Mock"}`);
+
+export const marketplaceTreasuryService = new MarketplaceTreasuryService(treasuryRepo);
