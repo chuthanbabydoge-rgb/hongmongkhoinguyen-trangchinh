@@ -1,0 +1,172 @@
+Marketplace V2.6 — Sự kiện WebSocket thời gian thực
+
+Mục tiêu
+
+Cung cấp cập nhật thời gian thực cho các máy khách được kết nối.
+
+
+Các tập tin cần tạo
+
+src/realtime/marketplaceEventBus.ts
+
+src/realtime/marketplaceWebSocketServer.ts
+
+src/services/marketplaceRealtimeService.ts
+
+src/services/**tests**/marketplaceRealtime.test.ts
+
+Các tập tin cần sửa đổi
+
+container.ts
+
+server.ts
+
+marketplaceService.ts
+
+marketplaceNotificationService.ts
+
+marketplaceWatchlistService.ts
+
+Các loại sự kiện
+
+LISTING_CREATED
+
+LISTING_REMOVED
+
+LISTING_SOLD
+
+AUCTION_CREATED
+
+AUCTION_CANCELLED
+
+AUCTION_COMPLETED
+
+BID_PLACED
+
+PRICE_DROP
+
+NOTIFICATION_CREATED
+
+SELLER_LEVEL_UP
+
+SELLER_SUSPENDED
+
+SELLER_BANNED
+
+Payload Ví dụ
+
+{ type:"LISTING_SOLD",
+
+timestamp:"...",
+data:{
+listingId:"...",
+itemName:"...",
+price:5000
+
+}
+}
+
+Điểm cuối WebSocket
+
+/ws/marketplace
+
+Đăng ký
+
+Khách hàng đăng ký theo:
+
+userId
+
+Loại sự kiện
+
+Ví dụ
+
+{
+action:"subscribe",
+
+userId:"abc"
+
+}
+
+{
+action:"subscribe",
+events:["PRICE_DROP","NOTIFICATION_CREATED"]
+
+}
+
+Tích hợp thời gian thực
+
+createListing()
+
+deleteListing()
+
+purchaseListing()
+
+createAuction()
+
+cancelAuction()
+
+completeAuction()
+
+placeBid()
+
+Bộ thu thập giá
+
+Bộ thu thập tìm kiếm đã lưu
+
+Dịch vụ thông báo
+
+Dịch vụ uy tín
+
+Dịch vụ kiểm duyệt
+
+Tất cả đều phát ra sự kiện.
+
+Điểm cuối số liệu
+
+GET /api/marketplace/realtime/stats
+
+Phản hồi
+
+{ ok:true,
+data:{
+connectedClients:15,
+subscriptions:87,
+
+messagesSent:1204
+
+}
+}
+
+Kiểm tra
+
+✔ Kết nối websocket
+
+✔ Đăng ký người dùng
+
+✔ Đăng ký loại sự kiện
+
+✔ Sự kiện tạo danh sách
+
+✔ Sự kiện tạo đấu giá
+
+✔ Sự kiện đặt giá thầu
+
+✔ Sự kiện giảm giá
+
+✔ Sự kiện thông báo
+
+✔ Sự kiện kiểm duyệt
+
+✔ Sự kiện tăng cấp độ uy tín
+
+✔ Dọn dẹp khi ngắt kết nối
+
+✔ Bộ đếm số liệu
+
+Dự kiến
+
+Tất cả các bài kiểm tra đều đạt.
+
+Không có thay đổi gây ảnh hưởng đến tính tương thích ngược.
+
+Cập nhật thời gian thực được cung cấp ngay lập tức.
