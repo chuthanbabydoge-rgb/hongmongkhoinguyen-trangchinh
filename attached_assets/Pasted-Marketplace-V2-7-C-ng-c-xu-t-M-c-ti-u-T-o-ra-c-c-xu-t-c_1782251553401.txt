@@ -1,0 +1,135 @@
+Marketplace V2.7 — Công cụ đề xuất
+
+Mục tiêu
+
+Tạo ra các đề xuất cá nhân hóa cho mỗi người dùng.
+
+Các tệp cần tạo
+
+repositories/marketplaceRecommendationRepository.ts
+
+repositories/supabase/SupabaseMarketplaceRecommendationRepository.ts
+
+services/marketplaceRecommendationService.ts
+
+controllers/marketplaceRecommendationController.ts
+
+services/**tests**/marketplaceRecommendation.test.ts
+
+Điểm cuối
+
+GET /api/marketplace/recommendations
+
+GET /api/marketplace/recommendations/trending
+
+GET /api/marketplace/recommendations/similar/:listingId
+
+Nguồn đề xuất
+
+1. Lịch sử mua hàng
+
+Đề xuất các danh mục người dùng mua nhiều nhất
+
+2. Danh sách theo dõi
+
+Đề xuất các mặt hàng tương tự
+
+3. Tìm kiếm đã lưu
+
+Đề xuất các danh sách phù hợp
+
+4. Xu hướng
+
+Các danh sách có khối lượng giao dịch cao
+
+Các phiên đấu giá có giá thầu cao
+
+5. Tăng uy tín
+
+Tăng nhẹ độ tin cậy Người bán
+
+Chấm điểm
+
+điểm =
+
+Trọng lượng mua hàng +
+
+Trọng lượng danh sách theo dõi +
+Trọng lượng tìm kiếm đã lưu +
+
+Trọng lượng xu hướng +
+
+Trọng lượng độ tin cậy của người bán
+
+Phản hồi
+
+{
+"ok":true,
+
+"data":[
+{
+"listingId":"...",
+
+"itemName":"...",
+
+"score":91.4,
+
+"reason":"Tương tự với các mặt hàng trong danh sách theo dõi của bạn"
+
+}
+]
+}
+
+Điểm cuối Xu hướng
+
+Trả về:
+
+các mặt hàng được đăng bán nhiều nhất
+
+các phiên đấu giá hàng đầu
+
+các danh mục hàng đầu
+
+các từ khóa tìm kiếm hàng đầu
+
+Điểm cuối Tương tự
+
+Với listingId đã cho:
+
+cùng danh mục
+
+cùng độ hiếm
+
+khoảng giá gần đó
+
+cùng mức độ uy tín của người bán
+
+Kiểm tra
+
+✔ đề xuất từ ​​các giao dịch mua hàng
+
+✔ đề xuất từ ​​danh sách theo dõi
+
+✔ đề xuất từ ​​các tìm kiếm đã lưu
+
+✔ xếp hạng xu hướng
+
+✔ các mặt hàng tương tự
+
+✔ uy tín của người bán Tăng cường
+
+✔ Lịch sử trống dự phòng
+
+✔ Loại bỏ dữ liệu trùng lặp
+
+✔ Phân trang
+
+✔ Sắp xếp theo điểm số
+
+Đã đạt yêu cầu
+
+Tất cả các bài kiểm tra đều đạt.
+
+Không có thay đổi gây lỗi.
+
+Các điểm cuối đang hoạt động.

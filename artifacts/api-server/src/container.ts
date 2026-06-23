@@ -1,5 +1,8 @@
 import { logger } from "./lib/logger";
-import { MarketplaceRealtimeService } from "./services/marketplaceRealtimeService";
+import { MarketplaceRealtimeService }         from "./services/marketplaceRealtimeService";
+import { MarketplaceRecommendationService }    from "./services/marketplaceRecommendationService";
+import { MockMarketplaceRecommendationRepository } from "./repositories/marketplaceRecommendationRepository";
+import { SupabaseMarketplaceRecommendationRepository } from "./repositories/supabase/SupabaseMarketplaceRecommendationRepository";
 import { isSupabaseConfigured } from "./database/supabase";
 import { MockReputationRepository as MockMarketplaceReputationRepository } from "./repositories/marketplaceReputationRepository";
 import { SupabaseMarketplaceReputationRepository }                         from "./repositories/supabase/SupabaseMarketplaceReputationRepository";
@@ -370,6 +373,15 @@ export const savedSearchPoller = new MarketplaceSavedSearchPoller(
 );
 
 savedSearchPoller.start();
+
+// ─── Recommendation (V2.7) ───────────────────────────────────────────────────
+
+const recommendationRepo = useSupabase
+  ? new SupabaseMarketplaceRecommendationRepository()
+  : new MockMarketplaceRecommendationRepository();
+logger.info(`Container: recommendations → ${useSupabase ? "Supabase" : "Mock"}`);
+
+export const recommendationService = new MarketplaceRecommendationService(recommendationRepo);
 
 // ─── Moderation (V2.5) ────────────────────────────────────────────────────────
 

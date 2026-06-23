@@ -65,6 +65,11 @@ import {
   handleRunScan,
 } from "../controllers/marketplaceSavedSearchController";
 import { handleGetRealtimeStats } from "../controllers/marketplaceRealtimeController";
+import {
+  handleGetRecommendations,
+  handleGetTrending,
+  handleGetSimilar,
+} from "../controllers/marketplaceRecommendationController";
 
 const router: IRouter = Router();
 
@@ -134,6 +139,12 @@ router.post(  "/marketplace/saved-searches/run-scan",  handleRunScan);
 router.get(   "/marketplace/saved-searches/:id",       handleGetSavedSearch);
 router.patch( "/marketplace/saved-searches/:id",       handleUpdateSavedSearch);
 router.delete("/marketplace/saved-searches/:id",       handleDeleteSavedSearch);
+
+// ─── Recommendations (V2.7) ───────────────────────────────────────────────────
+// Note: static sub-paths (trending, similar) must precede any dynamic segments.
+router.get("/marketplace/recommendations/trending",          handleGetTrending);
+router.get("/marketplace/recommendations/similar/:listingId", handleGetSimilar);
+router.get("/marketplace/recommendations",                   handleGetRecommendations);
 
 // ─── Watchlist (V2.1 / V2.2) ──────────────────────────────────────────────────
 // Note: all static sub-paths must precede /:id to avoid routing conflicts.
