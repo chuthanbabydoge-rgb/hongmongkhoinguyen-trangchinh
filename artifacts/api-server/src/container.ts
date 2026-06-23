@@ -43,9 +43,12 @@ import { SupabaseInventoryItemsMutationRepository } from "./repositories/supabas
 import { SupabaseTreasuryRepository }              from "./repositories/supabase/SupabaseTreasuryRepository";
 import { MockTreasuryRepository }                  from "./repositories/marketplaceTreasuryRepository";
 import { MarketplaceTreasuryService }              from "./services/marketplaceTreasuryService";
-import { SupabaseMarketplaceAnalyticsRepository }  from "./repositories/supabase/SupabaseMarketplaceAnalyticsRepository";
-import { MockMarketplaceAnalyticsRepository }      from "./repositories/marketplaceStatsRepository";
-import { MarketplaceStatsService }                 from "./services/marketplaceStatsService";
+import { SupabaseMarketplaceAnalyticsRepository }       from "./repositories/supabase/SupabaseMarketplaceAnalyticsRepository";
+import { MockMarketplaceAnalyticsRepository }           from "./repositories/marketplaceStatsRepository";
+import { MarketplaceStatsService }                      from "./services/marketplaceStatsService";
+import { SupabaseMarketplaceNotificationRepository }    from "./repositories/supabase/SupabaseMarketplaceNotificationRepository";
+import { MockMarketplaceNotificationRepository }        from "./repositories/marketplaceNotificationRepository";
+import { MarketplaceNotificationService }               from "./services/marketplaceNotificationService";
 
 import type { User } from "./models/user";
 import type { Avatar } from "./models/user";
@@ -227,6 +230,15 @@ export const inventoryService = new InventoryService(inventoryItemsRepo);
 const marketplacePaymentRepo          = new MockMarketplacePaymentRepository();
 export const marketplacePaymentService = new MarketplacePaymentService(walletRepo, marketplacePaymentRepo);
 
+// ─── Marketplace Notifications (V1.7) ─────────────────────────────────────────
+
+const notificationRepo = useSupabase
+  ? new SupabaseMarketplaceNotificationRepository()
+  : new MockMarketplaceNotificationRepository();
+logger.info(`Container: marketplace notifications → ${useSupabase ? "Supabase" : "Mock"}`);
+
+export const marketplaceNotificationService = new MarketplaceNotificationService(notificationRepo);
+
 export const marketplaceService = new MarketplaceService(
   listingsRepo,
   transactionsRepo,
@@ -235,6 +247,7 @@ export const marketplaceService = new MarketplaceService(
   statsRepo,
   inventoryMutationRepo,
   marketplacePaymentService,
+  marketplaceNotificationService,
 );
 
 // ─── Treasury ─────────────────────────────────────────────────────────────────

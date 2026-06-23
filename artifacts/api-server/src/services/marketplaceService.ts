@@ -25,6 +25,7 @@ import type {
 } from "../repositories/marketplaceRepository";
 import type { IInventoryItemsMutationRepository } from "../repositories/inventoryItemsMutationRepository";
 import type { IMarketplacePaymentService }        from "./marketplacePaymentService";
+import type { IMarketplaceNotificationService }   from "./marketplaceNotificationService";
 
 const STATUS_ACTIVE   = "đang hoạt động";
 const STATUS_TRADING  = "đang giao dịch";
@@ -55,6 +56,7 @@ export class MarketplaceService {
     private readonly stats:        IMarketplaceStatsRepository,
     private readonly inventory:    IInventoryItemsMutationRepository,
     private readonly payment:      IMarketplacePaymentService | null = null,
+    private readonly notif:        IMarketplaceNotificationService | null = null,
   ) {}
 
   // ─── Stats ──────────────────────────────────────────────────────────────────
@@ -103,7 +105,9 @@ export class MarketplaceService {
     // ── Mark item as trading ──────────────────────────────────────────────────
     await this.inventory.setStatus(input.itemId, STATUS_TRADING);
 
-    return this.listings.create(input);
+    const listing = await this.listings.create(input);
+    this.notif?.onListingCreated(listing.sellerId, listing).catch(() => {});
+    return listing;
   }
 
   async deleteListing(id: string): Promise<boolean> {
@@ -115,6 +119,7 @@ export class MarketplaceService {
     // ── Restore item to active ────────────────────────────────────────────────
     if (deleted) {
       await this.inventory.setStatus(listing.itemId, STATUS_ACTIVE);
+      this.notif?.onListingCancelled(listing.sellerId, listing).catch(() => {});
     }
 
     return deleted;
@@ -165,6 +170,8 @@ export class MarketplaceService {
       price:    listing.price,
       currency: listing.currency,
     });
+
+    this.notif?.onListingSold(listing.sellerId, input.buyerId, listing).catch(() => {});
 
     return { transaction, listing: updatedListing ?? listing };
   }
@@ -225,7 +232,9 @@ export class MarketplaceService {
     // ── Mark item as trading ──────────────────────────────────────────────────
     await this.inventory.setStatus(input.itemId, STATUS_TRADING);
 
-    return this.auctions.create(input);
+    const auction = await this.auctions.create(input);
+    this.notif?.onAuctionCreated(auction.sellerId, auction).catch(() => {});
+    return auction;
   }
 
   async cancelAuction(id: string): Promise<Auction> {
@@ -241,6 +250,7 @@ export class MarketplaceService {
     await this.inventory.setStatus(auction.itemId, STATUS_ACTIVE);
 
     const updated = await this.auctions.updateStatus(id, "cancelled");
+    this.notif?.onAuctionCancelled(auction.sellerId, auction).catch(() => {});
     return updated ?? auction;
   }
 
@@ -255,7 +265,10 @@ export class MarketplaceService {
       );
     }
 
-    const highestBid = await this.bids.getHighestBid(id);
+    const [highestBid, allBids] = await Promise.all([
+      this.bids.getHighestBid(id),
+      this.bids.getByAuctionId(id),
+    ]);
     let winnerId: string | null = null;
 
     if (highestBid) {
@@ -275,9 +288,21 @@ export class MarketplaceService {
       // 2. Transfer item to winner — transferOwnership sets status → "đang hoạt động"
       await this.inventory.transferOwnership(auction.itemId, highestBid.bidderId);
       winnerId = highestBid.bidderId;
+
+      // 3. Notify winner, seller, and unique losers (fire-and-forget)
+      const loserIds = [...new Set(
+        allBids.map(b => b.bidderId).filter(bid => bid !== highestBid.bidderId),
+      )];
+      this.notif?.onAuctionCompleted(
+        highestBid.bidderId,
+        auction.sellerId,
+        loserIds,
+        { id: auction.id, itemId: auction.itemId, itemName: auction.itemName, startingPrice: auction.startingPrice, currency: auction.currency, amount: highestBid.amount },
+      ).catch(() => {});
     } else {
       // No bids — restore item to seller
       await this.inventory.setStatus(auction.itemId, STATUS_ACTIVE);
+      this.notif?.onAuctionEndedNoBids(auction.sellerId, auction).catch(() => {});
     }
 
     const updated = await this.auctions.updateStatus(id, "ended");
@@ -305,6 +330,8 @@ export class MarketplaceService {
       input.amount,
       auction.bidCount + 1,
     );
+
+    this.notif?.onBidPlaced(input.bidderId, auction, input.amount).catch(() => {});
 
     return { bid, auction: updatedAuction ?? auction };
   }

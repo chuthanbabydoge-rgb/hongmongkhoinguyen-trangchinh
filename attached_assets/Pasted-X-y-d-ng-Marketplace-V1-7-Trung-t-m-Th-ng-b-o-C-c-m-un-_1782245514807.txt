@@ -1,0 +1,282 @@
+Xây dựng Marketplace V1.7 — Trung tâm Thông báo
+
+Các mô-đun đã hoàn thành:
+
+* Hệ thống cốt lõi của Marketplace
+* Đấu giá
+* Thanh toán
+* Thanh toán ví điện tử
+* Bảng điều khiển kho bạc
+* Thống kê Marketplace
+
+Mục tiêu:
+
+Tạo một trung tâm thông báo hoàn chỉnh cho các sự kiện trên Marketplace.
+
+=====================================
+CƠ SỞ DỮ LIỆU
+========
+
+Tạo bảng:
+
+marketplace_notifications
+
+Các cột:
+
+id UUID KHÓA CHÍNH
+
+user_id UUID KHÔNG ĐƯỢC NULL
+
+type TEXT KHÔNG ĐƯỢC NULL
+
+title TEXT KHÔNG ĐƯỢC NULL
+
+message TEXT KHÔNG ĐƯỢC NULL
+
+is_read BOOLEAN MẶC ĐỊNH false
+
+metadata JSONB
+
+created_at TIMESTAMPTZ MẶC ĐỊNH now()
+
+Chỉ mục:
+
+user_id
+
+is_read
+
+created_at
+
+======================================
+TỆP TIN ĐẾN TẠO
+
+===============
+
+repositories/marketplaceNotificationRepository.ts
+
+repositories/supabase/SupabaseMarketplaceNotificationRepository.ts
+
+services/marketplaceNotificationService.ts
+
+controllers/marketplaceNotificationController.ts
+
+services/**tests**/marketplaceNotificationService.test.ts
+
+=====================================
+CÁC TỆP CẦN ĐƯỢC CHUYỂN ĐẾN SỬA ĐỔI
+===============
+
+services/marketplaceService.ts
+
+routes/marketplace.ts
+
+container.ts
+
+package.json
+
+======================================
+THÔNG BÁO LOẠI
+
+DANH SÁCH ĐÃ TẠO
+
+DANH SÁCH ĐÃ BÁN
+
+DANH SÁCH ĐÃ HỦY
+
+ĐẤU GIÁ ĐÃ TẠO
+
+ĐẤU GIÁ ĐÃ HỦY
+
+ĐẤU GIÁ ĐÃ THẮNG
+
+ĐẤU GIÁ ĐÃ THUA
+
+ĐẤU GIÁ KẾT THÚC KHÔNG CÓ NGƯỜI TRẢ GIÁ
+
+ĐẤU GIÁ ĐÃ ĐẶT GIÁ
+
+THANH TOÁN ĐÃ NHẬN
+
+THANH TOÁN ĐÃ GỬI
+
+======================================
+SỰ KIỆN TỰ ĐỘNG
+===========
+
+createListing()
+
+→ DANH SÁCH ĐÃ TẠO
+
+deleteListing()
+
+→ DANH SÁCH ĐÃ HỦY
+
+mua danh sách()
+
+người mua:
+THANH TOÁN ĐÃ GỬI
+
+người bán:
+THANH TOÁN ĐÃ NHẬN
+DANH SÁCH ĐÃ BÁN
+
+tạo đấu giá()
+
+→ ĐẤU GIÁ ĐÃ TẠO
+
+hủy đấu giá()
+
+→ ĐẤU GIÁ ĐÃ HỦY
+
+đặt giá thầu()
+
+người bán:
+
+đã đặt giá thầu
+
+hoàn tất đấu giá()
+
+người thắng cuộc:
+
+ĐẤU GIÁ ĐÃ THẮNG
+
+người bán:
+THANH TOÁN ĐÃ NHẬN
+
+tất cả người đấu giá thua:
+
+ĐẤU GIÁ ĐÃ THUA
+
+không có giá thầu:
+
+ĐẤU GIÁ ĐÃ KẾT THÚC KHÔNG CÓ GIÁ THẦU
+
+=====================================
+ĐIỂM CUỐI
+=========
+
+GET /api/marketplace/notifications
+
+GET /api/marketplace/notifications/unread
+
+GET /api/marketplace/notifications/count
+
+PATCH /api/marketplace/notifications/:id/read
+
+PATCH /api/marketplace/notifications/read-all
+
+DELETE /api/marketplace/notifications/:id
+
+=====================================
+VÍ DỤ PHẢN HỒI
+=================
+
+GET /api/marketplace/notifications
+
+{
+"ok": true,
+
+"total": 2,
+
+"data": [ {
+"id":"...",
+
+"type":"LISTING_SOLD",
+
+"title":"Vật phẩm đã bán",
+
+"message":"Rùa Thần Kim đã được bán với giá 999 tín dụng",
+
+"isRead":false,
+
+"createdAt":"..."
+}
+]
+}
+
+GET /api/marketplace/notifications/count
+
+{
+"ok": true,
+
+"unread": 5
+
+}
+
+PATCH /api/marketplace/notifications/read-all
+
+{
+"ok": true,
+
+"updated": 12
+
+}
+
+=====================================
+SIÊU DỮ LIỆU
+========
+
+Lưu trữ siêu dữ liệu JSON:
+
+{
+listingId,
+auctionId,
+paymentId,
+
+itemId,
+amount,
+currency
+}
+
+Cần thiết cho các liên kết sâu ở giao diện người dùng trong tương lai.
+
+====================================
+KIỂM TRA
+=====
+
+Tối thiểu:
+
+✔ Tạo thông báo
+
+✔ Số lượng tin nhắn chưa đọc
+
+✔ Đánh dấu đã đọc
+
+✔ Đánh dấu tất cả đã đọc
+
+✔ Xóa thông báo
+
+✔ Tin đăng được tạo
+
+✔ Tin đăng đã bán
+
+✔ Đấu giá được tạo
+
+✔ Đấu giá thắng
+
+✔ Đấu giá thua
+
+✔ Đã nhận thanh toán
+
+✔ Đã gửi thanh toán
+
+✔ Truy vấn tin nhắn chưa đọc
+
+✔ Trạng thái trống
+
+Mục tiêu:
+
+Đạt 100%
+
+======================================
+BÁO CÁO GIAO HÀNG
+===============
+
+Kết quả trả về:
+
+1. Số tệp được tạo
+2. Số tệp được sửa đổi
+3. 4. Các điểm cuối đã thêm
+5. Các phản hồi API mẫu
+6. Kết quả kiểm thử
+7. Tổng số lần vượt qua

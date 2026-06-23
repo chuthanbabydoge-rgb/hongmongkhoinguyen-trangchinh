@@ -25,6 +25,14 @@ import {
   handleGetTopBuyers,
   handleGetTopItems,
 } from "../controllers/marketplaceStatsController";
+import {
+  handleGetNotifications,
+  handleGetUnread,
+  handleGetUnreadCount,
+  handleMarkAllAsRead,
+  handleMarkAsRead,
+  handleDeleteNotification,
+} from "../controllers/marketplaceNotificationController";
 
 const router: IRouter = Router();
 
@@ -58,5 +66,14 @@ router.get("/marketplace/payments/:id", handleGetPayment);
 
 // ─── Treasury ─────────────────────────────────────────────────────────────────
 router.get("/marketplace/treasury", handleGetTreasury);
+
+// ─── Notifications (V1.7) ─────────────────────────────────────────────────────
+// Note: static sub-paths (unread, count, read-all) must precede /:id patterns.
+router.get(   "/marketplace/notifications",            handleGetNotifications);
+router.get(   "/marketplace/notifications/unread",     handleGetUnread);
+router.get(   "/marketplace/notifications/count",      handleGetUnreadCount);
+router.patch( "/marketplace/notifications/read-all",   handleMarkAllAsRead);
+router.patch( "/marketplace/notifications/:id/read",   handleMarkAsRead);
+router.delete("/marketplace/notifications/:id",        handleDeleteNotification);
 
 export default router;
