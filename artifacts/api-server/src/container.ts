@@ -3,6 +3,9 @@ import { MarketplaceRealtimeService }         from "./services/marketplaceRealti
 import { MarketplaceRecommendationService }    from "./services/marketplaceRecommendationService";
 import { MockMarketplaceRecommendationRepository } from "./repositories/marketplaceRecommendationRepository";
 import { SupabaseMarketplaceRecommendationRepository } from "./repositories/supabase/SupabaseMarketplaceRecommendationRepository";
+import { MarketplacePricingService }           from "./services/marketplacePricingService";
+import { MockMarketplacePricingRepository }    from "./repositories/marketplacePricingRepository";
+import { SupabaseMarketplacePricingRepository } from "./repositories/supabase/SupabaseMarketplacePricingRepository";
 import { isSupabaseConfigured } from "./database/supabase";
 import { MockReputationRepository as MockMarketplaceReputationRepository } from "./repositories/marketplaceReputationRepository";
 import { SupabaseMarketplaceReputationRepository }                         from "./repositories/supabase/SupabaseMarketplaceReputationRepository";
@@ -373,6 +376,15 @@ export const savedSearchPoller = new MarketplaceSavedSearchPoller(
 );
 
 savedSearchPoller.start();
+
+// ─── Pricing Intelligence (V2.8) ─────────────────────────────────────────────
+
+const pricingRepo = useSupabase
+  ? new SupabaseMarketplacePricingRepository()
+  : new MockMarketplacePricingRepository();
+logger.info(`Container: pricing → ${useSupabase ? "Supabase" : "Mock"}`);
+
+export const pricingService = new MarketplacePricingService(pricingRepo);
 
 // ─── Recommendation (V2.7) ───────────────────────────────────────────────────
 

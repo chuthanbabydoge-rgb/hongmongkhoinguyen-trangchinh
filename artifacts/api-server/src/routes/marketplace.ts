@@ -70,6 +70,11 @@ import {
   handleGetTrending,
   handleGetSimilar,
 } from "../controllers/marketplaceRecommendationController";
+import {
+  handleGetPricingTrends,
+  handleGetCategoryPricing,
+  handleGetItemPricing,
+} from "../controllers/marketplacePricingController";
 
 const router: IRouter = Router();
 
@@ -139,6 +144,12 @@ router.post(  "/marketplace/saved-searches/run-scan",  handleRunScan);
 router.get(   "/marketplace/saved-searches/:id",       handleGetSavedSearch);
 router.patch( "/marketplace/saved-searches/:id",       handleUpdateSavedSearch);
 router.delete("/marketplace/saved-searches/:id",       handleDeleteSavedSearch);
+
+// ─── Pricing Intelligence (V2.8) ─────────────────────────────────────────────
+// Note: static sub-paths (trends, category) must precede dynamic /:itemId.
+router.get("/marketplace/pricing/trends",              handleGetPricingTrends);
+router.get("/marketplace/pricing/category/:category",  handleGetCategoryPricing);
+router.get("/marketplace/pricing/:itemId",             handleGetItemPricing);
 
 // ─── Recommendations (V2.7) ───────────────────────────────────────────────────
 // Note: static sub-paths (trending, similar) must precede any dynamic segments.
