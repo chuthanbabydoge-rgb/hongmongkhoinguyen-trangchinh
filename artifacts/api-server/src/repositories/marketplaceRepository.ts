@@ -124,3 +124,25 @@ export interface IBidsRepository {
   getHighestBid(auctionId: string): Promise<Bid | null>;
   create(auctionId: string, input: PlaceBidInput, currency: MarketplaceCurrency): Promise<Bid>;
 }
+
+// ─── Stats ────────────────────────────────────────────────────────────────────
+
+export interface MarketplaceStats {
+  totalListings:     number;
+  activeListings:    number;
+  soldListings:      number;
+  totalAuctions:     number;
+  liveAuctions:      number;
+  totalTransactions: number;
+  marketVolume:      number;
+}
+
+export interface IMarketplaceStatsRepository {
+  getStats(): Promise<MarketplaceStats>;
+}
+
+// ─── Purchase ─────────────────────────────────────────────────────────────────
+
+export interface PurchaseListingInput {
+  buyerId: string;
+}

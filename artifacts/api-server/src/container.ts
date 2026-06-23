@@ -13,7 +13,9 @@ import type {
   ITransactionsRepository,
   IAuctionsRepository,
   IBidsRepository,
+  IMarketplaceStatsRepository,
 } from "./repositories/marketplaceRepository";
+import type { IInventoryItemsMutationRepository } from "./repositories/inventoryItemsMutationRepository";
 
 import { MockUserRepository }               from "./repositories/userRepository";
 import { MockAvatarRepository }             from "./repositories/avatarRepository";
@@ -36,6 +38,8 @@ import {
   SupabaseMarketplaceAuctionsRepository,
   SupabaseMarketplaceBidsRepository,
 } from "./repositories/supabase";
+import { SupabaseMarketplaceStatsRepository }       from "./repositories/supabase/SupabaseMarketplaceStatsRepository";
+import { SupabaseInventoryItemsMutationRepository } from "./repositories/supabase/SupabaseInventoryItemsMutationRepository";
 
 import type { User } from "./models/user";
 import type { Avatar } from "./models/user";
@@ -159,11 +163,13 @@ let inventoryRepo:          IInventoryRepository;
 let inventoryItemsRepo:     IInventoryItemsRepository;
 
 // ─── Marketplace — always Supabase (no mock fallback) ─────────────────────────
-const listingsRepo:     IListingsRepository     = new SupabaseMarketplaceListingsRepository();
-const transactionsRepo: ITransactionsRepository = new SupabaseMarketplaceTransactionsRepository();
-const auctionsRepo:     IAuctionsRepository     = new SupabaseMarketplaceAuctionsRepository();
-const bidsRepo:         IBidsRepository         = new SupabaseMarketplaceBidsRepository();
-logger.info("Container: marketplace → Supabase (4 repositories)");
+const listingsRepo:     IListingsRepository             = new SupabaseMarketplaceListingsRepository();
+const transactionsRepo: ITransactionsRepository         = new SupabaseMarketplaceTransactionsRepository();
+const auctionsRepo:     IAuctionsRepository             = new SupabaseMarketplaceAuctionsRepository();
+const bidsRepo:         IBidsRepository                 = new SupabaseMarketplaceBidsRepository();
+const statsRepo:        IMarketplaceStatsRepository     = new SupabaseMarketplaceStatsRepository();
+const inventoryMutationRepo: IInventoryItemsMutationRepository = new SupabaseInventoryItemsMutationRepository();
+logger.info("Container: marketplace → Supabase (6 repositories, inventory sync enabled)");
 
 // inventory_items live in Supabase — always use SupabaseInventoryItemsRepository
 inventoryItemsRepo = new SupabaseInventoryItemsRepository();
@@ -215,4 +221,6 @@ export const marketplaceService = new MarketplaceService(
   transactionsRepo,
   auctionsRepo,
   bidsRepo,
+  statsRepo,
+  inventoryMutationRepo,
 );

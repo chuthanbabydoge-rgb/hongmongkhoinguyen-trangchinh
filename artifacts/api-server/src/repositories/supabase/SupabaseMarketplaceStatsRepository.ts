@@ -6,9 +6,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { getSupabaseClient } from "../../database/supabase";
-import type { MarketplaceStats } from "../marketplaceRepository";
+import type { IMarketplaceStatsRepository, MarketplaceStats } from "../marketplaceRepository";
 
-export class SupabaseMarketplaceStatsRepository {
+export class SupabaseMarketplaceStatsRepository implements IMarketplaceStatsRepository {
   private get db() { return getSupabaseClient(); }
 
   async getStats(): Promise<MarketplaceStats> {

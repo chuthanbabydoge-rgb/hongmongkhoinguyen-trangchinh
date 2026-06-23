@@ -16,6 +16,19 @@ const VALID_CURRENCIES:        MarketplaceCurrency[]  = ["credits", "stars", "et
 const VALID_CATEGORIES:        ItemCategory[]         = ["pets", "football", "world-assets", "tickets", "items"];
 const VALID_RARITIES:          ItemRarity[]           = ["common", "rare", "epic", "legendary", "mythic"];
 
+// ─── Stats ────────────────────────────────────────────────────────────────────
+
+export async function handleGetStats(req: Request, res: Response): Promise<void> {
+  try {
+    const stats = await marketplaceService.getStats();
+    res.json({ ok: true, data: stats });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    req.log.error({ err }, `marketplaceController.getStats: ${msg}`);
+    res.status(500).json({ ok: false, error: "Không thể tải thống kê marketplace." });
+  }
+}
+
 // ─── Listings ─────────────────────────────────────────────────────────────────
 
 export async function handleGetListings(req: Request, res: Response): Promise<void> {
@@ -37,7 +50,7 @@ export async function handleGetListings(req: Request, res: Response): Promise<vo
 
 export async function handleGetListing(req: Request, res: Response): Promise<void> {
   try {
-    const { id } = req.params;
+    const id = req.params["id"] as string;
     const listing = await marketplaceService.getListing(id);
     if (!listing) {
       res.status(404).json({ ok: false, error: "Không tìm thấy niêm yết." });
@@ -64,17 +77,17 @@ export async function handleCreateListing(req: Request, res: Response): Promise<
     const currency  = body["currency"] as string | undefined;
     const expiresAt = body["expiresAt"] as string | undefined;
 
-    if (!itemId)    { res.status(400).json({ ok: false, error: "itemId requis." }); return; }
-    if (!itemName)  { res.status(400).json({ ok: false, error: "itemName requis." }); return; }
+    if (!itemId)    { res.status(400).json({ ok: false, error: "itemId là bắt buộc." }); return; }
+    if (!itemName)  { res.status(400).json({ ok: false, error: "itemName là bắt buộc." }); return; }
     if (!category || !VALID_CATEGORIES.includes(category as ItemCategory)) {
-      res.status(400).json({ ok: false, error: `category invalide. Valeurs: ${VALID_CATEGORIES.join(", ")}` }); return;
+      res.status(400).json({ ok: false, error: `category không hợp lệ. Giá trị: ${VALID_CATEGORIES.join(", ")}` }); return;
     }
     if (!rarity || !VALID_RARITIES.includes(rarity as ItemRarity)) {
-      res.status(400).json({ ok: false, error: `rarity invalide. Valeurs: ${VALID_RARITIES.join(", ")}` }); return;
+      res.status(400).json({ ok: false, error: `rarity không hợp lệ. Giá trị: ${VALID_RARITIES.join(", ")}` }); return;
     }
-    if (isNaN(price) || price <= 0) { res.status(400).json({ ok: false, error: "price doit être > 0." }); return; }
+    if (isNaN(price) || price <= 0) { res.status(400).json({ ok: false, error: "price phải lớn hơn 0." }); return; }
     if (!currency || !VALID_CURRENCIES.includes(currency as MarketplaceCurrency)) {
-      res.status(400).json({ ok: false, error: `currency invalide. Valeurs: ${VALID_CURRENCIES.join(", ")}` }); return;
+      res.status(400).json({ ok: false, error: `currency không hợp lệ. Giá trị: ${VALID_CURRENCIES.join(", ")}` }); return;
     }
 
     const listing = await marketplaceService.createListing({
@@ -92,20 +105,42 @@ export async function handleCreateListing(req: Request, res: Response): Promise<
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     req.log.error({ err }, `marketplaceController.createListing: ${msg}`);
-    res.status(500).json({ ok: false, error: msg });
+    const httpStatus = msg.includes("không sở hữu") || msg.includes("không tồn tại") ? 403 : 500;
+    res.status(httpStatus).json({ ok: false, error: msg });
   }
 }
 
 export async function handleDeleteListing(req: Request, res: Response): Promise<void> {
   try {
-    const { id } = req.params;
+    const id = req.params["id"] as string;
     await marketplaceService.deleteListing(id);
     res.json({ ok: true, message: "Niêm yết đã được xoá." });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     req.log.error({ err }, `marketplaceController.deleteListing: ${msg}`);
-    const status = msg.includes("not found") ? 404 : 500;
+    const status = msg.includes("không tìm thấy") ? 404 : 500;
     res.status(status).json({ ok: false, error: msg });
+  }
+}
+
+// ─── Purchase ─────────────────────────────────────────────────────────────────
+
+export async function handlePurchaseListing(req: Request, res: Response): Promise<void> {
+  try {
+    const id = req.params["id"] as string;
+    const body = req.body as Record<string, unknown>;
+
+    const buyerId = (body["buyerId"] as string | undefined) ?? MOCK_USER_ID;
+
+    const result = await marketplaceService.purchaseListing(id, { buyerId });
+    res.status(201).json({ ok: true, data: result });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    req.log.error({ err }, `marketplaceController.purchaseListing: ${msg}`);
+    const httpStatus = msg.includes("không tìm thấy") ? 404
+      : msg.includes("không còn hoạt động") || msg.includes("không thể mua") ? 400
+      : 500;
+    res.status(httpStatus).json({ ok: false, error: msg });
   }
 }
 
@@ -155,21 +190,21 @@ export async function handleCreateAuction(req: Request, res: Response): Promise<
     const currency      = body["currency"]      as string | undefined;
     const endsAt        = body["endsAt"]        as string | undefined;
 
-    if (!itemId)    { res.status(400).json({ ok: false, error: "itemId requis." }); return; }
-    if (!itemName)  { res.status(400).json({ ok: false, error: "itemName requis." }); return; }
+    if (!itemId)    { res.status(400).json({ ok: false, error: "itemId là bắt buộc." }); return; }
+    if (!itemName)  { res.status(400).json({ ok: false, error: "itemName là bắt buộc." }); return; }
     if (!category || !VALID_CATEGORIES.includes(category as ItemCategory)) {
-      res.status(400).json({ ok: false, error: `category invalide. Valeurs: ${VALID_CATEGORIES.join(", ")}` }); return;
+      res.status(400).json({ ok: false, error: `category không hợp lệ. Giá trị: ${VALID_CATEGORIES.join(", ")}` }); return;
     }
     if (!rarity || !VALID_RARITIES.includes(rarity as ItemRarity)) {
-      res.status(400).json({ ok: false, error: `rarity invalide. Valeurs: ${VALID_RARITIES.join(", ")}` }); return;
+      res.status(400).json({ ok: false, error: `rarity không hợp lệ. Giá trị: ${VALID_RARITIES.join(", ")}` }); return;
     }
     if (isNaN(startingPrice) || startingPrice <= 0) {
-      res.status(400).json({ ok: false, error: "startingPrice doit être > 0." }); return;
+      res.status(400).json({ ok: false, error: "startingPrice phải lớn hơn 0." }); return;
     }
     if (!currency || !VALID_CURRENCIES.includes(currency as MarketplaceCurrency)) {
-      res.status(400).json({ ok: false, error: `currency invalide. Valeurs: ${VALID_CURRENCIES.join(", ")}` }); return;
+      res.status(400).json({ ok: false, error: `currency không hợp lệ. Giá trị: ${VALID_CURRENCIES.join(", ")}` }); return;
     }
-    if (!endsAt) { res.status(400).json({ ok: false, error: "endsAt requis (ISO 8601)." }); return; }
+    if (!endsAt) { res.status(400).json({ ok: false, error: "endsAt là bắt buộc (ISO 8601)." }); return; }
 
     const auction = await marketplaceService.createAuction({
       sellerId,
@@ -192,14 +227,14 @@ export async function handleCreateAuction(req: Request, res: Response): Promise<
 
 export async function handlePlaceBid(req: Request, res: Response): Promise<void> {
   try {
-    const { id: auctionId } = req.params;
+    const auctionId = req.params["id"] as string;
     const body = req.body as Record<string, unknown>;
 
     const bidderId = (body["bidderId"] as string | undefined) ?? MOCK_USER_ID;
     const amount   = body["amount"] != null ? Number(body["amount"]) : NaN;
 
     if (isNaN(amount) || amount <= 0) {
-      res.status(400).json({ ok: false, error: "amount doit être > 0." }); return;
+      res.status(400).json({ ok: false, error: "amount phải lớn hơn 0." }); return;
     }
 
     const result = await marketplaceService.placeBid(auctionId, { bidderId, amount });
@@ -207,7 +242,7 @@ export async function handlePlaceBid(req: Request, res: Response): Promise<void>
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     req.log.error({ err }, `marketplaceController.placeBid: ${msg}`);
-    const status = msg.includes("not found") ? 404 : 400;
+    const status = msg.includes("không tìm thấy") ? 404 : 400;
     res.status(status).json({ ok: false, error: msg });
   }
 }
