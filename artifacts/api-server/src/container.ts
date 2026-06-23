@@ -3,6 +3,9 @@ import { isSupabaseConfigured } from "./database/supabase";
 import { MockReputationRepository as MockMarketplaceReputationRepository } from "./repositories/marketplaceReputationRepository";
 import { SupabaseMarketplaceReputationRepository }                         from "./repositories/supabase/SupabaseMarketplaceReputationRepository";
 import { MarketplaceReputationService }                                    from "./services/marketplaceReputationService";
+import { MockModerationRepository }                                        from "./repositories/marketplaceModerationRepository";
+import { SupabaseMarketplaceModerationRepository }                         from "./repositories/supabase/SupabaseMarketplaceModerationRepository";
+import { MarketplaceModerationService }                                    from "./services/marketplaceModerationService";
 import { MarketplacePricePoller } from "./services/marketplacePricePoller";
 import { MockSavedSearchRepository } from "./repositories/marketplaceSavedSearchRepository";
 import { SupabaseMarketplaceSavedSearchRepository } from "./repositories/supabase/SupabaseMarketplaceSavedSearchRepository";
@@ -359,3 +362,16 @@ export const savedSearchPoller = new MarketplaceSavedSearchPoller(
 );
 
 savedSearchPoller.start();
+
+// ─── Moderation (V2.5) ────────────────────────────────────────────────────────
+
+const moderationRepo = useSupabase
+  ? new SupabaseMarketplaceModerationRepository()
+  : new MockModerationRepository();
+logger.info(`Container: moderation → ${useSupabase ? "Supabase" : "Mock"}`);
+
+export const moderationService = new MarketplaceModerationService(
+  moderationRepo,
+  listingsRepo,
+  auctionsRepo,
+);

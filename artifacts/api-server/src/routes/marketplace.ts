@@ -43,6 +43,15 @@ import {
   handleRunPriceCheck,
 } from "../controllers/marketplaceWatchlistController";
 import {
+  handleGetDashboard,
+  handleGetReported,
+  handleRemoveListing,
+  handleRemoveAuction,
+  handleSuspendSeller,
+  handleBanSeller,
+  handleGetActions,
+} from "../controllers/marketplaceModerationController";
+import {
   handleRate,
   handleGetReputation,
   handleGetTopSellers as handleGetReputationTopSellers,
@@ -97,6 +106,15 @@ router.get(   "/marketplace/notifications/count",      handleGetUnreadCount);
 router.patch( "/marketplace/notifications/read-all",   handleMarkAllAsRead);
 router.patch( "/marketplace/notifications/:id/read",   handleMarkAsRead);
 router.delete("/marketplace/notifications/:id",        handleDeleteNotification);
+
+// ─── Admin moderation (V2.5) ──────────────────────────────────────────────────
+router.get( "/marketplace/admin/dashboard",      handleGetDashboard);
+router.get( "/marketplace/admin/reported",       handleGetReported);
+router.get( "/marketplace/admin/actions",        handleGetActions);
+router.post("/marketplace/admin/remove-listing", handleRemoveListing);
+router.post("/marketplace/admin/remove-auction", handleRemoveAuction);
+router.post("/marketplace/admin/suspend-seller", handleSuspendSeller);
+router.post("/marketplace/admin/ban-seller",     handleBanSeller);
 
 // ─── Reputation (V2.4) ────────────────────────────────────────────────────────
 // Note: static sub-path (top-sellers) must precede /:userId.

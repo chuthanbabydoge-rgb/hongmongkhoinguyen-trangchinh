@@ -1,0 +1,157 @@
+Marketplace V2.5 — Bảng điều khiển quản trị
+
+Mục tiêu
+
+Cung cấp các công cụ quản trị cho chợ trực tuyến.
+
+
+Các tệp cần tạo
+
+repositories/marketplaceModerationRepository.ts
+
+repositories/supabase/SupabaseMarketplaceModerationRepository.ts
+
+services/marketplaceModerationService.ts
+
+controllers/marketplaceModerationController.ts
+
+services/**tests**/marketplaceModeration.test.ts
+
+Mô hình miền
+
+ModerationAction
+
+{
+id:string,
+
+adminId:string,
+
+action:string,
+
+targetType:string,
+
+targetId:string,
+
+reason:string,
+
+createdAt:string
+
+}
+
+Các hành động
+
+REMOVE_LISTING
+
+REMOVE_AUCTION
+
+SUSPEND_SELLER
+
+RESTORE_LISTING
+
+RESTORE_AUCTION
+
+BAN_SELLER
+
+API
+
+GET /api/marketplace/admin/dashboard
+
+GET /api/marketplace/admin/reported
+
+POST /api/marketplace/admin/remove-listing
+
+POST /api/marketplace/admin/remove-auction
+
+POST /api/marketplace/admin/suspend-seller
+
+POST /api/marketplace/admin/ban-seller
+
+GET /api/marketplace/admin/actions
+
+Ví dụ
+
+POST /api/marketplace/admin/remove-listing
+
+{
+"adminId":"admin",
+
+"listingId":"abc",
+
+"reason":"Spam listing"
+
+}
+
+Phản hồi từ bảng điều khiển
+
+{
+"ok":true,
+
+"data":{
+"activeListings":120,
+
+"activeAuctions":40,
+
+"reportedItems":3,
+
+"suspendedSellers":2,
+
+"bannedSellers":1
+
+}
+}
+
+Kiểm toán Nhật ký
+
+Mỗi hành động của quản trị viên đều tạo ra một bản ghi ModerationAction.
+
+Thông báo
+
+LISTING_REMOVED
+
+AUCTION_REMOVED
+
+SELLER_SUSPENDED
+
+SELLER_BANNED
+
+Tự động gửi đến người bán bị ảnh hưởng.
+
+Bảo vệ
+
+Không thể xóa danh sách không tồn tại.
+
+Không thể cấm người bán đã bị cấm.
+
+Không thể tạm ngừng hoạt động người bán đã bị tạm ngừng hoạt động.
+
+Kiểm tra
+
+✔ Xóa danh sách
+
+✔ Xóa đấu giá
+
+✔ Tạm ngừng hoạt động người bán
+
+✔ Cấm người bán
+
+✔ Nhật ký kiểm toán đã được tạo
+
+✔ Bộ đếm trên bảng điều khiển
+
+✔ Chặn tạm ngừng hoạt động trùng lặp
+
+✔ Chặn cấm trùng lặp
+
+✔ Thông báo đã được gửi
+
+✔ Chặn mục tiêu không hợp lệ
+
+✔ Cơ sở dữ liệu trống
+
+Dự kiến
+
+Tất cả các bài kiểm tra đều đạt.
+
+Không có thay đổi gây lỗi.
+
+Các điểm cuối API trực tiếp đang hoạt động.
