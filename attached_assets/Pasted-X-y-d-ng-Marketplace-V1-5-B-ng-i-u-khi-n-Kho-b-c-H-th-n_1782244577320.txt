@@ -1,0 +1,246 @@
+Xây dựng Marketplace V1.5 — Bảng điều khiển Kho bạc.
+
+Hệ thống hiện tại đã hỗ trợ:
+
+* Niêm yết
+* Đấu giá
+* Thanh toán đấu giá tự động
+* Thanh toán ví
+* Phí thị trường 5%
+* Ví kho bạc
+* API lịch sử thanh toán
+
+Mục tiêu:
+
+Hiển thị doanh thu kho bạc và lợi nhuận thị trường thông qua API.
+
+
+Tạo:
+
+1. Kho lưu trữ Kho bạc
+
+Tệp:
+
+repositories/marketplaceTreasuryRepository.ts
+
+Giao diện:
+
+ITreasuryRepository
+
+Phương thức:
+
+getTreasuryWallet()
+
+getTreasuryStats()
+
+Trả về:
+
+{
+userId: chuỗi;
+
+credits: số;
+
+coins: số;
+
+tokens: số;
+
+}
+
+và
+
+{
+totalFeesCredits: số;
+
+totalFeesCoins: số;
+
+totalFeesTokens: số;
+
+totalTransactions: số;
+
+totalVolumeCredits: số;
+
+totalVolumeCoins: number;
+
+totalVolumeTokens: number;
+
+}
+
+ID người dùng Kho bạc:
+
+TREASURY_USER_ID
+
+đã tồn tại trong dịch vụ thanh toán.
+
+2. Dịch vụ Kho bạc
+
+Tệp:
+
+services/marketplaceTreasuryService.ts
+
+Phương thức:
+
+getDashboard()
+
+Phản hồi:
+
+{
+kho bạc:{
+
+tín dụng:number;
+
+tiền xu:number;
+
+tokens:number;
+
+},
+
+thống kê:{
+
+tổng giao dịch:number;
+
+
+```
+tổng phí tín dụng:number;
+
+tổng phí tiền xu:number;
+
+tổng phí token:number;
+
+tổng khối lượng tín dụng:number;
+
+tổng khối lượng tiền xu:number;
+
+tổng khối lượng token:number;
+
+```
+
+}
+
+}
+
+3. Bộ điều khiển Kho bạc
+
+Tệp:
+
+controllers/marketplaceTreasuryController.ts
+
+Bộ xử lý:
+
+GET /api/marketplace/treasury
+
+Phản hồi:
+
+{
+ok:true,
+data:{...}
+
+}
+
+4. Tuyến đường
+
+Tệp:
+
+routes/marketplace.ts
+
+Thêm:
+
+GET /marketplace/treasury
+
+5. Kết nối Container
+
+Đăng ký:
+
+treasuryRepository
+marketplaceTreasuryService
+
+6. Triển khai Kho lưu trữ
+
+Tạo triển khai Supabase.
+
+Tổng hợp dữ liệu từ lịch sử thanh toán của marketplace.
+
+Các trường phí:
+
+feeAmount
+currency
+
+Các trường khối lượng:
+
+totalAmount
+
+Nhóm theo đơn vị tiền tệ.
+
+Hỗ trợ:
+
+tín dụng
+sao
+eth
+7. Kiểm thử
+
+Tạo:
+
+services/**tests**/marketplaceTreasuryService.test.ts
+
+Số lượng kiểm thử tối thiểu:
+
+✔ Ví kho bạc được trả về chính xác
+
+✔ Tổng phí được tổng hợp chính xác
+
+✔ Tổng khối lượng được tổng hợp chính xác
+
+✔ Số lượng giao dịch chính xác
+
+✔ Lịch sử trống trả về số 0
+
+✔ Xử lý các loại tiền tệ hỗn hợp chính xác
+
+Mục tiêu:
+
+Tất cả các bài kiểm thử đều đạt
+
+8. Ví dụ API
+
+GET /api/marketplace/treasury
+
+Phản hồi:
+
+{
+"ok": true,
+
+"data": {
+"treasury": {
+"credits": 2500,
+
+"coins": 900,
+
+"tokens": 15
+},
+
+"stats": {
+"totalTransactions": 42,
+
+"totalFeesCredits": } 2500,
+
+"totalFeesCoins": 900,
+
+"totalFeesTokens": 15,
+
+"totalVolumeCredits": 50000,
+
+"totalVolumeCoins": 18000,
+
+"totalVolumeTokens": 300
+
+}
+}
+}
+
+Yêu cầu:
+
+* Giữ nguyên khả năng tương thích ngược
+* Không thay đổi các API hiện có
+* Tất cả các bài kiểm tra phải đạt
+* Cung cấp bản tóm tắt cuối cùng liệt kê mọi tệp đã được sửa đổi
+* Cung cấp kết quả kiểm tra
+* Cung cấp ví dụ về phản hồi của kho bạc
