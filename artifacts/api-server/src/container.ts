@@ -8,6 +8,12 @@ import type { IWalletRepository }             from "./repositories/walletReposit
 import type { IWalletTransactionRepository }  from "./repositories/walletTransactionRepository";
 import type { IInventoryRepository }          from "./repositories/inventoryRepository";
 import type { IInventoryItemsRepository }     from "./repositories/inventoryItemsRepository";
+import type {
+  IListingsRepository,
+  ITransactionsRepository,
+  IAuctionsRepository,
+  IBidsRepository,
+} from "./repositories/marketplaceRepository";
 
 import { MockUserRepository }               from "./repositories/userRepository";
 import { MockAvatarRepository }             from "./repositories/avatarRepository";
@@ -25,16 +31,21 @@ import {
   SupabaseWalletRepository,
   SupabaseWalletTransactionRepository,
   SupabaseInventoryRepository,
+  SupabaseMarketplaceListingsRepository,
+  SupabaseMarketplaceTransactionsRepository,
+  SupabaseMarketplaceAuctionsRepository,
+  SupabaseMarketplaceBidsRepository,
 } from "./repositories/supabase";
 
 import type { User } from "./models/user";
 import type { Avatar } from "./models/user";
 import type { Reputation, ReputationHistoryEntry } from "./models/reputation";
 import type { WalletReference, WalletCurrency } from "./models/walletReference";
-import { AccountService }   from "./services/accountService";
-import { ProfileService }   from "./services/profileService";
-import { WalletService }    from "./services/walletService";
-import { InventoryService } from "./services/inventoryService";
+import { AccountService }      from "./services/accountService";
+import { ProfileService }      from "./services/profileService";
+import { WalletService }       from "./services/walletService";
+import { InventoryService }    from "./services/inventoryService";
+import { MarketplaceService }  from "./services/marketplaceService";
 
 // ─── Fallback repositories ────────────────────────────────────────────────────
 
@@ -147,6 +158,13 @@ let walletTransactionRepo:  IWalletTransactionRepository;
 let inventoryRepo:          IInventoryRepository;
 let inventoryItemsRepo:     IInventoryItemsRepository;
 
+// ─── Marketplace — always Supabase (no mock fallback) ─────────────────────────
+const listingsRepo:     IListingsRepository     = new SupabaseMarketplaceListingsRepository();
+const transactionsRepo: ITransactionsRepository = new SupabaseMarketplaceTransactionsRepository();
+const auctionsRepo:     IAuctionsRepository     = new SupabaseMarketplaceAuctionsRepository();
+const bidsRepo:         IBidsRepository         = new SupabaseMarketplaceBidsRepository();
+logger.info("Container: marketplace → Supabase (4 repositories)");
+
 // inventory_items live in Supabase — always use SupabaseInventoryItemsRepository
 inventoryItemsRepo = new SupabaseInventoryItemsRepository();
 logger.info("Container: inventory items → Supabase (SupabaseInventoryItemsRepository)");
@@ -191,3 +209,10 @@ export const walletService = new WalletService(
 );
 
 export const inventoryService = new InventoryService(inventoryItemsRepo);
+
+export const marketplaceService = new MarketplaceService(
+  listingsRepo,
+  transactionsRepo,
+  auctionsRepo,
+  bidsRepo,
+);

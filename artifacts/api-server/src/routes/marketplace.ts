@@ -1,20 +1,29 @@
 import { Router, type IRouter } from "express";
 import {
-  handleGetMarketplace,
   handleGetListings,
+  handleGetListing,
+  handleCreateListing,
+  handleDeleteListing,
+  handleGetTransactions,
   handleGetAuctions,
-  handleGetTrades,
+  handleCreateAuction,
+  handlePlaceBid,
 } from "../controllers/marketplaceController";
 
 const router: IRouter = Router();
 
-// GET /api/marketplace                           — full snapshot
-// GET /api/marketplace/listings?status=active
-// GET /api/marketplace/auctions?status=live
-// GET /api/marketplace/trades
-router.get("/marketplace", handleGetMarketplace);
-router.get("/marketplace/listings", handleGetListings);
-router.get("/marketplace/auctions", handleGetAuctions);
-router.get("/marketplace/trades", handleGetTrades);
+// ─── Listings ─────────────────────────────────────────────────────────────────
+router.get(    "/marketplace/listings",     handleGetListings);
+router.post(   "/marketplace/listings",     handleCreateListing);
+router.get(    "/marketplace/listings/:id", handleGetListing);
+router.delete( "/marketplace/listings/:id", handleDeleteListing);
+
+// ─── Transactions ─────────────────────────────────────────────────────────────
+router.get("/marketplace/transactions", handleGetTransactions);
+
+// ─── Auctions ─────────────────────────────────────────────────────────────────
+router.get(  "/marketplace/auctions",        handleGetAuctions);
+router.post( "/marketplace/auctions",        handleCreateAuction);
+router.post( "/marketplace/auctions/:id/bid", handlePlaceBid);
 
 export default router;
