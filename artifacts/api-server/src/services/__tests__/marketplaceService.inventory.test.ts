@@ -89,6 +89,7 @@ const noopAuctions: IAuctionsRepository = {
   async create(i)         { return null as never; },
   async updateBid()       { return null; },
   async updateStatus()    { return null; },
+  async getExpired()      { return []; },
 };
 
 const noopBids: IBidsRepository = {

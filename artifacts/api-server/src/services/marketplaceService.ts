@@ -24,6 +24,7 @@ import type {
   PurchaseListingInput,
 } from "../repositories/marketplaceRepository";
 import type { IInventoryItemsMutationRepository } from "../repositories/inventoryItemsMutationRepository";
+import type { IMarketplacePaymentService }        from "./marketplacePaymentService";
 
 const STATUS_ACTIVE   = "đang hoạt động";
 const STATUS_TRADING  = "đang giao dịch";
@@ -53,6 +54,7 @@ export class MarketplaceService {
     private readonly bids:         IBidsRepository,
     private readonly stats:        IMarketplaceStatsRepository,
     private readonly inventory:    IInventoryItemsMutationRepository,
+    private readonly payment:      IMarketplacePaymentService | null = null,
   ) {}
 
   // ─── Stats ──────────────────────────────────────────────────────────────────
@@ -135,13 +137,26 @@ export class MarketplaceService {
       throw new Error("Người bán không thể mua chính niêm yết của mình.");
     }
 
-    // 1. Transfer item ownership seller → buyer + set status active
+    // 1. Process wallet payment — validates balance, debits buyer, credits seller.
+    //    Runs first so any balance failure aborts before touching inventory.
+    if (this.payment) {
+      await this.payment.processPayment({
+        buyerId:    input.buyerId,
+        sellerId:   listing.sellerId,
+        amount:     listing.price,
+        currency:   listing.currency,
+        sourceType: "listing",
+        sourceId:   listingId,
+      });
+    }
+
+    // 2. Transfer item ownership seller → buyer + set status active
     await this.inventory.transferOwnership(listing.itemId, input.buyerId);
 
-    // 2. Mark listing as sold
+    // 3. Mark listing as sold
     const updatedListing = await this.listings.updateStatus(listingId, "sold");
 
-    // 3. Record transaction
+    // 4. Record marketplace transaction
     const transaction = await this.transactions.create({
       listingId,
       buyerId:  input.buyerId,
@@ -244,7 +259,20 @@ export class MarketplaceService {
     let winnerId: string | null = null;
 
     if (highestBid) {
-      // Transfer item to winner — transferOwnership sets status → "đang hoạt động"
+      // 1. Process wallet payment first — validates winner balance, debits winner,
+      //    credits seller.  Any failure here aborts before touching inventory.
+      if (this.payment) {
+        await this.payment.processPayment({
+          buyerId:    highestBid.bidderId,
+          sellerId:   auction.sellerId,
+          amount:     highestBid.amount,
+          currency:   auction.currency,
+          sourceType: "auction",
+          sourceId:   id,
+        });
+      }
+
+      // 2. Transfer item to winner — transferOwnership sets status → "đang hoạt động"
       await this.inventory.transferOwnership(auction.itemId, highestBid.bidderId);
       winnerId = highestBid.bidderId;
     } else {

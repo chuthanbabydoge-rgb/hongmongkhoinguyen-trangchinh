@@ -45,11 +45,13 @@ import type { User } from "./models/user";
 import type { Avatar } from "./models/user";
 import type { Reputation, ReputationHistoryEntry } from "./models/reputation";
 import type { WalletReference, WalletCurrency } from "./models/walletReference";
-import { AccountService }      from "./services/accountService";
-import { ProfileService }      from "./services/profileService";
-import { WalletService }       from "./services/walletService";
-import { InventoryService }    from "./services/inventoryService";
-import { MarketplaceService }  from "./services/marketplaceService";
+import { AccountService }              from "./services/accountService";
+import { ProfileService }              from "./services/profileService";
+import { WalletService }               from "./services/walletService";
+import { InventoryService }            from "./services/inventoryService";
+import { MarketplaceService }          from "./services/marketplaceService";
+import { MarketplacePaymentService }   from "./services/marketplacePaymentService";
+import { MockMarketplacePaymentRepository } from "./repositories/marketplacePaymentRepository";
 
 // ─── Fallback repositories ────────────────────────────────────────────────────
 
@@ -216,6 +218,9 @@ export const walletService = new WalletService(
 
 export const inventoryService = new InventoryService(inventoryItemsRepo);
 
+const marketplacePaymentRepo    = new MockMarketplacePaymentRepository();
+const marketplacePaymentService = new MarketplacePaymentService(walletRepo, marketplacePaymentRepo);
+
 export const marketplaceService = new MarketplaceService(
   listingsRepo,
   transactionsRepo,
@@ -223,4 +228,5 @@ export const marketplaceService = new MarketplaceService(
   bidsRepo,
   statsRepo,
   inventoryMutationRepo,
+  marketplacePaymentService,
 );
