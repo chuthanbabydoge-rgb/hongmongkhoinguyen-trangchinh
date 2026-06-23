@@ -11,7 +11,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { type Request, type Response } from "express";
-import { marketplaceWatchlistService } from "../container";
+import { marketplaceWatchlistService, marketplacePricePoller } from "../container";
 
 function requireUserId(req: Request, res: Response): string | null {
   const userId = req.query["userId"] as string | undefined;
@@ -121,6 +121,18 @@ export async function handleGetPriceDrops(req: Request, res: Response): Promise<
     const msg = err instanceof Error ? err.message : String(err);
     req.log.error({ err }, `watchlistController.priceDrops: ${msg}`);
     res.status(500).json({ ok: false, error: "Không thể tải mục giảm giá." });
+  }
+}
+
+// ─── POST /api/marketplace/watchlist/run-price-check (V2.2 admin) ────────────
+
+export async function handleRunPriceCheck(_req: Request, res: Response): Promise<void> {
+  try {
+    const result = await marketplacePricePoller.runOnce();
+    res.json({ ok: true, scanned: result.scanned, drops: result.drops });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ ok: false, error: msg });
   }
 }
 

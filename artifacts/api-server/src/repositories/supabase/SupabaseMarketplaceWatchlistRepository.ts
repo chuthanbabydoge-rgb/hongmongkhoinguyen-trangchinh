@@ -22,21 +22,26 @@ import type {
   WatchlistEntry,
   WatchlistTargetType,
   CreateWatchlistInput,
+  PriceCheckResult,
 } from "../marketplaceWatchlistRepository";
 
 type Row = Record<string, unknown>;
 
 function toEntry(row: Row): WatchlistEntry {
   return {
-    id:         String(row["id"]          ?? ""),
-    userId:     String(row["user_id"]     ?? ""),
-    targetType: String(row["target_type"] ?? "") as WatchlistTargetType,
-    targetId:   String(row["target_id"]   ?? ""),
-    itemName:   row["item_name"] != null ? String(row["item_name"]) : null,
-    price:      row["price"]     != null ? Number(row["price"])     : null,
-    rarity:     row["rarity"]    != null ? String(row["rarity"])    : null,
-    status:     row["status"]    != null ? String(row["status"])    : null,
-    createdAt:  String(row["created_at"]  ?? ""),
+    id:                String(row["id"]          ?? ""),
+    userId:            String(row["user_id"]     ?? ""),
+    targetType:        String(row["target_type"] ?? "") as WatchlistTargetType,
+    targetId:          String(row["target_id"]   ?? ""),
+    itemName:          row["item_name"]          != null ? String(row["item_name"])          : null,
+    price:             row["price"]              != null ? Number(row["price"])              : null,
+    rarity:            row["rarity"]             != null ? String(row["rarity"])             : null,
+    status:            row["status"]             != null ? String(row["status"])             : null,
+    watchPrice:        row["watch_price"]        != null ? Number(row["watch_price"])        : null,
+    lastSeenPrice:     row["last_seen_price"]    != null ? Number(row["last_seen_price"])    : null,
+    priceDropCount:    row["price_drop_count"]   != null ? Number(row["price_drop_count"])   : 0,
+    lastPriceChangeAt: row["last_price_change_at"] != null ? String(row["last_price_change_at"]) : null,
+    createdAt:         String(row["created_at"]  ?? ""),
   };
 }
 
@@ -104,5 +109,63 @@ export class SupabaseMarketplaceWatchlistRepository implements IMarketplaceWatch
 
     if (error || !data) return null;
     return toEntry(data as Row);
+  }
+
+  async getAll(): Promise<WatchlistEntry[]> {
+    const { data, error } = await this.db
+      .from(TABLE)
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) return [];
+    return (data ?? []).map(r => toEntry(r as Row));
+  }
+
+  async checkPrice(id: string, currentPrice: number): Promise<PriceCheckResult | null> {
+    const { data: row, error } = await this.db
+      .from(TABLE)
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error || !row) return null;
+
+    const entry    = toEntry(row as Row);
+    const baseline = entry.lastSeenPrice ?? entry.watchPrice ?? currentPrice;
+    const dropped  = currentPrice < baseline;
+    const oldPrice = baseline;
+    const newPrice = currentPrice;
+    const dropPct  = baseline > 0
+      ? Math.round(((baseline - currentPrice) / baseline) * 10000) / 100
+      : 0;
+
+    const updates: Record<string, unknown> = { last_seen_price: currentPrice };
+    if (dropped) {
+      updates["price_drop_count"]    = (entry.priceDropCount ?? 0) + 1;
+      updates["last_price_change_at"] = new Date().toISOString();
+      updates["price"]               = currentPrice;
+    }
+
+    const { data: updated } = await this.db
+      .from(TABLE)
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .maybeSingle();
+
+    const finalEntry = updated ? toEntry(updated as Row) : { ...entry, lastSeenPrice: currentPrice };
+    return { entry: finalEntry, dropped, oldPrice, newPrice, dropPct };
+  }
+
+  async getPriceDropsByUserId(userId: string): Promise<WatchlistEntry[]> {
+    const { data, error } = await this.db
+      .from(TABLE)
+      .select("*")
+      .eq("user_id", userId)
+      .gt("price_drop_count", 0)
+      .order("created_at", { ascending: false });
+
+    if (error) return [];
+    return (data ?? []).map(r => toEntry(r as Row));
   }
 }

@@ -1,5 +1,6 @@
 import { logger } from "./lib/logger";
 import { isSupabaseConfigured } from "./database/supabase";
+import { MarketplacePricePoller } from "./services/marketplacePricePoller";
 import { MockMarketplaceWatchlistRepository }    from "./repositories/marketplaceWatchlistRepository";
 import { SupabaseMarketplaceWatchlistRepository } from "./repositories/supabase/SupabaseMarketplaceWatchlistRepository";
 import { MarketplaceWatchlistService }            from "./services/marketplaceWatchlistService";
@@ -307,3 +308,17 @@ export const marketplaceWatchlistService = new MarketplaceWatchlistService(
   watchlistRepo,
   marketplaceNotificationService,
 );
+
+// ─── Price Poller (V2.2) ──────────────────────────────────────────────────────
+
+const pollIntervalMs = Number(process.env["MARKETPLACE_PRICE_POLL_INTERVAL_MS"] ?? 300_000);
+
+export const marketplacePricePoller = new MarketplacePricePoller(
+  watchlistRepo,
+  listingsRepo,
+  auctionsRepo,
+  marketplaceWatchlistService,
+  pollIntervalMs,
+);
+
+marketplacePricePoller.start();

@@ -60,6 +60,8 @@ export interface IMarketplaceWatchlistRepository {
   delete(id: string): Promise<boolean>;
   /** List all entries for a user, newest first. */
   getByUserId(userId: string): Promise<WatchlistEntry[]>;
+  /** All entries across every user — used by the price poller. */
+  getAll(): Promise<WatchlistEntry[]>;
   /** Total count of entries for a user. */
   countByUserId(userId: string): Promise<number>;
   /** Lookup by composite key — used to check duplicates. */
@@ -110,6 +112,10 @@ export class MockMarketplaceWatchlistRepository implements IMarketplaceWatchlist
     return [...this.store]
       .filter(e => e.userId === userId)
       .reverse();
+  }
+
+  async getAll(): Promise<WatchlistEntry[]> {
+    return [...this.store].reverse();
   }
 
   async countByUserId(userId: string): Promise<number> {

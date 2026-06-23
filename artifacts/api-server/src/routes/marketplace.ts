@@ -40,6 +40,7 @@ import {
   handleGetWatchlistCount,
   handleGetPriceDrops,
   handleCheckPrice,
+  handleRunPriceCheck,
 } from "../controllers/marketplaceWatchlistController";
 
 const router: IRouter = Router();
@@ -84,12 +85,13 @@ router.patch( "/marketplace/notifications/read-all",   handleMarkAllAsRead);
 router.patch( "/marketplace/notifications/:id/read",   handleMarkAsRead);
 router.delete("/marketplace/notifications/:id",        handleDeleteNotification);
 
-// ─── Watchlist (V2.1) ─────────────────────────────────────────────────────────
+// ─── Watchlist (V2.1 / V2.2) ──────────────────────────────────────────────────
 // Note: all static sub-paths must precede /:id to avoid routing conflicts.
 router.get(   "/marketplace/watchlist",                   handleGetWatchlist);
 router.get(   "/marketplace/watchlist/count",             handleGetWatchlistCount);
 router.get(   "/marketplace/watchlist/price-drops",       handleGetPriceDrops);
 router.post(  "/marketplace/watchlist",                   handleAddWatchlist);
+router.post(  "/marketplace/watchlist/run-price-check",   handleRunPriceCheck);
 router.post(  "/marketplace/watchlist/:id/check-price",   handleCheckPrice);
 router.delete("/marketplace/watchlist/:id",               handleRemoveWatchlist);
 
