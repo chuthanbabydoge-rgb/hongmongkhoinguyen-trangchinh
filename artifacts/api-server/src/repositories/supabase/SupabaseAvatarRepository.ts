@@ -1,35 +1,56 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Supabase Avatar Repository
 //
-// Table: avatars
-// Columns:
-//   user_id, initials, image_url, frame_color, badge_icon, updated_at
+// Table: avatars — actual columns observed in production:
+//   id (uuid pk), user_id (uuid), avatar_name (text), avatar_image (text|null),
+//   title (text|null), level (int), experience (int), metadata (jsonb),
+//   created_at (timestamptz), updated_at (timestamptz)
+//
+// Domain Avatar fields without a direct DB column are derived:
+//   initials   ← computed from avatar_name (first letter of each word, max 2)
+//   frameColor ← metadata.frameColor   (default "#7c3aed")
+//   badgeIcon  ← metadata.badgeIcon    (default null)
+//   imageUrl   ← avatar_image
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { getSupabaseClient, isValidUuid } from "../../database/supabase";
 import type { IAvatarRepository } from "../avatarRepository";
 import type { Avatar } from "../../models/user";
 
-// ─── Row → Domain mapping ─────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function computeInitials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("") || "?";
+}
 
 function toAvatar(row: Record<string, unknown>): Avatar {
+  const meta = (row["metadata"] ?? {}) as Record<string, unknown>;
+  const name  = String(row["avatar_name"] ?? "");
+  console.log("[SupabaseAvatarRepository] toAvatar raw row:", JSON.stringify(row));
   return {
-    userId:    row["user_id"] as string,
-    initials:  row["initials"] as string,
-    imageUrl:  (row["image_url"] as string | null) ?? null,
-    frameColor: row["frame_color"] as string,
-    badgeIcon: (row["badge_icon"] as string | null) ?? null,
-    updatedAt: row["updated_at"] as string,
+    userId:     String(row["user_id"] ?? ""),
+    initials:   computeInitials(name),
+    imageUrl:   row["avatar_image"] != null ? String(row["avatar_image"]) : null,
+    frameColor: String(meta["frameColor"] ?? "#7c3aed"),
+    badgeIcon:  meta["badgeIcon"] != null ? String(meta["badgeIcon"]) : null,
+    updatedAt:  String(row["updated_at"] ?? ""),
   };
 }
 
 function toRow(avatar: Avatar): Record<string, unknown> {
   return {
-    user_id:    avatar.userId,
-    initials:   avatar.initials,
-    image_url:  avatar.imageUrl,
-    frame_color: avatar.frameColor,
-    badge_icon: avatar.badgeIcon,
+    user_id:      avatar.userId,
+    avatar_name:  avatar.initials,
+    avatar_image: avatar.imageUrl,
+    metadata: {
+      frameColor: avatar.frameColor,
+      badgeIcon:  avatar.badgeIcon,
+    },
     updated_at: new Date().toISOString(),
   };
 }
@@ -51,9 +72,10 @@ export class SupabaseAvatarRepository implements IAvatarRepository {
   }
 
   async create(avatar: Avatar): Promise<Avatar> {
+    const now = new Date().toISOString();
     const { data, error } = await this.db
       .from("avatars")
-      .insert(toRow(avatar))
+      .insert({ ...toRow(avatar), created_at: now })
       .select()
       .single();
     if (error) throw new Error(`SupabaseAvatarRepository.create: ${error.message}`);

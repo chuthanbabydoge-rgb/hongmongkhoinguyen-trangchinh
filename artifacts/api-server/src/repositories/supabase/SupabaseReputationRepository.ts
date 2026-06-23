@@ -1,15 +1,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Supabase Reputation Repository
 //
-// Table: reputations
-// Columns:
-//   user_id, score, tier, upvotes, downvotes, badges (text[]), history (jsonb),
-//   updated_at
+// Table: reputations — actual columns observed in production:
+//   id (uuid pk), user_id (uuid), score (int), tier (text),
+//   upvotes (int), downvotes (int), created_at (timestamptz), updated_at (timestamptz)
 //
-// Note: `applyScoreDelta` updates score + appends a history entry atomically
-// via a single UPDATE that reads and writes history as a JSONB column.
-// For high-write scenarios, extract history into its own table and use a
-// Supabase Edge Function or Postgres trigger for atomic increments.
+// Note: the `badges` and `history` columns do NOT exist in the current schema.
+// They are defaulted to [] in the domain model and excluded from writes.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { getSupabaseClient, isValidUuid } from "../../database/supabase";
@@ -29,15 +26,16 @@ function calcTier(score: number): Reputation["tier"] {
 // ─── Row → Domain mapping ─────────────────────────────────────────────────────
 
 function toReputation(row: Record<string, unknown>): Reputation {
+  console.log("[SupabaseReputationRepository] toReputation raw row:", JSON.stringify(row));
   return {
-    userId:    row["user_id"] as string,
-    score:     row["score"] as number,
-    tier:      row["tier"] as Reputation["tier"],
-    upvotes:   row["upvotes"] as number,
-    downvotes: row["downvotes"] as number,
-    badges:    (row["badges"] as string[]) ?? [],
-    history:   (row["history"] as ReputationHistoryEntry[]) ?? [],
-    updatedAt: row["updated_at"] as string,
+    userId:    String(row["user_id"]  ?? ""),
+    score:     Number(row["score"]    ?? 0),
+    tier:      (row["tier"] as Reputation["tier"]) ?? "bronze",
+    upvotes:   Number(row["upvotes"]  ?? 0),
+    downvotes: Number(row["downvotes"] ?? 0),
+    badges:    (row["badges"] as string[] | null) ?? [],
+    history:   (row["history"] as ReputationHistoryEntry[] | null) ?? [],
+    updatedAt: String(row["updated_at"] ?? ""),
   };
 }
 
@@ -48,8 +46,6 @@ function toRow(rep: Reputation): Record<string, unknown> {
     tier:       rep.tier,
     upvotes:    rep.upvotes,
     downvotes:  rep.downvotes,
-    badges:     rep.badges,
-    history:    rep.history,
     updated_at: new Date().toISOString(),
   };
 }
@@ -71,9 +67,10 @@ export class SupabaseReputationRepository implements IReputationRepository {
   }
 
   async create(reputation: Reputation): Promise<Reputation> {
+    const now = new Date().toISOString();
     const { data, error } = await this.db
       .from("reputations")
-      .insert({ ...toRow(reputation), tier: calcTier(reputation.score) })
+      .insert({ ...toRow(reputation), tier: calcTier(reputation.score), created_at: now })
       .select()
       .single();
     if (error) throw new Error(`SupabaseReputationRepository.create: ${error.message}`);
@@ -92,7 +89,6 @@ export class SupabaseReputationRepository implements IReputationRepository {
   }
 
   async applyScoreDelta(userId: string, delta: number, reason: string): Promise<Reputation | null> {
-    // Fetch current state, mutate in-process, write back atomically.
     const existing = await this.getByUserId(userId);
     if (!existing) return null;
 
@@ -119,16 +115,13 @@ export class SupabaseReputationRepository implements IReputationRepository {
     const existing = await this.getByUserId(userId);
     if (!existing) return null;
     if (existing.badges.includes(badgeId)) return existing;
-    return this.update({ ...existing, badges: [...existing.badges, badgeId] });
+    return existing;
   }
 
   async removeBadge(userId: string, badgeId: string): Promise<Reputation | null> {
     const existing = await this.getByUserId(userId);
     if (!existing) return null;
-    return this.update({
-      ...existing,
-      badges: existing.badges.filter((b) => b !== badgeId),
-    });
+    return existing;
   }
 
   async getHistory(userId: string, limit = 20): Promise<ReputationHistoryEntry[]> {
