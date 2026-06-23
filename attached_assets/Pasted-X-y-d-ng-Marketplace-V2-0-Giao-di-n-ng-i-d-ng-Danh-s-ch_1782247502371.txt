@@ -1,0 +1,165 @@
+Xây dựng Marketplace V2.0 — Giao diện người dùng Danh sách theo dõi (Frontend Watchlist UI)
+
+Phần Backend đã hoàn thành:
+
+* Danh sách sản phẩm trên Marketplace
+* Đấu giá
+* Thống kê
+* Thông báo
+* Danh sách theo dõi
+
+Mục tiêu:
+
+Thêm giao diện Danh sách theo dõi vào trang Marketplace.
+
+===================================
+NÚT THEO DÕI
+=============
+
+Sản phẩm:
+
+♡ Theo dõi
+
+♥ Đang theo dõi
+
+Đấu giá:
+
+♡ Theo dõi
+
+♥ Đang theo dõi
+
+Bật/tắt tức thì.
+
+=====================================
+TÍCH HỢP API
+===============
+
+ĐĂNG /api/marketplace/watchlist
+
+XÓA /api/marketplace/watchlist/:id
+
+LẤY /api/marketplace/watchlist
+
+LẤY /api/marketplace/watchlist/count
+
+=====================================
+TRANG CHỢ
+
+================
+
+Thêm:
+
+Huy hiệu Số lượng Theo dõi
+
+Ví dụ:
+
+Danh sách theo dõi (12)
+
+=====================================
+DANH SÁCH THEO DÕI TAB
+=============
+
+Tab mới:
+
+Chợ
+
+Đấu giá
+
+Danh sách theo dõi
+
+======================================
+XEM DANH SÁCH THEO DÕI
+==============
+
+Hiển thị:
+
+Tên mặt hàng
+
+Loại mục tiêu
+
+Giá/Giá hiện tại
+
+Độ hiếm
+
+Trạng thái
+
+Ngày tạo
+
+Nút Xóa
+
+Nút Mở Danh sách
+
+Nút Mở Đấu giá
+
+======================================
+TRẠNG THÁI TRỐNG
+===========
+
+"Chưa có mặt hàng nào trong danh sách theo dõi của bạn."
+
+=====================================
+TỰ ĐỘNG LÀM MỚI
+============
+
+Làm mới danh sách theo dõi sau khi:
+
+xem
+
+bỏ theo dõi
+
+tải lại trang
+
+======================================
+Trải nghiệm người dùng (UX)
+==
+
+Cập nhật tối ưu.
+
+Không tải lại toàn bộ trang.
+
+Trạng thái đang tải.
+
+Thông báo lỗi.
+
+=====================================
+THIẾT KẾ ĐÁP ỨNG
+==========
+
+Máy tính để bàn
+
+Máy tính bảng
+
+Điện thoại di động
+
+======================================
+KIỂM TRA
+=====
+
+✔ Danh sách theo dõi
+
+✔ Đấu giá theo dõi
+
+✔ Bỏ theo dõi
+
+✔ Cập nhật số lượng thông báo
+
+✔ Tải tab danh sách theo dõi
+
+✔ Trạng thái trống
+
+✔ Xử lý lỗi API
+
+✔ Bố cục đáp ứng
+
+======================================
+BÁO CÁO GIAO HÀNG
+===============
+
+Trả về:
+
+1. Tập tin 1. Tệp đã tạo
+2. Tệp đã sửa đổi
+3. Thành phần đã thêm
+4. Ảnh chụp màn hình
+5. Kết quả kiểm thử
+6. Tổng số lần vượt qua

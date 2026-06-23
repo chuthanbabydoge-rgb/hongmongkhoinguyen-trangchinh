@@ -26,9 +26,11 @@ import {
   Receipt,
   Store,
   Repeat2,
+  Heart,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
+import { useWatchlist } from "@/hooks/useWatchlist";
 
 const STATIC_NAV_TOP = [
   { icon: LayoutDashboard, label: "Bảng điều khiển", path: "/" },
@@ -44,13 +46,14 @@ const STATIC_NAV_BOTTOM = [
 
 export function Sidebar() {
   const [location] = useLocation();
+  const { count: watchlistCount } = useWatchlist();
 
   const isActive = (path: string) =>
     path === "/"
       ? location === "/"
       : location === path || location.startsWith(path);
 
-  const NavItem = ({ icon: Icon, label, path }: { icon: typeof LayoutDashboard; label: string; path: string }) => (
+  const NavItem = ({ icon: Icon, label, path, badge }: { icon: typeof LayoutDashboard; label: string; path: string; badge?: number }) => (
     <Link key={path} href={path}>
       <div
         data-testid={`nav-${label.toLowerCase().replace(/\s+/g, "-")}`}
@@ -67,9 +70,14 @@ export function Sidebar() {
             isActive(path) ? "scale-110" : "group-hover:scale-110"
           )}
         />
-        <span className={cn("font-medium tracking-wide", isActive(path) ? "neon-text" : "")}>
+        <span className={cn("font-medium tracking-wide flex-1", isActive(path) ? "neon-text" : "")}>
           {label}
         </span>
+        {badge != null && badge > 0 && (
+          <span className="min-w-[18px] h-[18px] rounded-full bg-rose-400/20 border border-rose-400/30 text-rose-400 text-[8px] font-mono font-bold flex items-center justify-center px-1">
+            {badge > 99 ? "99+" : badge}
+          </span>
+        )}
       </div>
     </Link>
   );
@@ -125,6 +133,7 @@ export function Sidebar() {
           <NavItem icon={Store}       label="Bảng điều khiển Chợ" path="/marketplace" />
           <NavItem icon={ShoppingBag} label="Danh sách sản phẩm"  path="/marketplace/listings" />
           <NavItem icon={Gavel}       label="Đấu giá"             path="/marketplace/auctions" />
+          <NavItem icon={Heart}       label="Danh sách theo dõi"  path="/marketplace/watchlist" badge={watchlistCount} />
           <NavItem icon={Repeat2}     label="Trao đổi"            path="/marketplace/trades" />
           <NavItem icon={Receipt}     label="Giao dịch"           path="/marketplace/transactions" />
           <NavItem icon={BarChart3}   label="Phân tích Chợ"       path="/marketplace/analytics" />

@@ -30,6 +30,7 @@ import Auctions from "@/pages/marketplace/Auctions";
 import MarketplaceTransactions from "@/pages/marketplace/MarketplaceTransactions";
 import MarketplaceAnalytics from "@/pages/marketplace/MarketplaceAnalytics";
 import Trades from "@/pages/marketplace/Trades";
+import WatchlistPage from "@/pages/marketplace/Watchlist";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -61,6 +62,7 @@ function Router() {
       <Route path="/marketplace/transactions" component={MarketplaceTransactions} />
       <Route path="/marketplace/analytics" component={MarketplaceAnalytics} />
       <Route path="/marketplace/trades" component={Trades} />
+      <Route path="/marketplace/watchlist" component={WatchlistPage} />
       <Route component={NotFound} />
     </Switch>
   );

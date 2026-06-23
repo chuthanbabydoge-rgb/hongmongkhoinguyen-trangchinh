@@ -7,11 +7,12 @@ import {
   type Auction, type MarketRarity, type ListingCategory,
 } from "@/lib/marketplaceMockData";
 import { cn } from "@/lib/utils";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import {
   Gavel, Clock, Flame, Eye, Users, X, AlertTriangle,
   ShoppingBag, Search, SlidersHorizontal, ChevronDown, ChevronUp,
   TrendingUp, CheckCircle2, ArrowUpDown, ArrowDown, ArrowUp,
-  Trophy, Zap, Activity,
+  Trophy, Zap, Activity, Heart,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -363,7 +364,13 @@ function Countdown({ endTime, compact = false }: { endTime: string; compact?: bo
 
 // ─── Auction Card ─────────────────────────────────────────────────────────────
 
-function AuctionCard({ auction, index, onBid }: { auction: Auction; index: number; onBid: () => void }) {
+function AuctionCard({ auction, index, onBid, watched, onToggleWatch }: {
+  auction: Auction;
+  index: number;
+  onBid: () => void;
+  watched: boolean;
+  onToggleWatch: (e: React.MouseEvent) => void;
+}) {
   const rc = RARITY_COLORS[auction.rarity];
   const cm = CATEGORY_META_MARKET[auction.category];
   const { urgent, critical } = useCountdown(auction.endTime);
@@ -458,6 +465,18 @@ function AuctionCard({ auction, index, onBid }: { auction: Auction; index: numbe
           >
             <Gavel className="w-3.5 h-3.5" />Đặt giá
           </button>
+          <button
+            onClick={onToggleWatch}
+            title={watched ? "Bỏ theo dõi" : "Theo dõi"}
+            className={cn(
+              "px-3 py-2.5 rounded-xl border text-[11px] font-mono font-bold transition-all flex items-center justify-center",
+              watched
+                ? "border-rose-400/40 bg-rose-400/15 text-rose-400"
+                : "border-white/10 text-muted-foreground/30 hover:border-rose-400/30 hover:bg-rose-400/8 hover:text-rose-400",
+            )}
+          >
+            <Heart className={cn("w-3.5 h-3.5", watched && "fill-rose-400")} />
+          </button>
           {auction.buyNowPrice && (
             <button className="px-3 py-2.5 rounded-xl border border-emerald-400/20 bg-emerald-400/8 text-emerald-400 text-[9px] font-mono font-bold hover:bg-emerald-400/20 transition-all whitespace-nowrap">
               <ShoppingBag className="w-3.5 h-3.5" />
@@ -508,7 +527,19 @@ export default function Auctions() {
   const [sort, setSort]       = useState<SortKey>("endTime");
   const [panelOpen, setPanelOpen] = useState(true);
   const [selected, setSelected]   = useState<Auction | null>(null);
-  const [bids, setBids] = useState<Record<string, number>>({});     // mock local bid overrides
+  const [bids, setBids] = useState<Record<string, number>>({});
+
+  const { isWatched, toggle } = useWatchlist();
+
+  const handleWatchToggle = useCallback((auction: Auction, e: React.MouseEvent) => {
+    e.stopPropagation();
+    void toggle("auction", auction.id, {
+      itemName: auction.name,
+      price:    auction.currentBid,
+      rarity:   auction.rarity,
+      status:   auction.status,
+    });
+  }, [toggle]);
 
   // Merge mock bid amounts
   const auctions = useMemo(() =>
@@ -759,7 +790,14 @@ export default function Auctions() {
             <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               <AnimatePresence>
                 {filtered.map((a, i) => (
-                  <AuctionCard key={a.id} auction={a} index={i} onBid={() => setSelected(a)} />
+                  <AuctionCard
+                    key={a.id}
+                    auction={a}
+                    index={i}
+                    onBid={() => setSelected(a)}
+                    watched={isWatched("auction", a.id)}
+                    onToggleWatch={(e) => handleWatchToggle(a, e)}
+                  />
                 ))}
               </AnimatePresence>
             </motion.div>

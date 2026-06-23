@@ -7,6 +7,7 @@ import {
   type Listing, type MarketRarity, type ListingCategory, type ListingStatus,
 } from "@/lib/marketplaceMockData";
 import { cn } from "@/lib/utils";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import {
   Search, SlidersHorizontal, LayoutGrid, List, X, Heart, Eye,
   ShoppingCart, TrendingDown, Clock, ChevronDown, ChevronUp,
@@ -241,7 +242,12 @@ function BuyModal({ listing, onClose }: { listing: Listing; onClose: () => void 
 
 // ─── Grid Card ────────────────────────────────────────────────────────────────
 
-function GridCard({ listing, onSelect }: { listing: Listing; onSelect: () => void }) {
+function GridCard({ listing, onSelect, watched, onToggleWatch }: {
+  listing: Listing;
+  onSelect: () => void;
+  watched: boolean;
+  onToggleWatch: (e: React.MouseEvent) => void;
+}) {
   const rc = RARITY_COLORS[listing.rarity];
   const cm = CATEGORY_META_MARKET[listing.category];
   const discount = Math.round((1 - listing.price / listing.originalValue) * 100);
@@ -309,11 +315,25 @@ function GridCard({ listing, onSelect }: { listing: Listing; onSelect: () => voi
             <span className="flex items-center gap-0.5"><Eye className="w-2.5 h-2.5" />{fmtK(listing.views)}</span>
             <span className="flex items-center gap-0.5"><Heart className="w-2.5 h-2.5" />{listing.favorites}</span>
           </div>
-          {isActive && (
-            <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-400/10 border border-emerald-400/20 text-emerald-400 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              <ShoppingCart className="w-2.5 h-2.5" /> Mua
-            </span>
-          )}
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={onToggleWatch}
+              title={watched ? "Bỏ theo dõi" : "Theo dõi"}
+              className={cn(
+                "p-1.5 rounded-lg border transition-all",
+                watched
+                  ? "border-rose-400/40 bg-rose-400/15 text-rose-400"
+                  : "border-white/10 text-muted-foreground/30 hover:border-rose-400/30 hover:text-rose-400 opacity-0 group-hover:opacity-100",
+              )}
+            >
+              <Heart className={cn("w-3 h-3", watched && "fill-rose-400")} />
+            </button>
+            {isActive && (
+              <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-400/10 border border-emerald-400/20 text-emerald-400 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <ShoppingCart className="w-2.5 h-2.5" /> Mua
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>
@@ -452,6 +472,18 @@ export default function Listings() {
   const [selected, setSelected]   = useState<Listing | null>(null);
   const [panelOpen, setPanelOpen] = useState(true);
   const [pricePreset, setPricePreset] = useState(0);
+
+  const { isWatched, toggle } = useWatchlist();
+
+  const handleWatchToggle = useCallback((listing: Listing, e: React.MouseEvent) => {
+    e.stopPropagation();
+    void toggle("listing", listing.id, {
+      itemName: listing.name,
+      price:    listing.price,
+      rarity:   listing.rarity,
+      status:   listing.status,
+    });
+  }, [toggle]);
 
   const set = useCallback(<K extends keyof Filters>(k: K, v: Filters[K]) => setFilters(f => ({ ...f, [k]: v })), []);
 
@@ -697,7 +729,13 @@ export default function Listings() {
             <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
               <AnimatePresence>
                 {filtered.map((l, i) => (
-                  <GridCard key={l.id} listing={l} onSelect={() => setSelected(l)} />
+                  <GridCard
+                    key={l.id}
+                    listing={l}
+                    onSelect={() => setSelected(l)}
+                    watched={isWatched("listing", l.id)}
+                    onToggleWatch={(e) => handleWatchToggle(l, e)}
+                  />
                 ))}
               </AnimatePresence>
             </motion.div>
