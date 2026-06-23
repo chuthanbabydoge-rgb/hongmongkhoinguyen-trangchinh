@@ -27,10 +27,12 @@ import {
   Store,
   Repeat2,
   Heart,
+  Radio,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
 import { useWatchlist } from "@/hooks/useWatchlist";
+import { useMarketplaceFeed } from "@/hooks/useMarketplaceFeed";
 
 const STATIC_NAV_TOP = [
   { icon: LayoutDashboard, label: "Bảng điều khiển", path: "/" },
@@ -47,6 +49,7 @@ const STATIC_NAV_BOTTOM = [
 export function Sidebar() {
   const [location] = useLocation();
   const { count: watchlistCount } = useWatchlist();
+  const { allPosts, stats } = useMarketplaceFeed();
 
   const isActive = (path: string) =>
     path === "/"
@@ -137,6 +140,7 @@ export function Sidebar() {
           <NavItem icon={Repeat2}     label="Trao đổi"            path="/marketplace/trades" />
           <NavItem icon={Receipt}     label="Giao dịch"           path="/marketplace/transactions" />
           <NavItem icon={BarChart3}   label="Phân tích Chợ"       path="/marketplace/analytics" />
+          <NavItem icon={Radio}       label="Hoạt động Trực tuyến" path="/marketplace/activity"  badge={stats.connectionState === "connected" ? allPosts.length : undefined} />
         </div>
 
         <div className="pt-1 pb-1">
