@@ -225,6 +225,36 @@ export async function handleCreateAuction(req: Request, res: Response): Promise<
   }
 }
 
+export async function handleCancelAuction(req: Request, res: Response): Promise<void> {
+  try {
+    const id = req.params["id"] as string;
+    const auction = await marketplaceService.cancelAuction(id);
+    res.json({ ok: true, data: auction, message: "Phiên đấu giá đã bị hủy." });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    req.log.error({ err }, `marketplaceController.cancelAuction: ${msg}`);
+    const status = msg.includes("không tìm thấy") ? 404
+      : msg.includes("không thể hủy") ? 400
+      : 500;
+    res.status(status).json({ ok: false, error: msg });
+  }
+}
+
+export async function handleCompleteAuction(req: Request, res: Response): Promise<void> {
+  try {
+    const id = req.params["id"] as string;
+    const result = await marketplaceService.completeAuction(id);
+    res.json({ ok: true, data: result });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    req.log.error({ err }, `marketplaceController.completeAuction: ${msg}`);
+    const status = msg.includes("không tìm thấy") ? 404
+      : msg.includes("không thể hoàn tất") ? 400
+      : 500;
+    res.status(status).json({ ok: false, error: msg });
+  }
+}
+
 export async function handlePlaceBid(req: Request, res: Response): Promise<void> {
   try {
     const auctionId = req.params["id"] as string;

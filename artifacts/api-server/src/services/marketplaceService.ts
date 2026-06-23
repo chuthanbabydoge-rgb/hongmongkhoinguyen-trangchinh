@@ -189,7 +189,71 @@ export class MarketplaceService {
       throw new Error("endsAt phải là ngày hợp lệ trong tương lai.");
     }
 
+    // ── Inventory ownership + status check ───────────────────────────────────
+    const item = await this.inventory.getById(input.itemId);
+    if (!item) {
+      throw new Error(`Vật phẩm ${input.itemId} không tồn tại trong kho hàng.`);
+    }
+    if (item.userId !== input.sellerId) {
+      throw new Error(
+        `Người bán ${input.sellerId} không sở hữu vật phẩm ${input.itemId}.`,
+      );
+    }
+
+    // Only active items may be auctioned — blocks duplicates with marketplace listings too
+    if (!isListable(item.status)) {
+      const reason = BLOCKED_REASON[item.status]
+        ?? `Vật phẩm đang ở trạng thái "${item.status}" và không thể đưa ra đấu giá.`;
+      throw new Error(reason);
+    }
+
+    // ── Mark item as trading ──────────────────────────────────────────────────
+    await this.inventory.setStatus(input.itemId, STATUS_TRADING);
+
     return this.auctions.create(input);
+  }
+
+  async cancelAuction(id: string): Promise<Auction> {
+    const auction = await this.auctions.getById(id);
+    if (!auction) throw new Error(`Phiên đấu giá ${id} không tìm thấy.`);
+    if (auction.status !== "live") {
+      throw new Error(
+        `Phiên đấu giá ${id} không thể hủy (trạng thái: ${auction.status}).`,
+      );
+    }
+
+    // ── Restore item to active for seller ─────────────────────────────────────
+    await this.inventory.setStatus(auction.itemId, STATUS_ACTIVE);
+
+    const updated = await this.auctions.updateStatus(id, "cancelled");
+    return updated ?? auction;
+  }
+
+  async completeAuction(
+    id: string,
+  ): Promise<{ auction: Auction; winnerId: string | null }> {
+    const auction = await this.auctions.getById(id);
+    if (!auction) throw new Error(`Phiên đấu giá ${id} không tìm thấy.`);
+    if (auction.status !== "live") {
+      throw new Error(
+        `Phiên đấu giá ${id} không thể hoàn tất (trạng thái: ${auction.status}).`,
+      );
+    }
+
+    const highestBid = await this.bids.getHighestBid(id);
+    let winnerId: string | null = null;
+
+    if (highestBid) {
+      // Transfer item to winner — transferOwnership sets status → "đang hoạt động"
+      await this.inventory.transferOwnership(auction.itemId, highestBid.bidderId);
+      winnerId = highestBid.bidderId;
+    } else {
+      // No bids — restore item to seller
+      await this.inventory.setStatus(auction.itemId, STATUS_ACTIVE);
+    }
+
+    const updated = await this.auctions.updateStatus(id, "ended");
+    return { auction: updated ?? auction, winnerId };
   }
 
   // ─── Bids ──────────────────────────────────────────────────────────────────

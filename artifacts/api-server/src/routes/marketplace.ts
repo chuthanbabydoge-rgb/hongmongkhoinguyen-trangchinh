@@ -9,6 +9,8 @@ import {
   handleGetTransactions,
   handleGetAuctions,
   handleCreateAuction,
+  handleCancelAuction,
+  handleCompleteAuction,
   handlePlaceBid,
 } from "../controllers/marketplaceController";
 
@@ -28,8 +30,10 @@ router.post(   "/marketplace/listings/:id/purchase", handlePurchaseListing);
 router.get("/marketplace/transactions", handleGetTransactions);
 
 // ─── Auctions ─────────────────────────────────────────────────────────────────
-router.get(  "/marketplace/auctions",         handleGetAuctions);
-router.post( "/marketplace/auctions",         handleCreateAuction);
-router.post( "/marketplace/auctions/:id/bid", handlePlaceBid);
+router.get(    "/marketplace/auctions",                handleGetAuctions);
+router.post(   "/marketplace/auctions",                handleCreateAuction);
+router.delete( "/marketplace/auctions/:id",            handleCancelAuction);
+router.post(   "/marketplace/auctions/:id/complete",   handleCompleteAuction);
+router.post(   "/marketplace/auctions/:id/bid",        handlePlaceBid);
 
 export default router;
