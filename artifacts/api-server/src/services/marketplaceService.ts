@@ -28,6 +28,7 @@ import type {
 import type { IInventoryItemsMutationRepository } from "../repositories/inventoryItemsMutationRepository";
 import type { IMarketplacePaymentService }        from "./marketplacePaymentService";
 import type { IMarketplaceNotificationService }   from "./marketplaceNotificationService";
+import type { MarketplaceReputationService }       from "./marketplaceReputationService";
 
 const STATUS_ACTIVE   = "đang hoạt động";
 const STATUS_TRADING  = "đang giao dịch";
@@ -59,6 +60,7 @@ export class MarketplaceService {
     private readonly inventory:    IInventoryItemsMutationRepository,
     private readonly payment:      IMarketplacePaymentService | null = null,
     private readonly notif:        IMarketplaceNotificationService | null = null,
+    private readonly reputation:   MarketplaceReputationService | null = null,
   ) {}
 
   // ─── Stats ──────────────────────────────────────────────────────────────────
@@ -174,6 +176,7 @@ export class MarketplaceService {
     });
 
     this.notif?.onListingSold(listing.sellerId, input.buyerId, listing).catch(() => {});
+    this.reputation?.recordSale(listing.sellerId, listing.price).catch(() => {});
 
     return { transaction, listing: updatedListing ?? listing };
   }
@@ -301,6 +304,7 @@ export class MarketplaceService {
         loserIds,
         { id: auction.id, itemId: auction.itemId, itemName: auction.itemName, startingPrice: auction.startingPrice, currency: auction.currency, amount: highestBid.amount },
       ).catch(() => {});
+      this.reputation?.recordSale(auction.sellerId, highestBid.amount).catch(() => {});
     } else {
       // No bids — restore item to seller
       await this.inventory.setStatus(auction.itemId, STATUS_ACTIVE);

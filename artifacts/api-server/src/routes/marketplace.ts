@@ -43,6 +43,11 @@ import {
   handleRunPriceCheck,
 } from "../controllers/marketplaceWatchlistController";
 import {
+  handleRate,
+  handleGetReputation,
+  handleGetTopSellers as handleGetReputationTopSellers,
+} from "../controllers/marketplaceReputationController";
+import {
   handleCreateSavedSearch,
   handleListSavedSearches,
   handleGetSavedSearch,
@@ -92,6 +97,12 @@ router.get(   "/marketplace/notifications/count",      handleGetUnreadCount);
 router.patch( "/marketplace/notifications/read-all",   handleMarkAllAsRead);
 router.patch( "/marketplace/notifications/:id/read",   handleMarkAsRead);
 router.delete("/marketplace/notifications/:id",        handleDeleteNotification);
+
+// ─── Reputation (V2.4) ────────────────────────────────────────────────────────
+// Note: static sub-path (top-sellers) must precede /:userId.
+router.post("/marketplace/reputation/rate",         handleRate);
+router.get( "/marketplace/reputation/top-sellers",  handleGetReputationTopSellers);
+router.get( "/marketplace/reputation/:userId",      handleGetReputation);
 
 // ─── Saved Searches (V2.3) ────────────────────────────────────────────────────
 // Note: static sub-paths (run-scan) must precede /:id to avoid routing conflicts.

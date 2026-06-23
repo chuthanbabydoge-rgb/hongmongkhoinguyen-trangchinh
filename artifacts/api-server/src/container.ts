@@ -1,5 +1,8 @@
 import { logger } from "./lib/logger";
 import { isSupabaseConfigured } from "./database/supabase";
+import { MockReputationRepository as MockMarketplaceReputationRepository } from "./repositories/marketplaceReputationRepository";
+import { SupabaseMarketplaceReputationRepository }                         from "./repositories/supabase/SupabaseMarketplaceReputationRepository";
+import { MarketplaceReputationService }                                    from "./services/marketplaceReputationService";
 import { MarketplacePricePoller } from "./services/marketplacePricePoller";
 import { MockSavedSearchRepository } from "./repositories/marketplaceSavedSearchRepository";
 import { SupabaseMarketplaceSavedSearchRepository } from "./repositories/supabase/SupabaseMarketplaceSavedSearchRepository";
@@ -272,6 +275,15 @@ logger.info(`Container: marketplace notifications → ${useSupabase ? "Supabase"
 
 export const marketplaceNotificationService = new MarketplaceNotificationService(notificationRepo);
 
+// ─── Reputation (V2.4) ────────────────────────────────────────────────────────
+
+const marketplaceReputationRepo = useSupabase
+  ? new SupabaseMarketplaceReputationRepository()
+  : new MockMarketplaceReputationRepository();
+logger.info(`Container: seller reputation → ${useSupabase ? "Supabase" : "Mock"}`);
+
+export const sellerReputationService = new MarketplaceReputationService(marketplaceReputationRepo);
+
 export const marketplaceService = new MarketplaceService(
   listingsRepo,
   transactionsRepo,
@@ -281,6 +293,7 @@ export const marketplaceService = new MarketplaceService(
   inventoryMutationRepo,
   marketplacePaymentService,
   marketplaceNotificationService,
+  sellerReputationService,
 );
 
 // ─── Treasury ─────────────────────────────────────────────────────────────────

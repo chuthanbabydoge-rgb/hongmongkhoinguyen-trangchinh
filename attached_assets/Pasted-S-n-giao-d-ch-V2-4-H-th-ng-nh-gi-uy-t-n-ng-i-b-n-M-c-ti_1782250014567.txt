@@ -1,0 +1,178 @@
+Sàn giao dịch V2.4 — Hệ thống đánh giá uy tín người bán
+
+Mục tiêu
+
+Giới thiệu hệ thống chấm điểm uy tín và độ tin cậy của người bán.
+
+Các tập tin cần tạo
+
+repositories/marketplaceReputationRepository.ts
+
+repositories/supabase/SupabaseMarketplaceReputationRepository.ts
+
+services/marketplaceReputationService.ts
+
+controllers/marketplaceReputationController.ts
+
+services/**tests**/marketplaceReputation.test.ts
+
+Mô hình miền
+
+Uy tín người bán
+
+{
+userId:string,
+
+score:number,
+
+level:string,
+
+totalSales:number,
+
+totalVolume:number,
+
+positiveRatings:number,
+
+negativeRatings:number,
+
+createdAt:string,
+
+updatedAt:string
+
+}
+
+Các cấp độ
+
+0-19 Đồng
+
+20-49 Bạc
+
+50-99 Vàng
+
+100-199 Bạch kim
+
+200+ Kim cương
+
+Mô hình xếp hạng
+
+Sau khi mua:
+
+người mua có thể xếp hạng Người bán
+
+Xếp hạng:
+
++1 tích cực
+
+-1 tiêu cực
+
+API
+
+POST /api/marketplace/reputation/rate
+
+{
+buyerId,
+sellerId,
+transactionId,
+rating
+}
+
+GET /api/marketplace/reputation/:userId
+
+GET /api/marketplace/reputation/top-sellers
+
+Ví dụ phản hồi
+
+{
+"ok":true,
+
+"data":{
+"userId":"abc",
+
+"score":74,
+
+"level":"Gold",
+
+"totalSales":25,
+
+"totalVolume":180000,
+
+"positiveRatings":22,
+
+"negativeRatings":3
+
+}
+}
+
+Công thức tính điểm
+
+score =
+
+(totalSales * 2)
+
++
+(positiveRatings * 5)
+---------------------
+
+(negativeRatings * 10)
+
+Tự động tính toán lại sau mỗi lần đánh giá.
+
+Tích hợp
+
+purchaseListing()
+
+completeAuction()
+
+tăng tổng doanh số bán hàng
+
+tăng tổng khối lượng giao dịch
+
+Tự động tạo bản ghi uy tín nếu thiếu.
+
+Người bán hàng đầu
+
+Trả về 20 người bán hàng đầu
+
+Sắp xếp:
+
+điểm số giảm dần
+
+sau đó tổng khối lượng giao dịch giảm dần
+
+Kiểm tra
+
+✔ tạo uy tín
+
+✔ tự động tạo khi bán hàng lần đầu
+
+✔ đánh giá tích cực
+
+✔ đánh giá tiêu cực
+
+✔ tính toán điểm số
+
+✔ Cấp độ Đồng
+
+✔ Cấp độ Bạc
+
+✔ Cấp độ Vàng
+
+✔ Cấp độ Bạch kim
+
+✔ Cấp độ Kim cương
+
+✔ xếp hạng người bán hàng đầu
+
+✔ chặn đánh giá trùng lặp
+
+✔ chặn giao dịch không hợp lệ
+
+✔ cơ sở dữ liệu trống
+
+Dự kiến
+
+Tất cả các bài kiểm tra đều đạt.
+
+Không có thay đổi gây lỗi.
+
+Các tuyến API trực tiếp đang hoạt động.

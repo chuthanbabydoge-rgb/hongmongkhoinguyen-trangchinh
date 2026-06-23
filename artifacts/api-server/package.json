@@ -8,7 +8,7 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --import tsx/esm --test src/services/__tests__/marketplaceService.inventory.test.ts src/services/__tests__/marketplaceService.auction.test.ts src/services/__tests__/marketplaceService.settleExpired.test.ts src/services/__tests__/marketplacePaymentService.test.ts src/services/__tests__/marketplacePaymentRepository.test.ts src/services/__tests__/marketplaceTreasuryService.test.ts src/services/__tests__/marketplaceStatsService.test.ts src/services/__tests__/marketplaceNotificationService.test.ts src/services/__tests__/marketplaceSearch.test.ts src/services/__tests__/marketplacePricePoller.test.ts src/services/__tests__/marketplaceSavedSearch.test.ts"
+    "test": "node --import tsx/esm --test src/services/__tests__/marketplaceService.inventory.test.ts src/services/__tests__/marketplaceService.auction.test.ts src/services/__tests__/marketplaceService.settleExpired.test.ts src/services/__tests__/marketplacePaymentService.test.ts src/services/__tests__/marketplacePaymentRepository.test.ts src/services/__tests__/marketplaceTreasuryService.test.ts src/services/__tests__/marketplaceStatsService.test.ts src/services/__tests__/marketplaceNotificationService.test.ts src/services/__tests__/marketplaceSearch.test.ts src/services/__tests__/marketplacePricePoller.test.ts src/services/__tests__/marketplaceSavedSearch.test.ts src/services/__tests__/marketplaceReputation.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
