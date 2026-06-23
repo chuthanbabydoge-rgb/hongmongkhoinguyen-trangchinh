@@ -1,5 +1,8 @@
 import { logger } from "./lib/logger";
 import { isSupabaseConfigured } from "./database/supabase";
+import { MockMarketplaceWatchlistRepository }    from "./repositories/marketplaceWatchlistRepository";
+import { SupabaseMarketplaceWatchlistRepository } from "./repositories/supabase/SupabaseMarketplaceWatchlistRepository";
+import { MarketplaceWatchlistService }            from "./services/marketplaceWatchlistService";
 
 import type { IUserRepository }               from "./repositories/userRepository";
 import type { IAvatarRepository }             from "./repositories/avatarRepository";
@@ -292,3 +295,12 @@ const analyticsRepo = useSupabase
 logger.info(`Container: marketplace analytics → ${useSupabase ? "Supabase" : "Mock"}`);
 
 export const marketplaceStatsService = new MarketplaceStatsService(analyticsRepo);
+
+// ─── Watchlist (V1.9) ─────────────────────────────────────────────────────────
+
+const watchlistRepo = useSupabase
+  ? new SupabaseMarketplaceWatchlistRepository()
+  : new MockMarketplaceWatchlistRepository();
+logger.info(`Container: marketplace watchlist → ${useSupabase ? "Supabase" : "Mock"}`);
+
+export const marketplaceWatchlistService = new MarketplaceWatchlistService(watchlistRepo);

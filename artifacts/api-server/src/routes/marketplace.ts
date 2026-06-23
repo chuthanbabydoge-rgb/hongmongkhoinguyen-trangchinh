@@ -33,6 +33,12 @@ import {
   handleMarkAsRead,
   handleDeleteNotification,
 } from "../controllers/marketplaceNotificationController";
+import {
+  handleAddWatchlist,
+  handleRemoveWatchlist,
+  handleGetWatchlist,
+  handleGetWatchlistCount,
+} from "../controllers/marketplaceWatchlistController";
 
 const router: IRouter = Router();
 
@@ -75,5 +81,12 @@ router.get(   "/marketplace/notifications/count",      handleGetUnreadCount);
 router.patch( "/marketplace/notifications/read-all",   handleMarkAllAsRead);
 router.patch( "/marketplace/notifications/:id/read",   handleMarkAsRead);
 router.delete("/marketplace/notifications/:id",        handleDeleteNotification);
+
+// ─── Watchlist (V1.9) ─────────────────────────────────────────────────────────
+// Note: static sub-path /count must precede /:id to avoid routing conflict.
+router.get(   "/marketplace/watchlist",       handleGetWatchlist);
+router.get(   "/marketplace/watchlist/count", handleGetWatchlistCount);
+router.post(  "/marketplace/watchlist",       handleAddWatchlist);
+router.delete("/marketplace/watchlist/:id",   handleRemoveWatchlist);
 
 export default router;
