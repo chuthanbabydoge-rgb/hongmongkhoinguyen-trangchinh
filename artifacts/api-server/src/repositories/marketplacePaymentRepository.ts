@@ -5,9 +5,15 @@
 // auction settlement writes one row here, giving a full audit trail of
 // who paid whom, how much, in which currency, and from which source.
 //
+// Fee breakdown per record:
+//   totalAmount — what the buyer paid (full listing/bid price)
+//   feeAmount   — the marketplace fee deducted from the seller payout
+//   netAmount   — what the seller actually received (totalAmount - feeAmount)
+//
 // Table (future DB migration): marketplace_wallet_transactions
-//   id (uuid pk), buyer_id, seller_id, amount, currency,
-//   source_type ("listing"|"auction"), source_id, created_at
+//   id (uuid pk), buyer_id, seller_id,
+//   total_amount, fee_amount, net_amount,
+//   currency, source_type ("listing"|"auction"), source_id, created_at
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { MarketplaceCurrency } from "./marketplaceRepository";
@@ -17,14 +23,16 @@ import type { MarketplaceCurrency } from "./marketplaceRepository";
 export type PaymentSourceType = "listing" | "auction";
 
 export interface MarketplaceWalletTransaction {
-  id:         string;
-  buyerId:    string;
-  sellerId:   string;
-  amount:     number;
-  currency:   MarketplaceCurrency;
-  sourceType: PaymentSourceType;
-  sourceId:   string;
-  createdAt:  string;
+  id:          string;
+  buyerId:     string;
+  sellerId:    string;
+  totalAmount: number;   // buyer pays this (full price)
+  feeAmount:   number;   // treasury receives this
+  netAmount:   number;   // seller receives this (totalAmount - feeAmount)
+  currency:    MarketplaceCurrency;
+  sourceType:  PaymentSourceType;
+  sourceId:    string;
+  createdAt:   string;
 }
 
 // ─── Repository interface ─────────────────────────────────────────────────────

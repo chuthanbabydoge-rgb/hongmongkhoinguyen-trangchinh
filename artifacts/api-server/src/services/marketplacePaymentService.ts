@@ -1,18 +1,26 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // MarketplacePaymentService
 //
-// Handles wallet transfers for marketplace purchases and auction settlements.
+// Handles wallet transfers (including fee deduction) for marketplace purchases
+// and auction settlements.
+//
+// Fee policy:
+//   MARKETPLACE_FEE_PERCENT = 5  (5 % of the sale price)
+//   • Buyer  pays:    totalAmount   (full listing/bid price)
+//   • Seller receives: netAmount   (totalAmount – feeAmount)
+//   • Treasury receives: feeAmount (Math.floor of 5 %)
+//   • If feeAmount rounds to 0 the treasury credit step is skipped.
 //
 // Atomicity model (compensating transactions):
 //   Because we use the Supabase REST API (not a raw PG connection), true
-//   DB-level transactions are not available here.  Instead each step is
-//   paired with a compensating action so that any failure leaves balances
-//   consistent:
+//   DB-level transactions are not available.  Each write phase is paired with
+//   a compensating action that restores the pre-transaction state on failure:
 //
-//     Phase 1  — validate (read-only, no side-effects)
-//     Phase 2  — debit buyer
-//     Phase 3  — credit seller     (rolls back phase 2 on error)
-//     Phase 4  — create record     (rolls back phases 2+3 on error)
+//     Phase 1  — validate          (read-only, no side-effects)
+//     Phase 2  — debit buyer       (totalAmount)
+//     Phase 3  — credit seller     (netAmount)   → rolls back phase 2 on error
+//     Phase 3b — credit treasury   (feeAmount)   → rolls back phases 2+3 on error
+//     Phase 4  — create record                   → rolls back all on error
 //
 // Currency mapping (MarketplaceCurrency → WalletCurrency key):
 //   "credits" → credits
@@ -20,14 +28,23 @@
 //   "eth"     → tokens
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { IWalletRepository }             from "../repositories/walletRepository";
+import type { IWalletRepository }              from "../repositories/walletRepository";
 import type { WalletCurrency, WalletReference } from "../models/walletReference";
-import type { MarketplaceCurrency }           from "../repositories/marketplaceRepository";
+import type { MarketplaceCurrency }            from "../repositories/marketplaceRepository";
 import type {
   IMarketplacePaymentRepository,
   MarketplaceWalletTransaction,
   PaymentSourceType,
 } from "../repositories/marketplacePaymentRepository";
+
+// ─── Fee configuration ────────────────────────────────────────────────────────
+
+export const MARKETPLACE_FEE_PERCENT = 5;
+
+// ─── Treasury identity ────────────────────────────────────────────────────────
+
+export const TREASURY_USER_ID   = "treasury";
+export const TREASURY_WALLET_ID = "treasury-wallet-001";
 
 // ─── Input / output types ─────────────────────────────────────────────────────
 
@@ -46,7 +63,7 @@ export interface IMarketplacePaymentService {
   processPayment(input: ProcessPaymentInput): Promise<MarketplaceWalletTransaction>;
 }
 
-// ─── Currency mapping ─────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function currencyKey(currency: MarketplaceCurrency): keyof WalletCurrency {
   switch (currency) {
@@ -56,6 +73,11 @@ function currencyKey(currency: MarketplaceCurrency): keyof WalletCurrency {
   }
 }
 
+function computeFee(amount: number): { feeAmount: number; netAmount: number } {
+  const feeAmount = Math.floor(amount * MARKETPLACE_FEE_PERCENT / 100);
+  return { feeAmount, netAmount: amount - feeAmount };
+}
+
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 export class MarketplacePaymentService implements IMarketplacePaymentService {
@@ -63,6 +85,21 @@ export class MarketplacePaymentService implements IMarketplacePaymentService {
     private readonly wallets:  IWalletRepository,
     private readonly payments: IMarketplacePaymentRepository,
   ) {}
+
+  // ── Treasury wallet — auto-created on first use ───────────────────────────
+
+  private async getOrCreateTreasuryWallet(): Promise<WalletReference> {
+    const existing = await this.wallets.getByUserId(TREASURY_USER_ID);
+    if (existing) return existing;
+    return this.wallets.create({
+      userId:       TREASURY_USER_ID,
+      walletId:     TREASURY_WALLET_ID,
+      currency:     { credits: 0, coins: 0, tokens: 0 },
+      lastSyncedAt: new Date().toISOString(),
+    });
+  }
+
+  // ── Core payment flow ─────────────────────────────────────────────────────
 
   async processPayment(input: ProcessPaymentInput): Promise<MarketplaceWalletTransaction> {
     const { buyerId, sellerId, amount, currency, sourceType, sourceId } = input;
@@ -88,9 +125,8 @@ export class MarketplacePaymentService implements IMarketplacePaymentService {
       throw new Error(`Không tìm thấy ví của người bán (${sellerId}).`);
     }
 
-    const key           = currencyKey(currency);
-    const buyerBalance  = buyerWallet.currency[key];
-    const sellerBalance = sellerWallet.currency[key];
+    const key          = currencyKey(currency);
+    const buyerBalance = buyerWallet.currency[key];
 
     if (buyerBalance < amount) {
       throw new Error(
@@ -98,7 +134,9 @@ export class MarketplacePaymentService implements IMarketplacePaymentService {
       );
     }
 
-    // ── Phase 2: debit buyer ─────────────────────────────────────────────────
+    const { feeAmount, netAmount } = computeFee(amount);
+
+    // ── Phase 2: debit buyer (full amount) ───────────────────────────────────
 
     const newBuyerCurrency: WalletCurrency = {
       ...buyerWallet.currency,
@@ -112,45 +150,76 @@ export class MarketplacePaymentService implements IMarketplacePaymentService {
       throw new Error(`Không thể cập nhật ví người mua (${buyerId}).`);
     }
 
-    // ── Phase 3: credit seller (compensates phase 2 on failure) ─────────────
+    // ── Phase 3: credit seller (net amount) — rolls back phase 2 on error ───
 
-    let updatedSeller: WalletReference | null = null;
     try {
+      const sellerBalance    = sellerWallet.currency[key];
       const newSellerCurrency: WalletCurrency = {
         ...sellerWallet.currency,
-        [key]: sellerBalance + amount,
+        [key]: sellerBalance + netAmount,
       };
-      updatedSeller = await this.wallets.update({
+      const updatedSeller = await this.wallets.update({
         ...sellerWallet,
         currency: newSellerCurrency,
       });
       if (!updatedSeller) throw new Error(`Không thể cập nhật ví người bán (${sellerId}).`);
     } catch (err) {
-      // Compensate: restore buyer wallet
       await this.wallets.update(buyerWallet).catch(() => {});
       throw err;
     }
 
-    // ── Phase 4: create transaction record (compensates phases 2+3 on failure)
+    // ── Phase 3b: credit treasury (fee) — rolls back phases 2+3 on error ────
+
+    let treasurySnapshot: WalletReference | null = null;
+
+    if (feeAmount > 0) {
+      try {
+        const treasuryWallet    = await this.getOrCreateTreasuryWallet();
+        treasurySnapshot        = treasuryWallet;
+        const treasuryBalance   = treasuryWallet.currency[key];
+        const newTreasuryCurrency: WalletCurrency = {
+          ...treasuryWallet.currency,
+          [key]: treasuryBalance + feeAmount,
+        };
+        const updatedTreasury = await this.wallets.update({
+          ...treasuryWallet,
+          currency: newTreasuryCurrency,
+        });
+        if (!updatedTreasury) throw new Error("Không thể cập nhật ví kho bạc.");
+      } catch (err) {
+        await Promise.allSettled([
+          this.wallets.update(buyerWallet),
+          this.wallets.update(sellerWallet),
+        ]);
+        throw err;
+      }
+    }
+
+    // ── Phase 4: create record — rolls back all on error ─────────────────────
 
     try {
       const tx: MarketplaceWalletTransaction = {
-        id:         crypto.randomUUID(),
+        id:          crypto.randomUUID(),
         buyerId,
         sellerId,
-        amount,
+        totalAmount: amount,
+        feeAmount,
+        netAmount,
         currency,
         sourceType,
         sourceId,
-        createdAt:  new Date().toISOString(),
+        createdAt:   new Date().toISOString(),
       };
       return await this.payments.create(tx);
     } catch (err) {
-      // Compensate: restore both wallets
-      await Promise.allSettled([
+      const rollbacks: Promise<unknown>[] = [
         this.wallets.update(buyerWallet),
         this.wallets.update(sellerWallet),
-      ]);
+      ];
+      if (treasurySnapshot) {
+        rollbacks.push(this.wallets.update(treasurySnapshot));
+      }
+      await Promise.allSettled(rollbacks);
       throw err;
     }
   }
