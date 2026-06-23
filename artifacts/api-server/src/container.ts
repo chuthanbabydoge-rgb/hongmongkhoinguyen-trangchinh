@@ -7,6 +7,7 @@ import type { IReputationRepository }         from "./repositories/reputationRep
 import type { IWalletRepository }             from "./repositories/walletRepository";
 import type { IWalletTransactionRepository }  from "./repositories/walletTransactionRepository";
 import type { IInventoryRepository }          from "./repositories/inventoryRepository";
+import type { IInventoryItemsRepository }     from "./repositories/inventoryItemsRepository";
 
 import { MockUserRepository }               from "./repositories/userRepository";
 import { MockAvatarRepository }             from "./repositories/avatarRepository";
@@ -14,6 +15,8 @@ import { MockReputationRepository }         from "./repositories/reputationRepos
 import { MockWalletRepository }             from "./repositories/walletRepository";
 import { MockWalletTransactionRepository }  from "./repositories/walletTransactionRepository";
 import { MockInventoryRepository }          from "./repositories/inventoryRepository";
+import { MockInventoryItemsRepository }     from "./repositories/inventoryItemsRepository";
+import { PgInventoryItemsRepository }       from "./repositories/pg/PgInventoryItemsRepository";
 
 import {
   SupabaseUserRepository,
@@ -28,9 +31,10 @@ import type { User } from "./models/user";
 import type { Avatar } from "./models/user";
 import type { Reputation, ReputationHistoryEntry } from "./models/reputation";
 import type { WalletReference, WalletCurrency } from "./models/walletReference";
-import { AccountService } from "./services/accountService";
-import { ProfileService } from "./services/profileService";
-import { WalletService }  from "./services/walletService";
+import { AccountService }   from "./services/accountService";
+import { ProfileService }   from "./services/profileService";
+import { WalletService }    from "./services/walletService";
+import { InventoryService } from "./services/inventoryService";
 
 // ─── Fallback repositories ────────────────────────────────────────────────────
 
@@ -141,6 +145,11 @@ let reputationRepo:         IReputationRepository;
 let walletRepo:             IWalletRepository;
 let walletTransactionRepo:  IWalletTransactionRepository;
 let inventoryRepo:          IInventoryRepository;
+let inventoryItemsRepo:     IInventoryItemsRepository;
+
+// inventory_items live in Replit PostgreSQL (DATABASE_URL) — always use PgInventoryItemsRepository
+inventoryItemsRepo = new PgInventoryItemsRepository();
+logger.info("Container: inventory items → Replit PostgreSQL (PgInventoryItemsRepository)");
 
 if (useSupabase) {
   logger.info("Container: using Supabase repositories (mock fallback active for missing rows)");
@@ -180,3 +189,5 @@ export const walletService = new WalletService(
   walletRepo,
   walletTransactionRepo,
 );
+
+export const inventoryService = new InventoryService(inventoryItemsRepo);

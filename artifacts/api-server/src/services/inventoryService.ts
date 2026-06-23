@@ -1,28 +1,30 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Inventory service
-// Swap the return values with DB queries when integrating a database.
-// Example: return await db.query.inventoryItems.findMany({ where: eq(items.userId, userId) });
+// Inventory Service
+//
+// Queries inventory_items and inventory_categories from Supabase.
+// All filtering (category, rarity, status) is pushed down to the repository.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import {
-  INVENTORY,
-  type InventoryData,
-  type InventoryItem,
-  type InventoryCategory,
-} from "../data/inventoryData";
+import type { IInventoryItemsRepository, ItemFilters, InventoryItem, InventorySummary } from "../repositories/inventoryItemsRepository";
 
-export async function getInventory(_userId: string): Promise<InventoryData> {
-  return INVENTORY;
+export interface InventoryData {
+  userId:  string;
+  summary: InventorySummary;
+  items:   InventoryItem[];
 }
 
-export async function getInventoryItems(
-  _userId: string,
-  category?: InventoryCategory,
-  limit = 50,
-): Promise<InventoryItem[]> {
-  let items = INVENTORY.items;
-  if (category) {
-    items = items.filter((i) => i.category === category);
+export class InventoryService {
+  constructor(private readonly repo: IInventoryItemsRepository) {}
+
+  async getInventory(userId: string): Promise<InventoryData> {
+    const [summary, items] = await Promise.all([
+      this.repo.getSummary(userId),
+      this.repo.getItems(userId, {}, 50),
+    ]);
+    return { userId, summary, items };
   }
-  return items.slice(0, limit);
+
+  async getInventoryItems(userId: string, filters: ItemFilters = {}, limit = 50): Promise<InventoryItem[]> {
+    return this.repo.getItems(userId, filters, limit);
+  }
 }

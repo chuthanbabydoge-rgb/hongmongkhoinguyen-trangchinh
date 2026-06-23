@@ -4,3 +4,4 @@ export { SupabaseReputationRepository }          from "./SupabaseReputationRepos
 export { SupabaseWalletRepository }              from "./SupabaseWalletRepository";
 export { SupabaseWalletTransactionRepository }   from "./SupabaseWalletTransactionRepository";
 export { SupabaseInventoryRepository }           from "./SupabaseInventoryRepository";
+export { SupabaseInventoryItemsRepository }      from "./SupabaseInventoryItemsRepository";
