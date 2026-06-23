@@ -1,4 +1,5 @@
 import { logger } from "./lib/logger";
+import { MarketplaceRealtimeService } from "./services/marketplaceRealtimeService";
 import { isSupabaseConfigured } from "./database/supabase";
 import { MockReputationRepository as MockMarketplaceReputationRepository } from "./repositories/marketplaceReputationRepository";
 import { SupabaseMarketplaceReputationRepository }                         from "./repositories/supabase/SupabaseMarketplaceReputationRepository";
@@ -243,6 +244,11 @@ if (useSupabase) {
   inventoryRepo         = new MockInventoryRepository();
 }
 
+// ─── Real-time service (V2.6) ─────────────────────────────────────────────────
+
+export const marketplaceRealtimeService = new MarketplaceRealtimeService();
+logger.info("Container: marketplace realtime service → active");
+
 // ─── Wired service instances ──────────────────────────────────────────────────
 
 export const accountService = new AccountService(
@@ -276,7 +282,7 @@ const notificationRepo = useSupabase
   : new MockMarketplaceNotificationRepository();
 logger.info(`Container: marketplace notifications → ${useSupabase ? "Supabase" : "Mock"}`);
 
-export const marketplaceNotificationService = new MarketplaceNotificationService(notificationRepo);
+export const marketplaceNotificationService = new MarketplaceNotificationService(notificationRepo, marketplaceRealtimeService);
 
 // ─── Reputation (V2.4) ────────────────────────────────────────────────────────
 
@@ -285,7 +291,7 @@ const marketplaceReputationRepo = useSupabase
   : new MockMarketplaceReputationRepository();
 logger.info(`Container: seller reputation → ${useSupabase ? "Supabase" : "Mock"}`);
 
-export const sellerReputationService = new MarketplaceReputationService(marketplaceReputationRepo);
+export const sellerReputationService = new MarketplaceReputationService(marketplaceReputationRepo, undefined, marketplaceRealtimeService);
 
 export const marketplaceService = new MarketplaceService(
   listingsRepo,
@@ -297,6 +303,7 @@ export const marketplaceService = new MarketplaceService(
   marketplacePaymentService,
   marketplaceNotificationService,
   sellerReputationService,
+  marketplaceRealtimeService,
 );
 
 // ─── Treasury ─────────────────────────────────────────────────────────────────
@@ -327,6 +334,7 @@ logger.info(`Container: marketplace watchlist → ${useSupabase ? "Supabase" : "
 export const marketplaceWatchlistService = new MarketplaceWatchlistService(
   watchlistRepo,
   marketplaceNotificationService,
+  marketplaceRealtimeService,
 );
 
 // ─── Price Poller (V2.2) ──────────────────────────────────────────────────────
@@ -374,4 +382,6 @@ export const moderationService = new MarketplaceModerationService(
   moderationRepo,
   listingsRepo,
   auctionsRepo,
+  null,
+  marketplaceRealtimeService,
 );

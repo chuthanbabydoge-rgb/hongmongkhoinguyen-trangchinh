@@ -13,6 +13,7 @@ import type {
   MarketplaceNotification,
   NotificationType,
 } from "../repositories/marketplaceNotificationRepository";
+import type { MarketplaceRealtimeService } from "./marketplaceRealtimeService";
 
 // ─── Lightweight event payloads (avoid circular deps with full model types) ───
 
@@ -64,7 +65,10 @@ export interface IMarketplaceNotificationService {
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 export class MarketplaceNotificationService implements IMarketplaceNotificationService {
-  constructor(private readonly repo: IMarketplaceNotificationRepository) {}
+  constructor(
+    private readonly repo:     IMarketplaceNotificationRepository,
+    private readonly realtime: MarketplaceRealtimeService | null = null,
+  ) {}
 
   // ── CRUD ──────────────────────────────────────────────────────────────────
 
@@ -101,7 +105,8 @@ export class MarketplaceNotificationService implements IMarketplaceNotificationS
     message: string,
     metadata?: Record<string, unknown>,
   ): Promise<void> {
-    await this.repo.create({ userId, type, title, message, metadata });
+    const notification = await this.repo.create({ userId, type, title, message, metadata });
+    this.realtime?.emit("NOTIFICATION_CREATED", { notificationId: notification.id, type, title, message, metadata }, userId);
   }
 
   // ── Domain events ─────────────────────────────────────────────────────────

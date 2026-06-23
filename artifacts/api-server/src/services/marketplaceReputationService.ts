@@ -12,6 +12,7 @@ import {
   type SellerReputation,
   type RateInput,
 } from "../repositories/marketplaceReputationRepository";
+import type { MarketplaceRealtimeService } from "./marketplaceRealtimeService";
 
 // Optional transaction lookup — injected to validate transactionId + sellerId.
 export interface ITransactionLookup {
@@ -35,14 +36,16 @@ function defaultRep(userId: string): SellerReputation {
 
 export class MarketplaceReputationService {
   constructor(
-    private readonly repo:   IReputationRepository,
+    private readonly repo:      IReputationRepository,
     private readonly txLookup?: ITransactionLookup,
+    private readonly realtime?: MarketplaceRealtimeService,
   ) {}
 
   // ─── Called by MarketplaceService after every completed sale / auction ──────
 
   async recordSale(sellerId: string, volume: number): Promise<SellerReputation> {
     const existing = await this.repo.getByUserId(sellerId) ?? defaultRep(sellerId);
+    const prevLevel = existing.level;
     const next = {
       ...existing,
       totalSales:  existing.totalSales + 1,
@@ -50,7 +53,11 @@ export class MarketplaceReputationService {
     };
     next.score = computeScore(next);
     next.level = computeLevel(next.score);
-    return this.repo.upsert(next);
+    const result = await this.repo.upsert(next);
+    if (result.level !== prevLevel) {
+      this.realtime?.emit("SELLER_LEVEL_UP", { sellerId, oldLevel: prevLevel, newLevel: result.level, score: result.score }, sellerId);
+    }
+    return result;
   }
 
   // ─── Buyer submits a rating for a seller after a transaction ────────────────

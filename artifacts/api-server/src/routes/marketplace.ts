@@ -64,8 +64,12 @@ import {
   handleDeleteSavedSearch,
   handleRunScan,
 } from "../controllers/marketplaceSavedSearchController";
+import { handleGetRealtimeStats } from "../controllers/marketplaceRealtimeController";
 
 const router: IRouter = Router();
+
+// ─── Real-time stats (V2.6) ───────────────────────────────────────────────────
+router.get("/marketplace/realtime/stats", handleGetRealtimeStats);
 
 // ─── Stats dashboard (V1.6 — replaces basic stats, superset response) ─────────
 router.get("/marketplace/stats/top-sellers", handleGetTopSellers);

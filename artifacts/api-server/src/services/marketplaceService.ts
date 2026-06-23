@@ -29,6 +29,7 @@ import type { IInventoryItemsMutationRepository } from "../repositories/inventor
 import type { IMarketplacePaymentService }        from "./marketplacePaymentService";
 import type { IMarketplaceNotificationService }   from "./marketplaceNotificationService";
 import type { MarketplaceReputationService }       from "./marketplaceReputationService";
+import type { MarketplaceRealtimeService }         from "./marketplaceRealtimeService";
 
 const STATUS_ACTIVE   = "đang hoạt động";
 const STATUS_TRADING  = "đang giao dịch";
@@ -61,6 +62,7 @@ export class MarketplaceService {
     private readonly payment:      IMarketplacePaymentService | null = null,
     private readonly notif:        IMarketplaceNotificationService | null = null,
     private readonly reputation:   MarketplaceReputationService | null = null,
+    private readonly realtime:     MarketplaceRealtimeService | null = null,
   ) {}
 
   // ─── Stats ──────────────────────────────────────────────────────────────────
@@ -111,6 +113,7 @@ export class MarketplaceService {
 
     const listing = await this.listings.create(input);
     this.notif?.onListingCreated(listing.sellerId, listing).catch(() => {});
+    this.realtime?.emit("LISTING_CREATED", { listingId: listing.id, itemName: listing.itemName, price: listing.price, currency: listing.currency, sellerId: listing.sellerId }, listing.sellerId);
     return listing;
   }
 
@@ -124,6 +127,7 @@ export class MarketplaceService {
     if (deleted) {
       await this.inventory.setStatus(listing.itemId, STATUS_ACTIVE);
       this.notif?.onListingCancelled(listing.sellerId, listing).catch(() => {});
+      this.realtime?.emit("LISTING_REMOVED", { listingId: listing.id, itemName: listing.itemName, sellerId: listing.sellerId }, listing.sellerId);
     }
 
     return deleted;
@@ -177,6 +181,7 @@ export class MarketplaceService {
 
     this.notif?.onListingSold(listing.sellerId, input.buyerId, listing).catch(() => {});
     this.reputation?.recordSale(listing.sellerId, listing.price).catch(() => {});
+    this.realtime?.emit("LISTING_SOLD", { listingId: listing.id, itemName: listing.itemName, price: listing.price, currency: listing.currency, sellerId: listing.sellerId, buyerId: input.buyerId });
 
     return { transaction, listing: updatedListing ?? listing };
   }
@@ -239,6 +244,7 @@ export class MarketplaceService {
 
     const auction = await this.auctions.create(input);
     this.notif?.onAuctionCreated(auction.sellerId, auction).catch(() => {});
+    this.realtime?.emit("AUCTION_CREATED", { auctionId: auction.id, itemName: auction.itemName, startingPrice: auction.startingPrice, currency: auction.currency, sellerId: auction.sellerId }, auction.sellerId);
     return auction;
   }
 
@@ -256,6 +262,7 @@ export class MarketplaceService {
 
     const updated = await this.auctions.updateStatus(id, "cancelled");
     this.notif?.onAuctionCancelled(auction.sellerId, auction).catch(() => {});
+    this.realtime?.emit("AUCTION_CANCELLED", { auctionId: auction.id, itemName: auction.itemName, sellerId: auction.sellerId }, auction.sellerId);
     return updated ?? auction;
   }
 
@@ -312,6 +319,7 @@ export class MarketplaceService {
     }
 
     const updated = await this.auctions.updateStatus(id, "ended");
+    this.realtime?.emit("AUCTION_COMPLETED", { auctionId: auction.id, itemName: auction.itemName, sellerId: auction.sellerId, winnerId });
     return { auction: updated ?? auction, winnerId };
   }
 
@@ -338,6 +346,7 @@ export class MarketplaceService {
     );
 
     this.notif?.onBidPlaced(input.bidderId, auction, input.amount).catch(() => {});
+    this.realtime?.emit("BID_PLACED", { auctionId, bidderId: input.bidderId, amount: input.amount, currency: auction.currency, itemName: auction.itemName }, input.bidderId);
 
     return { bid, auction: updatedAuction ?? auction };
   }

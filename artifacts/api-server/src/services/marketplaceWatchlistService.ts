@@ -15,6 +15,7 @@ import type {
   PriceCheckResult,
 } from "../repositories/marketplaceWatchlistRepository";
 import type { IMarketplaceNotificationService } from "./marketplaceNotificationService";
+import type { MarketplaceRealtimeService }      from "./marketplaceRealtimeService";
 
 export const VALID_TARGET_TYPES: ReadonlySet<string> = new Set(["listing", "auction"]);
 
@@ -51,6 +52,7 @@ export class MarketplaceWatchlistService implements IMarketplaceWatchlistService
   constructor(
     private readonly repo:          IMarketplaceWatchlistRepository,
     private readonly notifications: IMarketplaceNotificationService | null = null,
+    private readonly realtime:      MarketplaceRealtimeService | null = null,
   ) {}
 
   async add(input: AddWatchlistInput): Promise<{ entry: WatchlistEntry; created: boolean }> {
@@ -91,21 +93,31 @@ export class MarketplaceWatchlistService implements IMarketplaceWatchlistService
     const result = await this.repo.checkPrice(id, currentPrice);
     if (!result) return null;
 
-    if (result.dropped && this.notifications) {
+    if (result.dropped) {
       const entry = result.entry;
-      this.notifications
-        .onPriceDrop(
-          entry.userId,
-          {
-            targetId:   entry.targetId,
-            targetType: entry.targetType,
-            itemName:   entry.itemName ?? "Mặt hàng",
-            oldPrice:   result.oldPrice,
-            newPrice:   result.newPrice,
-            dropPct:    result.dropPct,
-          },
-        )
-        .catch(() => {});
+      if (this.notifications) {
+        this.notifications
+          .onPriceDrop(
+            entry.userId,
+            {
+              targetId:   entry.targetId,
+              targetType: entry.targetType,
+              itemName:   entry.itemName ?? "Mặt hàng",
+              oldPrice:   result.oldPrice,
+              newPrice:   result.newPrice,
+              dropPct:    result.dropPct,
+            },
+          )
+          .catch(() => {});
+      }
+      this.realtime?.emit("PRICE_DROP", {
+        targetId:   entry.targetId,
+        targetType: entry.targetType,
+        itemName:   entry.itemName ?? "Mặt hàng",
+        oldPrice:   result.oldPrice,
+        newPrice:   result.newPrice,
+        dropPct:    result.dropPct,
+      }, entry.userId);
     }
 
     return result;

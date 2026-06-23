@@ -10,8 +10,9 @@ import type {
   ModerationAction,
   ReportedItem,
 } from "../repositories/marketplaceModerationRepository";
-import type { IListingsRepository }  from "../repositories/marketplaceRepository";
-import type { IAuctionsRepository }  from "../repositories/marketplaceRepository";
+import type { IListingsRepository }       from "../repositories/marketplaceRepository";
+import type { IAuctionsRepository }       from "../repositories/marketplaceRepository";
+import type { MarketplaceRealtimeService } from "./marketplaceRealtimeService";
 
 // Minimal notification surface needed by moderation.
 export interface IModerationNotifier {
@@ -35,6 +36,7 @@ export class MarketplaceModerationService {
     private readonly listings:  IListingsRepository,
     private readonly auctions:  IAuctionsRepository,
     private readonly notif:     IModerationNotifier | null = null,
+    private readonly realtime:  MarketplaceRealtimeService | null = null,
   ) {}
 
   // ─── Dashboard ──────────────────────────────────────────────────────────────
@@ -131,6 +133,7 @@ export class MarketplaceModerationService {
     });
 
     this.notif?.onSellerSuspended(sellerId, reason).catch(() => {});
+    this.realtime?.emit("SELLER_SUSPENDED", { sellerId, reason, adminId }, sellerId);
     return action;
   }
 
@@ -153,6 +156,7 @@ export class MarketplaceModerationService {
     });
 
     this.notif?.onSellerBanned(sellerId, reason).catch(() => {});
+    this.realtime?.emit("SELLER_BANNED", { sellerId, reason, adminId }, sellerId);
     return action;
   }
 
