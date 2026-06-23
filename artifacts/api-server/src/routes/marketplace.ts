@@ -19,11 +19,20 @@ import {
   handleGetPayment,
 } from "../controllers/marketplacePaymentController";
 import { handleGetTreasury } from "../controllers/marketplaceTreasuryController";
+import {
+  handleGetStatsDashboard,
+  handleGetTopSellers,
+  handleGetTopBuyers,
+  handleGetTopItems,
+} from "../controllers/marketplaceStatsController";
 
 const router: IRouter = Router();
 
-// ─── Stats ────────────────────────────────────────────────────────────────────
-router.get("/marketplace/stats", handleGetStats);
+// ─── Stats dashboard (V1.6 — replaces basic stats, superset response) ─────────
+router.get("/marketplace/stats/top-sellers", handleGetTopSellers);
+router.get("/marketplace/stats/top-buyers",  handleGetTopBuyers);
+router.get("/marketplace/stats/top-items",   handleGetTopItems);
+router.get("/marketplace/stats",             handleGetStatsDashboard);
 
 // ─── Listings ─────────────────────────────────────────────────────────────────
 router.get(    "/marketplace/listings",             handleGetListings);

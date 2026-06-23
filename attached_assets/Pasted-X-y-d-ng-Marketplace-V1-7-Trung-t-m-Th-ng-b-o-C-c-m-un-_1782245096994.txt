@@ -1,0 +1,338 @@
+Xây dựng Marketplace V1.7 — Trung tâm Thông báo
+
+Các mô-đun đã hoàn thành hiện tại:
+
+* Danh sách sản phẩm
+* Đấu giá
+* Thanh toán tự động
+* Thanh toán qua ví điện tử
+* Lịch sử thanh toán
+* Bảng điều khiển kho bạc
+* Thống kê Marketplace
+
+Mục tiêu:
+
+Tạo hệ thống thông báo cho các sự kiện trên Marketplace.
+
+=========================================
+
+1. Cơ sở dữ liệu
+
+=========================================
+
+Tạo bảng:
+
+marketplace_notifications
+
+Các cột:
+
+id UUID PK
+
+user_id UUID NOT NULL
+
+type TEXT NOT NULL
+
+title TEXT NOT NULL
+
+message TEXT NOT NULL
+
+is_read BOOLEAN DEFAULT false
+
+metadata JSONB
+
+created_at TIMESTAMPTZ DEFAULT now()
+
+Chỉ mục:
+
+user_id
+
+is_read
+
+created_at
+
+=========================================
+2. Kho lưu trữ
+=============
+
+Tạo:
+
+repositories/marketplaceNotificationRepository.ts
+
+Giao diện:
+
+IMarketplaceNotificationRepository
+
+Phương thức:
+
+create()
+
+findByUser()
+
+findUnreadByUser()
+
+markRead()
+
+markAllRead()
+
+delete()
+
+countUnread()
+
+==========================================
+3. Thông báo Các loại
+=====================
+
+DANH SÁCH ĐÃ ĐƯỢC TẠO
+
+DANH SÁCH ĐÃ BÁN
+
+DANH SÁCH ĐÃ BỊ HỦY
+
+ĐẤU GIÁ ĐÃ ĐƯỢC TẠO
+
+ĐẤU GIÁ ĐÃ BỊ HỦY
+
+ĐẤU GIÁ THẮNG
+
+ĐẤU GIÁ THUA
+
+ĐẤU GIÁ KẾT THÚC KHÔNG CÓ NGƯỜI TRẢ GIÁ
+
+ĐẤU GIÁ ĐÃ ĐƯỢC ĐẶT GIÁ
+
+THANH TOÁN ĐÃ NHẬN
+
+THANH TOÁN ĐÃ GỬI
+
+==========================================
+4. Thông báo Dịch vụ
+=======================
+
+Tạo:
+
+services/marketplaceNotificationService.ts
+
+Phương thức:
+
+notify()
+
+notifyListingCreated()
+
+notifyListingSold()
+
+notifyAuctionCreated()
+
+notifyAuctionWon()
+
+notifyAuctionLost()
+
+notifyPaymentReceived()
+
+notifyPaymentSent()
+
+=========================================
+5. Tích hợp Marketplace
+==========================
+
+Tự động tạo thông báo khi:
+
+createListing()
+
+→ LISTING_CREATED
+
+deleteListing()
+
+→ DANH SÁCH ĐÃ HỦY
+
+purchaseListing()
+
+người mua:
+
+→ ĐÃ GỬI THANH TOÁN
+
+người bán:
+
+→ ĐÃ NHẬN THANH TOÁN
+→ ĐÃ BÁN
+
+createAuction()
+
+→ ĐẤU GIÁ ĐÃ TẠO
+
+cancelAuction()
+
+→ ĐẤU GIÁ ĐÃ HỦY
+
+placeBid()
+
+người bán:
+
+→ ĐÃ ĐẶT GIÁ
+
+completeAuction()
+
+người thắng cuộc:
+
+→ ĐẤU GIÁ THẮNG
+
+người bán:
+
+→ ĐÃ NHẬN THANH TOÁN
+
+những người đấu giá khác:
+
+→ ĐẤU GIÁ THUA
+
+không có giá thầu:
+
+→ ĐẤU GIÁ KẾT THÚC KHÔNG CÓ GIÁ THẦU
+
+==========================================
+6. Bộ điều khiển
+=============
+
+Tạo:
+
+controllers/marketplaceNotificationController.ts
+
+Điểm cuối:
+
+GET /api/marketplace/notifications
+
+GET /api/marketplace/notifications/unread
+
+GET /api/marketplace/notifications/count
+
+PATCH /api/marketplace/notifications/:id/read
+
+PATCH /api/marketplace/notifications/read-all
+
+DELETE /api/marketplace/notifications/:id
+
+=========================================
+7. Tuyến đường
+=========
+
+Thêm:
+
+GET /marketplace/notifications
+
+GET /marketplace/notifications/unread
+
+GET /marketplace/notifications/count
+
+PATCH /thị trường/thông báo/:id/đọc
+
+PATCH /thị trường/thông báo/đọc tất cả
+
+XÓA /thị trường/thông báo/:id
+
+=============================================
+8. Ví dụ về API
+=================
+
+NHẬN/api/thị trường/thông báo
+
+{
+“Được”: đúng,
+"tổng cộng": 2,
+"dữ liệu": [
+{
+"id:"n1",
+"loại":LISTING_SOLD",
+"title":Vật sản phẩm đã bán",
+"message://Rùa Thần Kim đã được bán với giá 999 tín chỉ",
+"isRead": sai,
+"createdAt:"..."
+}
+]
+}
+
+LẤY /api/marketplace/notifications/count
+
+{ "ok": true,
+
+"unread": 5
+
+}
+
+PATCH /api/marketplace/notifications/read-all
+
+{ "ok": true,
+
+"updated": 12
+
+}
+
+=========================================
+9. Kiểm thử
+========
+
+Tạo:
+
+services/**tests**/marketplaceNotificationService.test.ts
+
+Các bài kiểm thử tối thiểu:
+
+✔ tạo thông báo
+
+✔ số lượng chưa đọc
+
+✔ đánh dấu đã đọc
+
+✔ đánh dấu tất cả đã đọc
+
+✔ xóa thông báo
+
+✔ thông báo tạo bài đăng
+
+✔ thông báo bài đăng đã bán
+
+✔ thông báo tạo đấu giá
+
+✔ thông báo thắng đấu giá
+
+✔ thông báo thua đấu giá
+
+✔ nhận được thanh toán Thông báo
+
+✔ Thông báo thanh toán đã gửi
+
+✔ Truy vấn chưa đọc
+
+✔ Trạng thái trống
+
+Mục tiêu:
+
+Tất cả các bài kiểm tra đều đạt
+
+==========================================
+10. Khả năng tương thích trong tương lai
+========================
+
+Lưu trữ siêu dữ liệu JSONB:
+
+{
+listingId,
+
+auctionId,
+
+paymentId,
+
+itemId,
+
+amount,
+
+currency
+}
+
+cho các liên kết sâu giao diện người dùng trong tương lai.
+
+Yêu cầu:
+
+* Không có thay đổi gây lỗi
+* Tích hợp đầy đủ với các sự kiện Marketplace
+* Tất cả các bài kiểm tra đều đạt
+* Trả về báo cáo triển khai hoàn chỉnh
+* Trả về ví dụ về điểm cuối
+* Trả về tóm tắt kiểm tra

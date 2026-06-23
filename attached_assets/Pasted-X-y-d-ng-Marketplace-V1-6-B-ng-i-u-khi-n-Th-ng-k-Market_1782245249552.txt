@@ -1,0 +1,214 @@
+Xây dựng Marketplace V1.6 — Bảng điều khiển Thống kê Marketplace
+
+Các mô-đun đã hoàn thành:
+
+* Danh sách sản phẩm
+* Đấu giá
+* Thanh toán đấu giá
+* Thanh toán ví điện tử
+* Lịch sử thanh toán
+* Bảng điều khiển Kho bạc
+
+Mục tiêu:
+
+Cung cấp các điểm cuối phân tích Marketplace cho bảng điều khiển quản trị và giao diện người dùng trong tương lai.
+
+====================================
+CÁC TỆP CẦN TẠO
+===============
+
+repositories/marketplaceStatsRepository.ts
+
+services/marketplaceStatsService.ts
+
+controllers/marketplaceStatsController.ts
+
+repositories/supabase/SupabaseMarketplaceStatsRepository.ts
+
+services/**tests**/marketplaceStatsService.test.ts
+
+=====================================
+CÁC TỆP CẦN TẠO SỬA ĐỔI
+===============
+
+routes/marketplace.ts
+
+container.ts
+
+package.json
+
+=====================================
+ĐIỂM CUỐI THỐNG KÊ
+===============
+
+GET /api/marketplace/stats
+
+GET /api/marketplace/stats/top-sellers
+
+GET /api/marketplace/stats/top-buyers
+
+GET /api/marketplace/stats/top-items
+
+======================================
+PHẢN HỒI TỔNG QUAN
+=================
+
+{ "ok": } true,
+
+"data": {
+"activeListings": 0,
+
+"activeAuctions": 0,
+
+"totalTransactions": 0,
+
+"totalMarketplaceVolume": 0,
+
+"totalRevenue": 0
+
+}
+}
+
+======================================
+NGƯỜI BÁN HÀNG HÀNG ĐẦU
+===========
+
+Trả về:
+
+[
+{
+mã người bán,
+số lượng giao dịch,
+khối lượng,
+doanh thu
+
+}
+
+]
+
+Sắp xếp giảm dần theo doanh thu.
+
+=====================================
+NGƯỜI MUA HÀNG HÀNG ĐẦU
+==========
+
+Kết quả trả về:
+
+[ {
+Mã người mua,
+Số giao dịch,
+Khối lượng
+
+}
+
+]
+
+Sắp xếp giảm dần theo khối lượng.
+
+=====================================
+SẢN PHẨM HÀNG ĐẦU
+=========
+
+Kết quả trả về:
+
+[ {
+Tên sản phẩm,
+Doanh số,
+Khối lượng
+
+}
+
+]
+
+Sắp xếp giảm dần theo doanh số.
+
+=====================================
+CỬA SỔ ÂM LƯỢNG
+==============
+
+Tính toán:
+
+24 giờ
+
+7 ngày
+
+30 ngày
+
+toàn bộ thời gian
+
+Sử dụng lịch sử thanh toán của sàn giao dịch.
+
+=====================================
+NGUỒN DỮ LIỆU
+============
+
+Danh sách sản phẩm:
+
+marketplace_listings
+
+Đấu giá:
+
+marketplace_auctions
+
+Giao dịch:
+
+marketplace_transactions
+
+Thanh toán:
+
+marketplace_wallet_transactions
+
+Nếu bảng thanh toán trống:
+
+trả về giá trị 0
+
+không bao giờ báo lỗi.
+
+=====================================
+KIỂM TRA
+=====
+
+Tối thiểu:
+
+✔ Số lượng sản phẩm đang bán
+
+✔ Số lượng phiên đấu giá đang hoạt động
+
+✔ Số lượng giao dịch
+
+✔ Doanh thu
+
+✔ Khối lượng giao dịch
+
+✔ Xếp hạng người bán hàng đầu
+
+✔ Xếp hạng người mua hàng đầu
+
+✔ Xếp hạng sản phẩm hàng đầu
+
+✔ Khối lượng giao dịch 24 giờ
+
+✔ Khối lượng giao dịch 7 ngày
+
+✔ Khối lượng giao dịch 30 ngày
+
+✔ Tổng khối lượng giao dịch
+
+✔ Kho lưu trữ trống trả về giá trị 0
+
+Mục tiêu:
+
+Tất cả các bài kiểm tra đều đạt.
+
+=====================================
+BÁO CÁO CUỐI CÙNG
+============
+
+Kết quả trả về:
+
+1. Các tập tin đã tạo
+2. Các tập tin đã sửa đổi
+3. Các điểm cuối đã thêm
+4. Các phản hồi mẫu
+5. Kết quả kiểm thử
+6. Tổng số lần vượt qua

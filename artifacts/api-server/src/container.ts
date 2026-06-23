@@ -43,6 +43,9 @@ import { SupabaseInventoryItemsMutationRepository } from "./repositories/supabas
 import { SupabaseTreasuryRepository }              from "./repositories/supabase/SupabaseTreasuryRepository";
 import { MockTreasuryRepository }                  from "./repositories/marketplaceTreasuryRepository";
 import { MarketplaceTreasuryService }              from "./services/marketplaceTreasuryService";
+import { SupabaseMarketplaceAnalyticsRepository }  from "./repositories/supabase/SupabaseMarketplaceAnalyticsRepository";
+import { MockMarketplaceAnalyticsRepository }      from "./repositories/marketplaceStatsRepository";
+import { MarketplaceStatsService }                 from "./services/marketplaceStatsService";
 
 import type { User } from "./models/user";
 import type { Avatar } from "./models/user";
@@ -242,3 +245,12 @@ const treasuryRepo = useSupabase
 logger.info(`Container: treasury → ${useSupabase ? "Supabase" : "Mock"}`);
 
 export const marketplaceTreasuryService = new MarketplaceTreasuryService(treasuryRepo);
+
+// ─── Marketplace Analytics (V1.6) ─────────────────────────────────────────────
+
+const analyticsRepo = useSupabase
+  ? new SupabaseMarketplaceAnalyticsRepository()
+  : new MockMarketplaceAnalyticsRepository();
+logger.info(`Container: marketplace analytics → ${useSupabase ? "Supabase" : "Mock"}`);
+
+export const marketplaceStatsService = new MarketplaceStatsService(analyticsRepo);
