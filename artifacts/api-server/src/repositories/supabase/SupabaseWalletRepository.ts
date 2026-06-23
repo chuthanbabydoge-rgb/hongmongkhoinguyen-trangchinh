@@ -1,61 +1,61 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Supabase Wallet Repository
 //
-// Table: wallets
-// Columns:
-//   user_id, wallet_id, credits, coins, tokens, last_synced_at
+// Table: wallets — actual columns observed in production:
+//   id (uuid pk), user_id (uuid fk), credits (int), coins (int),
+//   tokens (int), created_at (timestamptz), updated_at (timestamptz)
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { getSupabaseClient, isValidUuid } from "../../database/supabase";
 import type { IWalletRepository } from "../walletRepository";
 import type { WalletReference, WalletCurrency } from "../../models/walletReference";
 
-// ─── Row → Domain mapping ─────────────────────────────────────────────────────
-
 function toWalletRef(row: Record<string, unknown>): WalletReference {
   return {
-    userId:       row["user_id"] as string,
-    walletId:     row["wallet_id"] as string,
+    userId:       String(row["user_id"] ?? ""),
+    walletId:     String(row["id"] ?? ""),
     currency: {
-      credits: row["credits"] as number,
-      coins:   row["coins"] as number,
-      tokens:  row["tokens"] as number,
+      credits: Number(row["credits"] ?? 0),
+      coins:   Number(row["coins"]   ?? 0),
+      tokens:  Number(row["tokens"]  ?? 0),
     },
-    lastSyncedAt: row["last_synced_at"] as string,
+    lastSyncedAt: String(row["updated_at"] ?? row["created_at"] ?? ""),
   };
 }
 
 function toRow(ref: WalletReference): Record<string, unknown> {
   return {
-    user_id:        ref.userId,
-    wallet_id:      ref.walletId,
-    credits:        ref.currency.credits,
-    coins:          ref.currency.coins,
-    tokens:         ref.currency.tokens,
-    last_synced_at: new Date().toISOString(),
+    user_id:    ref.userId,
+    credits:    ref.currency.credits,
+    coins:      ref.currency.coins,
+    tokens:     ref.currency.tokens,
+    updated_at: new Date().toISOString(),
   };
 }
-
-// ─── Implementation ───────────────────────────────────────────────────────────
 
 export class SupabaseWalletRepository implements IWalletRepository {
   private get db() { return getSupabaseClient(); }
 
   async getByUserId(userId: string): Promise<WalletReference | null> {
-    if (!isValidUuid(userId)) return null;
+    if (!isValidUuid(userId)) {
+      console.log("[SupabaseWalletRepository] invalid UUID, skipping:", userId);
+      return null;
+    }
     const { data, error } = await this.db
       .from("wallets")
       .select("*")
       .eq("user_id", userId)
       .maybeSingle();
     if (error) throw new Error(`SupabaseWalletRepository.getByUserId: ${error.message}`);
+    console.log("[SupabaseWalletRepository] Supabase result for user", userId, ":", data ? "found" : "null");
     return data ? toWalletRef(data) : null;
   }
 
   async create(ref: WalletReference): Promise<WalletReference> {
+    const now = new Date().toISOString();
     const { data, error } = await this.db
       .from("wallets")
-      .insert(toRow(ref))
+      .insert({ ...toRow(ref), created_at: now })
       .select()
       .single();
     if (error) throw new Error(`SupabaseWalletRepository.create: ${error.message}`);
@@ -77,10 +77,10 @@ export class SupabaseWalletRepository implements IWalletRepository {
     const { data, error } = await this.db
       .from("wallets")
       .update({
-        credits:        currency.credits,
-        coins:          currency.coins,
-        tokens:         currency.tokens,
-        last_synced_at: new Date().toISOString(),
+        credits:    currency.credits,
+        coins:      currency.coins,
+        tokens:     currency.tokens,
+        updated_at: new Date().toISOString(),
       })
       .eq("user_id", userId)
       .select()
