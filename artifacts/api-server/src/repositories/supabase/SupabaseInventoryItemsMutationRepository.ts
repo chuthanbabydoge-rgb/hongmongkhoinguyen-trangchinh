@@ -58,7 +58,7 @@ export class SupabaseInventoryItemsMutationRepository
 
     const { error } = await this.db
       .from("inventory_items")
-      .update({ user_id: newUserId, status: "active" })
+      .update({ user_id: newUserId, status: "đang hoạt động" })
       .eq("id", id);
 
     if (error) {

@@ -25,8 +25,25 @@ import type {
 } from "../repositories/marketplaceRepository";
 import type { IInventoryItemsMutationRepository } from "../repositories/inventoryItemsMutationRepository";
 
-const STATUS_TRADING = "đang giao dịch";
-const STATUS_ACTIVE  = "đang hoạt động";
+const STATUS_ACTIVE   = "đang hoạt động";
+const STATUS_TRADING  = "đang giao dịch";
+
+// Legacy English value written by the original Supabase schema;
+// treat it as equivalent to STATUS_ACTIVE so existing items can still be listed.
+const STATUS_ACTIVE_LEGACY = "active";
+
+/** Statuses that explicitly block listing — any other non-active status is also blocked. */
+const BLOCKED_REASON: Record<string, string> = {
+  "đang giao dịch": "Vật phẩm đang được niêm yết trên thị trường.",
+  "đã trang bị":    "Vật phẩm đang được trang bị, cần tháo ra trước.",
+  "bị khóa":        "Vật phẩm đang bị khóa và không thể giao dịch.",
+  "đã hết hạn":     "Vật phẩm đã hết hạn và không thể niêm yết.",
+  "đã sử dụng":     "Vật phẩm đã được sử dụng và không thể niêm yết.",
+};
+
+function isListable(status: string): boolean {
+  return status === STATUS_ACTIVE || status === STATUS_ACTIVE_LEGACY;
+}
 
 export class MarketplaceService {
   constructor(
@@ -63,7 +80,7 @@ export class MarketplaceService {
     if (input.price <= 0) throw new Error("price phải lớn hơn 0.");
     if (!input.currency)  throw new Error("currency là bắt buộc.");
 
-    // ── Inventory ownership check ─────────────────────────────────────────────
+    // ── Inventory ownership + status check ───────────────────────────────────
     const item = await this.inventory.getById(input.itemId);
     if (!item) {
       throw new Error(`Vật phẩm ${input.itemId} không tồn tại trong kho hàng.`);
@@ -72,6 +89,13 @@ export class MarketplaceService {
       throw new Error(
         `Người bán ${input.sellerId} không sở hữu vật phẩm ${input.itemId}.`,
       );
+    }
+
+    // Only active items may be listed — reject all blocked/unknown statuses
+    if (!isListable(item.status)) {
+      const reason = BLOCKED_REASON[item.status]
+        ?? `Vật phẩm đang ở trạng thái "${item.status}" và không thể niêm yết.`;
+      throw new Error(reason);
     }
 
     // ── Mark item as trading ──────────────────────────────────────────────────
