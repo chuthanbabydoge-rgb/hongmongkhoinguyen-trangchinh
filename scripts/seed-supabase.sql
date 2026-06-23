@@ -4,11 +4,11 @@
 -- Run in Supabase SQL Editor:
 --   https://supabase.com/dashboard/project/<your-project>/sql
 --
--- Safe to re-run (upsert on conflict).
--- Reflects the ACTUAL table schemas observed in production.
+-- Uses DELETE + INSERT so it works regardless of whether tables have a
+-- UNIQUE constraint on user_id. Safe to re-run.
 -- ─────────────────────────────────────────────────────────────────────────────
 
--- ─── 1. wallet_transactions (create if not exists) ────────────────────────────
+-- ─── 1. wallet_transactions (create table if not exists) ─────────────────────
 
 CREATE TABLE IF NOT EXISTS public.wallet_transactions (
   id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -50,61 +50,60 @@ ON CONFLICT (id) DO UPDATE SET
 -- Actual columns: id, user_id, avatar_name, avatar_image, title, level,
 --                 experience, metadata, created_at, updated_at
 
-INSERT INTO public.avatars (user_id, avatar_name, avatar_image, title, level, experience, metadata, created_at, updated_at)
+DELETE FROM public.avatars
+WHERE user_id = '72e296a9-cbff-496f-8c9c-65de33c9b930';
+
+INSERT INTO public.avatars
+  (user_id, avatar_name, avatar_image, title, level, experience, metadata, created_at, updated_at)
 VALUES (
   '72e296a9-cbff-496f-8c9c-65de33c9b930',
   'KJ', null, 'Universe Member', 1, 0,
   '{"frameColor": "#0ea5e9", "badgeIcon": null}'::jsonb,
   NOW(), NOW()
-)
-ON CONFLICT (user_id) DO UPDATE SET
-  avatar_name = EXCLUDED.avatar_name,
-  title       = EXCLUDED.title,
-  metadata    = EXCLUDED.metadata,
-  updated_at  = NOW();
+);
 
 -- ─── 4. reputations ───────────────────────────────────────────────────────────
 -- Actual columns: id, user_id, score, tier, upvotes, downvotes, created_at, updated_at
--- Note: badges and history columns do NOT exist in current schema
+-- Note: badges and history columns do NOT exist
 
-INSERT INTO public.reputations (user_id, score, tier, upvotes, downvotes, created_at, updated_at)
+DELETE FROM public.reputations
+WHERE user_id = '72e296a9-cbff-496f-8c9c-65de33c9b930';
+
+INSERT INTO public.reputations
+  (user_id, score, tier, upvotes, downvotes, created_at, updated_at)
 VALUES (
   '72e296a9-cbff-496f-8c9c-65de33c9b930',
   320, 'gold', 412, 8, NOW(), NOW()
-)
-ON CONFLICT (user_id) DO UPDATE SET
-  score     = EXCLUDED.score,
-  tier      = EXCLUDED.tier,
-  upvotes   = EXCLUDED.upvotes,
-  downvotes = EXCLUDED.downvotes,
-  updated_at = NOW();
+);
 
 -- ─── 5. wallets ───────────────────────────────────────────────────────────────
 -- Actual columns: id, user_id, credits, coins, tokens, created_at, updated_at
 
-INSERT INTO public.wallets (user_id, credits, coins, tokens, created_at, updated_at)
+DELETE FROM public.wallets
+WHERE user_id = '72e296a9-cbff-496f-8c9c-65de33c9b930';
+
+INSERT INTO public.wallets
+  (user_id, credits, coins, tokens, created_at, updated_at)
 VALUES (
   '72e296a9-cbff-496f-8c9c-65de33c9b930',
   125840, 48290, 3750, NOW(), NOW()
-)
-ON CONFLICT (user_id) DO UPDATE SET
-  credits    = EXCLUDED.credits,
-  coins      = EXCLUDED.coins,
-  tokens     = EXCLUDED.tokens,
-  updated_at = NOW();
+);
 
 -- ─── 6. wallet_transactions ───────────────────────────────────────────────────
+
+DELETE FROM public.wallet_transactions
+WHERE user_id = '72e296a9-cbff-496f-8c9c-65de33c9b930';
 
 INSERT INTO public.wallet_transactions
   (id, user_id, type, currency, amount, description, counterparty, created_at)
 VALUES
   (gen_random_uuid(), '72e296a9-cbff-496f-8c9c-65de33c9b930',
-   'reward',   'coins',    500,    'Phần thưởng đăng nhập hàng ngày',  null,          NOW() - INTERVAL '5 minutes'),
+   'reward',   'coins',    500,    'Phần thưởng đăng nhập hàng ngày',    null,          NOW() - INTERVAL '5 minutes'),
   (gen_random_uuid(), '72e296a9-cbff-496f-8c9c-65de33c9b930',
-   'credit',   'credits',  12000,  'Bán Rồng Lửa trên Chợ',           'StarLord99',   NOW() - INTERVAL '30 minutes'),
+   'credit',   'credits',  12000,  'Bán Rồng Lửa trên Chợ',              'StarLord99',   NOW() - INTERVAL '30 minutes'),
   (gen_random_uuid(), '72e296a9-cbff-496f-8c9c-65de33c9b930',
-   'purchase', 'tokens',   -250,   'Nâng cấp Module Phòng thủ',        null,           NOW() - INTERVAL '3 hours'),
+   'purchase', 'tokens',   -250,   'Nâng cấp Module Phòng thủ',           null,           NOW() - INTERVAL '3 hours'),
   (gen_random_uuid(), '72e296a9-cbff-496f-8c9c-65de33c9b930',
-   'trade',    'credits',  -8500,  'Mua Cầu thủ Huyền thoại',          'NebulaMaster', NOW() - INTERVAL '6 hours'),
+   'trade',    'credits',  -8500,  'Mua Cầu thủ Huyền thoại',             'NebulaMaster', NOW() - INTERVAL '6 hours'),
   (gen_random_uuid(), '72e296a9-cbff-496f-8c9c-65de33c9b930',
-   'debit',    'coins',    -1200,  'Đặt giá thầu Phiên đấu giá #A-077', null,          NOW() - INTERVAL '12 hours');
+   'debit',    'coins',    -1200,  'Đặt giá thầu Phiên đấu giá #A-077',  null,           NOW() - INTERVAL '12 hours');
