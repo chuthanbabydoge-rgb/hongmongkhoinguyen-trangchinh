@@ -25,6 +25,14 @@ import { MockWalletTransactionRepository }  from "./repositories/walletTransacti
 import { MockInventoryRepository }          from "./repositories/inventoryRepository";
 import { MockInventoryItemsRepository }     from "./repositories/inventoryItemsRepository";
 import { SupabaseInventoryItemsRepository } from "./repositories/supabase/SupabaseInventoryItemsRepository";
+import {
+  MockListingsRepository,
+  MockTransactionsRepository,
+  MockAuctionsRepository,
+  MockBidsRepository,
+  MockMarketplaceStatsRepository,
+  MockInventoryItemsMutationRepository,
+} from "./repositories/mockMarketplaceRepository";
 
 import {
   SupabaseUserRepository,
@@ -173,18 +181,35 @@ let walletTransactionRepo:  IWalletTransactionRepository;
 let inventoryRepo:          IInventoryRepository;
 let inventoryItemsRepo:     IInventoryItemsRepository;
 
-// ─── Marketplace — always Supabase (no mock fallback) ─────────────────────────
-const listingsRepo:     IListingsRepository             = new SupabaseMarketplaceListingsRepository();
-const transactionsRepo: ITransactionsRepository         = new SupabaseMarketplaceTransactionsRepository();
-const auctionsRepo:     IAuctionsRepository             = new SupabaseMarketplaceAuctionsRepository();
-const bidsRepo:         IBidsRepository                 = new SupabaseMarketplaceBidsRepository();
-const statsRepo:        IMarketplaceStatsRepository     = new SupabaseMarketplaceStatsRepository();
-const inventoryMutationRepo: IInventoryItemsMutationRepository = new SupabaseInventoryItemsMutationRepository();
-logger.info("Container: marketplace → Supabase (6 repositories, inventory sync enabled)");
+// ─── Marketplace — Supabase when configured, otherwise Mock ───────────────────
+let listingsRepo:     IListingsRepository;
+let transactionsRepo: ITransactionsRepository;
+let auctionsRepo:     IAuctionsRepository;
+let bidsRepo:         IBidsRepository;
+let statsRepo:        IMarketplaceStatsRepository;
+let inventoryMutationRepo: IInventoryItemsMutationRepository;
 
-// inventory_items live in Supabase — always use SupabaseInventoryItemsRepository
-inventoryItemsRepo = new SupabaseInventoryItemsRepository();
-logger.info("Container: inventory items → Supabase (SupabaseInventoryItemsRepository)");
+if (useSupabase) {
+  listingsRepo          = new SupabaseMarketplaceListingsRepository();
+  transactionsRepo      = new SupabaseMarketplaceTransactionsRepository();
+  auctionsRepo          = new SupabaseMarketplaceAuctionsRepository();
+  bidsRepo              = new SupabaseMarketplaceBidsRepository();
+  statsRepo             = new SupabaseMarketplaceStatsRepository();
+  inventoryMutationRepo = new SupabaseInventoryItemsMutationRepository();
+  inventoryItemsRepo    = new SupabaseInventoryItemsRepository();
+  logger.info("Container: marketplace → Supabase (6 repositories, inventory sync enabled)");
+  logger.info("Container: inventory items → Supabase (SupabaseInventoryItemsRepository)");
+} else {
+  listingsRepo          = new MockListingsRepository();
+  transactionsRepo      = new MockTransactionsRepository();
+  auctionsRepo          = new MockAuctionsRepository();
+  bidsRepo              = new MockBidsRepository();
+  statsRepo             = new MockMarketplaceStatsRepository();
+  inventoryMutationRepo = new MockInventoryItemsMutationRepository();
+  inventoryItemsRepo    = new MockInventoryItemsRepository();
+  logger.info("Container: marketplace → Mock (SUPABASE_URL / SUPABASE_ANON_KEY not set)");
+  logger.info("Container: inventory items → Mock (SupabaseInventoryItemsRepository)");
+}
 
 if (useSupabase) {
   logger.info("Container: using Supabase repositories (mock fallback active for missing rows)");

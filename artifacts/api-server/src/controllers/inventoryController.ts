@@ -2,7 +2,7 @@ import { type Request, type Response } from "express";
 import { inventoryService } from "../container";
 import type { InventoryCategory, Rarity, ItemStatus } from "../repositories/inventoryItemsRepository";
 
-const MOCK_USER_ID = "72e296a9-cbff-496f-8c9c-65de33c9b930";
+const MOCK_USER_ID = "user-001";
 
 const VALID_CATEGORIES: InventoryCategory[] = ["pets", "football", "world-assets", "tickets", "items"];
 const VALID_RARITIES:   Rarity[]            = ["common", "rare", "epic", "legendary", "mythic"];

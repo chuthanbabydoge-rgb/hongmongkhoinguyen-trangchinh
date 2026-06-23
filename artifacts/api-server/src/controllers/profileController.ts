@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
 import { profileService } from "../container";
 
-const MOCK_USER_ID = "72e296a9-cbff-496f-8c9c-65de33c9b930";
+const MOCK_USER_ID = "user-001";
 
 export async function handleGetProfile(
   req: Request,

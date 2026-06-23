@@ -8,7 +8,7 @@ import type {
   ItemRarity,
 } from "../repositories/marketplaceRepository";
 
-const MOCK_USER_ID = "72e296a9-cbff-496f-8c9c-65de33c9b930";
+const MOCK_USER_ID = "user-001";
 
 const VALID_LISTING_STATUSES:  ListingStatus[]       = ["active", "sold", "cancelled", "expired"];
 const VALID_AUCTION_STATUSES:  AuctionStatus[]        = ["live", "ended", "cancelled"];

@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
 import { walletService } from "../container";
 
-const REAL_USER_ID = "72e296a9-cbff-496f-8c9c-65de33c9b930";
+const REAL_USER_ID = "user-001";
 
 export async function handleGetWallet(req: Request, res: Response): Promise<void> {
   try {

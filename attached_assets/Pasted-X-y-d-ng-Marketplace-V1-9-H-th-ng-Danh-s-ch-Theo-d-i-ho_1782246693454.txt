@@ -1,0 +1,206 @@
+Xây dựng Marketplace V1.9 — Hệ thống Danh sách Theo dõi
+
+Đã hoàn thành:
+
+* Bảng điều khiển Kho bạc
+* Thống kê Marketplace
+* Thông báo
+* Tìm kiếm + Lọc + Sắp xếp
+
+Mục tiêu:
+
+Cho phép người dùng đánh dấu các mặt hàng và phiên đấu giá.
+
+=====================================
+CƠ SỞ DỮ LIỆU
+========
+
+Tạo bảng:
+
+marketplace_watchlist
+
+Cột:
+
+id UUID KHÓA CHÍNH
+
+user_id UUID KHÔNG ĐƯỢC NULL
+
+target_type TEXT KHÔNG ĐƯỢC NULL
+
+target_id UUID KHÔNG ĐƯỢC NULL
+
+created_at TIMESTAMPTZ MẶC ĐỊNH now()
+
+Duy nhất:
+
+(user_id, target_type, target_id)
+
+target_type:
+
+listing
+
+auction
+
+=====================================
+TỆP TIN ĐẾN TẠO
+
+===============
+
+repositories/marketplaceWatchlistRepository.ts
+
+repositories/supabase/SupabaseMarketplaceWatchlistRepository.ts
+
+services/marketplaceWatchlistService.ts
+
+controllers/marketplaceWatchlistController.ts
+
+services/**tests**/marketplaceWatchlistService.test.ts
+
+=====================================
+CÁC TỆP CẦN ĐƯỢC CHUYỂN ĐẾN SỬA ĐỔI
+===============
+
+routes/marketplace.ts
+
+container.ts
+
+package.json
+
+=====================================
+ĐIỂM CUỐI
+=========
+
+POST /api/marketplace/watchlist
+
+DELETE /api/marketplace/watchlist/:id
+
+GET /api/marketplace/watchlist
+
+GET /api/marketplace/watchlist/count
+
+=====================================
+THÊM MỤC
+========
+
+ĐĂNG
+
+{
+"userId":"...",
+"targetType":"listing",
+"targetId":"..."
+}
+
+hoặc
+
+{
+"userId":"...",
+"targetType":"auction",
+"targetId":"..."
+}
+
+=====================================
+PHẢN HỒI DANH SÁCH
+=============
+
+LẤY /watchlist?userId=...
+
+{
+"ok": true,
+"total": 3,
+"data": [...]
+
+}
+
+======================================
+SỐ LƯỢNG PHẢN HỒI
+==============
+
+{
+"ok": true,
+
+"count": 12
+
+}
+
+=====================================
+XÁC THỰC
+==========
+
+Từ chối các mục theo dõi trùng lặp.
+
+Trả về ID theo dõi hiện có nếu đã được theo dõi.
+
+Từ chối loại mục tiêu không hợp lệ.
+
+Từ chối ID người dùng bị thiếu.
+
+=====================================
+TƯƠNG THÍCH TRONG TƯƠNG LAI
+====================
+
+Lưu trữ đủ thông tin cho:
+
+cảnh báo giảm giá
+
+cảnh báo kết thúc đấu giá
+
+cảnh báo bị trả giá cao hơn
+
+đề xuất danh sách theo dõi
+
+=====================================
+TÙY CHỌN BỔ SUNG
+===================
+
+Khi đăng tin vào danh sách theo dõi:
+
+tham gia đăng tin/đấu giá Dữ liệu
+
+Tên mặt hàng
+
+Giá/Giá hiện tại
+
+Độ hiếm
+
+Trạng thái
+
+======================================
+KIỂM TRA
+=====
+
+✔ Thêm theo dõi danh sách
+
+✔ Thêm theo dõi đấu giá
+
+✔ Chặn theo dõi trùng lặp
+
+✔ Xóa theo dõi
+
+✔ Liệt kê danh sách theo dõi
+
+✔ Đếm danh sách theo dõi
+
+✔ Loại mục tiêu không hợp lệ
+
+✔ Thiếu người dùng
+
+✔ Trạng thái trống
+
+✔ Phản hồi theo dõi được bổ sung
+
+Mục tiêu:
+
+Đạt 100%
+
+======================================
+BÁO CÁO GIAO HÀNG
+===============
+
+Kết quả trả về:
+
+1. Các tệp đã tạo
+2. Các tệp đã sửa đổi
+3. Các điểm cuối đã thêm
+4. Mẫu phản hồi
+5. Kết quả kiểm tra
+6. Tổng số lần vượt qua
