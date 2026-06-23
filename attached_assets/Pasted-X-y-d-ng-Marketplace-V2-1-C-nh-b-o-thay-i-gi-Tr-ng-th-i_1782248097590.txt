@@ -1,0 +1,155 @@
+Xây dựng Marketplace V2.1 — Cảnh báo thay đổi giá
+
+Trạng thái hiện tại:
+
+* Hệ thống quản lý danh sách theo dõi đã hoàn thiện
+* Giao diện người dùng danh sách theo dõi đã hoàn thiện
+* Hệ thống thông báo đã hoàn thiện
+
+Mục tiêu:
+
+Phát hiện các mặt hàng đã theo dõi có giá thay đổi.
+
+=====================================
+CƠ SỞ DỮ LIỆU
+========
+
+Mở rộng marketplace_watchlist
+
+Thêm:
+
+watch_price NUMERIC
+
+last_seen_price NUMERIC
+
+price_drop_count INTEGER DEFAULT 0
+
+last_price_change_at TIMESTAMPTZ
+
+=====================================
+LOGIC
+=====
+
+Khi tạo theo dõi:
+
+watch_price = giá hiện tại
+
+last_seen_price = giá hiện tại
+
+=======================================
+GIẢM GIÁ PHÁT HIỆN
+====================
+
+Mỗi khi giá niêm yết thay đổi:
+
+Nếu giá hiện tại < giá cuối cùng đã thấy
+
+thì:
+
+price_drop_count += 1
+
+last_price_change_at = now()
+
+tạo thông báo:
+
+GIẢM GIÁ
+
+=====================================
+THÔNG BÁO
+============
+
+Tiêu đề:
+
+Giảm giá!
+
+Tin nhắn:
+
+Rùa Thần Kim đã giảm từ 1200 xuống 999 tín chỉ
+
+========================================
+Giao diện DANH SÁCH XEM
+=============
+
+Thêm huy hiệu:
+
+🟢 Giảm giá
+
+Trình diễn:
+
+Giá cũ
+
+Giá mới
+
+Giảm giá %
+
+========================================
+VÍ DỤ THẺ
+=============
+
+Rùa Thần Kim
+
+1200 → 999
+
+↓ 16,75%
+
+[ Giảm giá]
+
+=====================================
+BỘ LỌC
+=======
+
+Trang danh sách theo dõi:
+
+Tất cả
+
+Giảm giá
+
+Danh sách sản phẩm
+
+Đấu giá
+
+======================================
+ĐIỂM CUỐI
+=========
+
+GET /api/marketplace/watchlist/price-drops
+
+Chỉ trả về các mục có giảm giá
+
+======================================
+KIỂM TRA
+=====
+
+✔ Đã tạo theo dõi với ảnh chụp nhanh
+
+✔ Phát hiện giảm giá
+
+✔ Bỏ qua tăng giá
+
+✔ Đã tạo thông báo
+
+✔ Nhiều lần giảm giá Đã đếm
+
+✔ Tỷ lệ phần trăm đã tính toán
+
+✔ Bộ lọc điểm cuối chính xác
+
+✔ Kết quả trống
+
+Mục tiêu:
+
+100% đạt
+
+======================================
+BÁO CÁO GIAO HÀNG
+===============
+
+Kết quả trả về:
+
+1. Các tệp đã tạo
+2. Các tệp đã sửa đổi
+3. Các điểm cuối đã thêm
+4. Ví dụ về thông báo
+5. Ảnh chụp màn hình
+6. Kết quả kiểm thử
+7. Tổng số lần đạt

@@ -22,6 +22,15 @@ export interface AuctionWinPayload extends AuctionPayload { amount: number; }
 
 // ─── Interface ────────────────────────────────────────────────────────────────
 
+export interface PriceDropPayload {
+  targetId:   string;
+  targetType: string;
+  itemName:   string;
+  oldPrice:   number;
+  newPrice:   number;
+  dropPct:    number;
+}
+
 export interface IMarketplaceNotificationService {
   getNotifications(userId: string, limit?: number, offset?: number): Promise<{ data: MarketplaceNotification[]; total: number }>;
   getUnread(userId: string): Promise<MarketplaceNotification[]>;
@@ -39,6 +48,7 @@ export interface IMarketplaceNotificationService {
   onBidPlaced(bidderId: string, auction: Pick<AuctionWinPayload, "id" | "itemId" | "itemName" | "currency">, amount: number): Promise<void>;
   onAuctionCompleted(winnerId: string, sellerId: string, loserIds: string[], auction: AuctionWinPayload): Promise<void>;
   onAuctionEndedNoBids(sellerId: string, auction: Pick<AuctionPayload, "id" | "itemId" | "itemName">): Promise<void>;
+  onPriceDrop(userId: string, payload: PriceDropPayload): Promise<void>;
 }
 
 // ─── Service ──────────────────────────────────────────────────────────────────
@@ -216,6 +226,27 @@ export class MarketplaceNotificationService implements IMarketplaceNotificationS
       "Đấu giá kết thúc không có giá thầu",
       `Phiên đấu giá ${auction.itemName} đã kết thúc mà không có người trả giá`,
       { auctionId: auction.id, itemId: auction.itemId },
+    );
+  }
+
+  async onPriceDrop(userId: string, payload: PriceDropPayload): Promise<void> {
+    const fmtCR = (v: number) =>
+      v >= 1_000_000 ? `${(v / 1_000_000).toFixed(2)}M CR`
+      : v >= 1_000   ? `${(v / 1_000).toFixed(0)}K CR`
+      : `${v.toLocaleString("vi-VN")} CR`;
+
+    await this.emit(
+      userId,
+      "PRICE_DROP",
+      "Giảm giá!",
+      `${payload.itemName} đã giảm từ ${fmtCR(payload.oldPrice)} xuống ${fmtCR(payload.newPrice)} (↓${payload.dropPct}%)`,
+      {
+        targetId:   payload.targetId,
+        targetType: payload.targetType,
+        oldPrice:   payload.oldPrice,
+        newPrice:   payload.newPrice,
+        dropPct:    payload.dropPct,
+      },
     );
   }
 }

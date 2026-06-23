@@ -20,7 +20,8 @@ export type NotificationType =
   | "AUCTION_ENDED_NO_BIDS"
   | "BID_PLACED"
   | "PAYMENT_RECEIVED"
-  | "PAYMENT_SENT";
+  | "PAYMENT_SENT"
+  | "PRICE_DROP";
 
 // ─── Domain model ─────────────────────────────────────────────────────────────
 

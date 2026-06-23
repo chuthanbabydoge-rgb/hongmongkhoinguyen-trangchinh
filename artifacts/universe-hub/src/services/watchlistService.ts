@@ -1,21 +1,24 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Watchlist service — /api/marketplace/watchlist
+// Watchlist service (V2.1) — /api/marketplace/watchlist
 // ─────────────────────────────────────────────────────────────────────────────
-
-import { apiFetch } from "@/lib/apiClient";
 
 export type WatchlistTargetType = "listing" | "auction";
 
 export interface WatchlistEntry {
-  id:         string;
-  userId:     string;
-  targetType: WatchlistTargetType;
-  targetId:   string;
-  itemName:   string | null;
-  price:      number | null;
-  rarity:     string | null;
-  status:     string | null;
-  createdAt:  string;
+  id:                 string;
+  userId:             string;
+  targetType:         WatchlistTargetType;
+  targetId:           string;
+  itemName:           string | null;
+  price:              number | null;
+  rarity:             string | null;
+  status:             string | null;
+  /** V2.1 price-drop fields */
+  watchPrice:         number | null;
+  lastSeenPrice:      number | null;
+  priceDropCount:     number;
+  lastPriceChangeAt:  string | null;
+  createdAt:          string;
 }
 
 export interface AddWatchlistPayload {
@@ -26,6 +29,14 @@ export interface AddWatchlistPayload {
   price?:     number;
   rarity?:    string;
   status?:    string;
+}
+
+export interface PriceCheckResult {
+  entry:    WatchlistEntry;
+  dropped:  boolean;
+  oldPrice: number;
+  newPrice: number;
+  dropPct:  number;
 }
 
 interface AddResponse {
@@ -67,4 +78,22 @@ export async function fetchWatchlistCount(userId: string): Promise<number> {
   const json = await res.json() as { ok: boolean; count: number; error?: string };
   if (!json.ok) return 0;
   return json.count;
+}
+
+export async function fetchPriceDrops(userId: string): Promise<ListResponse> {
+  const res = await fetch(`/api/marketplace/watchlist/price-drops?userId=${encodeURIComponent(userId)}`);
+  const json = await res.json() as { ok: boolean; total: number; data: WatchlistEntry[]; error?: string };
+  if (!json.ok) throw new Error(json.error ?? "Không thể tải mục giảm giá.");
+  return { total: json.total, data: json.data };
+}
+
+export async function checkWatchlistPrice(id: string, currentPrice: number): Promise<PriceCheckResult> {
+  const res = await fetch(`/api/marketplace/watchlist/${id}/check-price`, {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ currentPrice }),
+  });
+  const json = await res.json() as { ok: boolean; error?: string } & Partial<PriceCheckResult>;
+  if (!json.ok) throw new Error(json.error ?? "Không thể kiểm tra giá.");
+  return json as PriceCheckResult;
 }

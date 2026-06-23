@@ -296,11 +296,14 @@ logger.info(`Container: marketplace analytics → ${useSupabase ? "Supabase" : "
 
 export const marketplaceStatsService = new MarketplaceStatsService(analyticsRepo);
 
-// ─── Watchlist (V1.9) ─────────────────────────────────────────────────────────
+// ─── Watchlist (V2.1) ─────────────────────────────────────────────────────────
 
 const watchlistRepo = useSupabase
   ? new SupabaseMarketplaceWatchlistRepository()
   : new MockMarketplaceWatchlistRepository();
 logger.info(`Container: marketplace watchlist → ${useSupabase ? "Supabase" : "Mock"}`);
 
-export const marketplaceWatchlistService = new MarketplaceWatchlistService(watchlistRepo);
+export const marketplaceWatchlistService = new MarketplaceWatchlistService(
+  watchlistRepo,
+  marketplaceNotificationService,
+);

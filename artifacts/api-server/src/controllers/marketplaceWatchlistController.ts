@@ -1,11 +1,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// MarketplaceWatchlistController
+// MarketplaceWatchlistController (V2.1)
 //
 // Routes (registered in routes/marketplace.ts):
-//   POST   /api/marketplace/watchlist       — add entry (idempotent on dup)
-//   DELETE /api/marketplace/watchlist/:id   — remove entry
-//   GET    /api/marketplace/watchlist       — list for userId
-//   GET    /api/marketplace/watchlist/count — count for userId
+//   POST   /api/marketplace/watchlist                    — add entry (idempotent)
+//   DELETE /api/marketplace/watchlist/:id               — remove entry
+//   GET    /api/marketplace/watchlist                   — list for userId
+//   GET    /api/marketplace/watchlist/count             — count for userId
+//   GET    /api/marketplace/watchlist/price-drops       — price-drop entries
+//   POST   /api/marketplace/watchlist/:id/check-price   — detect price drop
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { type Request, type Response } from "express";
@@ -35,9 +37,9 @@ export async function handleAddWatchlist(req: Request, res: Response): Promise<v
     };
 
     const result = await marketplaceWatchlistService.add({
-      userId:    userId    ?? "",
+      userId:     userId     ?? "",
       targetType: targetType ?? "",
-      targetId:  targetId  ?? "",
+      targetId:   targetId   ?? "",
       itemName,
       price,
       rarity,
@@ -103,5 +105,49 @@ export async function handleGetWatchlistCount(req: Request, res: Response): Prom
     const msg = err instanceof Error ? err.message : String(err);
     req.log.error({ err }, `watchlistController.count: ${msg}`);
     res.status(500).json({ ok: false, error: "Không thể đếm danh sách theo dõi." });
+  }
+}
+
+// ─── GET /api/marketplace/watchlist/price-drops ──────────────────────────────
+
+export async function handleGetPriceDrops(req: Request, res: Response): Promise<void> {
+  try {
+    const userId = requireUserId(req, res);
+    if (!userId) return;
+
+    const data = await marketplaceWatchlistService.getPriceDrops(userId);
+    res.json({ ok: true, total: data.length, data });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    req.log.error({ err }, `watchlistController.priceDrops: ${msg}`);
+    res.status(500).json({ ok: false, error: "Không thể tải mục giảm giá." });
+  }
+}
+
+// ─── POST /api/marketplace/watchlist/:id/check-price ─────────────────────────
+
+export async function handleCheckPrice(req: Request, res: Response): Promise<void> {
+  try {
+    const { id } = req.params as { id: string };
+    const { currentPrice } = req.body as { currentPrice?: number };
+
+    if (currentPrice == null || !Number.isFinite(currentPrice)) {
+      res.status(400).json({ ok: false, error: "currentPrice là bắt buộc và phải là số hợp lệ." });
+      return;
+    }
+
+    const result = await marketplaceWatchlistService.checkPrice(id, currentPrice);
+
+    if (!result) {
+      res.status(404).json({ ok: false, error: `Mục theo dõi ${id} không tìm thấy.` });
+      return;
+    }
+
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    req.log.error({ err }, `watchlistController.checkPrice: ${msg}`);
+    const isValidation = /bắt buộc|không hợp lệ/u.test(msg);
+    res.status(isValidation ? 400 : 500).json({ ok: false, error: msg });
   }
 }

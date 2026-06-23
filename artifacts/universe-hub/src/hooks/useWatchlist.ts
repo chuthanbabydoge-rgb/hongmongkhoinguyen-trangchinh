@@ -1,23 +1,26 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// useWatchlist — global watchlist state hook (V2.0)
+// useWatchlist — global watchlist state hook (V2.1)
 //
 // Provides:
-//   watchlist     — full list of entries
-//   count         — total entry count
-//   isWatched()   — quick O(1) lookup by targetType+targetId
-//   watchedId()   — returns the watchlist entry id for a given target (for DELETE)
-//   toggle()      — add or remove a watch (optimistic)
-//   refresh()     — re-fetch from server
-//   isLoading     — initial load indicator
-//   error         — last error string or null
+//   watchlist       — full list of entries (with price-drop fields)
+//   count           — total entry count
+//   priceDropCount  — entries that have dropped in price
+//   isWatched()     — O(1) lookup by targetType+targetId
+//   watchedId()     — watchlist entry id for a given target (for DELETE)
+//   toggle()        — add or remove (optimistic)
+//   checkPrice()    — trigger price-drop detection for an entry
+//   refresh()       — re-fetch from server
+//   isLoading       — initial load indicator
+//   error           — last error string or null
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import type { WatchlistEntry, WatchlistTargetType, AddWatchlistPayload } from "@/services/watchlistService";
+import type { WatchlistEntry, WatchlistTargetType, AddWatchlistPayload, PriceCheckResult } from "@/services/watchlistService";
 import {
   fetchWatchlist,
   addWatchlistEntry,
   removeWatchlistEntry,
+  checkWatchlistPrice,
 } from "@/services/watchlistService";
 
 const MOCK_USER_ID = "user-001";
@@ -48,12 +51,9 @@ export function useWatchlist() {
 
   useEffect(() => { void refresh(); }, [refresh]);
 
-  // Build a lookup key → entry id map for O(1) checks
   const keyMap = useMemo(() => {
     const m = new Map<string, string>();
-    for (const e of entries) {
-      m.set(`${e.targetType}:${e.targetId}`, e.id);
-    }
+    for (const e of entries) m.set(`${e.targetType}:${e.targetId}`, e.id);
     return m;
   }, [entries]);
 
@@ -77,52 +77,76 @@ export function useWatchlist() {
     const existingId = keyMap.get(watchKey(type, targetId));
 
     if (existingId) {
-      // Optimistic remove
       setEntries(prev => prev.filter(e => e.id !== existingId));
       try {
         await removeWatchlistEntry(existingId);
       } catch {
-        await refresh(); // revert on failure
+        await refresh();
       }
     } else {
-      // Optimistic add
       const tempEntry: WatchlistEntry = {
-        id:         `temp-${Date.now()}`,
-        userId:     MOCK_USER_ID,
-        targetType: type,
+        id:                `temp-${Date.now()}`,
+        userId:            MOCK_USER_ID,
+        targetType:        type,
         targetId,
-        itemName:   snapshot.itemName ?? null,
-        price:      snapshot.price    ?? null,
-        rarity:     snapshot.rarity   ?? null,
-        status:     snapshot.status   ?? null,
-        createdAt:  new Date().toISOString(),
+        itemName:          snapshot.itemName ?? null,
+        price:             snapshot.price    ?? null,
+        rarity:            snapshot.rarity   ?? null,
+        status:            snapshot.status   ?? null,
+        watchPrice:        snapshot.price    ?? null,
+        lastSeenPrice:     snapshot.price    ?? null,
+        priceDropCount:    0,
+        lastPriceChangeAt: null,
+        createdAt:         new Date().toISOString(),
       };
       setEntries(prev => [tempEntry, ...prev]);
 
       const payload: AddWatchlistPayload = {
-        userId:    MOCK_USER_ID,
+        userId:     MOCK_USER_ID,
         targetType: type,
         targetId,
         ...snapshot,
       };
       try {
         const { data } = await addWatchlistEntry(payload);
-        // Replace temp entry with real one
         setEntries(prev => prev.map(e => e.id === tempEntry.id ? data : e));
       } catch {
-        await refresh(); // revert on failure
+        await refresh();
       }
     }
   }, [keyMap, refresh]);
 
+  const checkPrice = useCallback(async (
+    id:           string,
+    currentPrice: number,
+  ): Promise<PriceCheckResult | null> => {
+    try {
+      const result = await checkWatchlistPrice(id, currentPrice);
+      // Sync updated entry into local state
+      setEntries(prev => prev.map(e => e.id === result.entry.id ? result.entry : e));
+      return result;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Lỗi kiểm tra giá.";
+      setError(msg);
+      return null;
+    }
+  }, []);
+
+  const priceDropCount = useMemo(
+    () => entries.filter(e => e.priceDropCount > 0).length,
+    [entries],
+  );
+
   return {
-    watchlist: entries,
-    count:     entries.length,
+    watchlist:      entries,
+    count:          entries.length,
+    priceDropCount,
     isLoading,
     error,
     isWatched,
     watchedId,
     toggle,
+    checkPrice,
     refresh,
   };
 }

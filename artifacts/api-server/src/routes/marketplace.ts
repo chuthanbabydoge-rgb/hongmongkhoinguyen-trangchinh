@@ -38,6 +38,8 @@ import {
   handleRemoveWatchlist,
   handleGetWatchlist,
   handleGetWatchlistCount,
+  handleGetPriceDrops,
+  handleCheckPrice,
 } from "../controllers/marketplaceWatchlistController";
 
 const router: IRouter = Router();
@@ -82,11 +84,13 @@ router.patch( "/marketplace/notifications/read-all",   handleMarkAllAsRead);
 router.patch( "/marketplace/notifications/:id/read",   handleMarkAsRead);
 router.delete("/marketplace/notifications/:id",        handleDeleteNotification);
 
-// ─── Watchlist (V1.9) ─────────────────────────────────────────────────────────
-// Note: static sub-path /count must precede /:id to avoid routing conflict.
-router.get(   "/marketplace/watchlist",       handleGetWatchlist);
-router.get(   "/marketplace/watchlist/count", handleGetWatchlistCount);
-router.post(  "/marketplace/watchlist",       handleAddWatchlist);
-router.delete("/marketplace/watchlist/:id",   handleRemoveWatchlist);
+// ─── Watchlist (V2.1) ─────────────────────────────────────────────────────────
+// Note: all static sub-paths must precede /:id to avoid routing conflicts.
+router.get(   "/marketplace/watchlist",                   handleGetWatchlist);
+router.get(   "/marketplace/watchlist/count",             handleGetWatchlistCount);
+router.get(   "/marketplace/watchlist/price-drops",       handleGetPriceDrops);
+router.post(  "/marketplace/watchlist",                   handleAddWatchlist);
+router.post(  "/marketplace/watchlist/:id/check-price",   handleCheckPrice);
+router.delete("/marketplace/watchlist/:id",               handleRemoveWatchlist);
 
 export default router;
