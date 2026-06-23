@@ -1,31 +1,48 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Supabase User Repository
 //
-// Table: users
-// Columns (snake_case in DB → camelCase in domain model):
-//   id, username, title, status, level, xp, max_xp, progress_percent,
-//   joined_at, created_at, updated_at
+// Table: users — actual columns observed in production:
+//   id (uuid), username (text), email (text), display_name (text),
+//   status (text: "active"|"inactive"|…), created_at, updated_at
+//
+// Columns absent from DB are filled with sensible defaults so the domain
+// model stays consistent regardless of how many optional fields the table has.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { getSupabaseClient, isValidUuid } from "../../database/supabase";
 import type { IUserRepository } from "../userRepository";
 import type { User } from "../../models/user";
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function str(v: unknown, fallback = ""): string {
+  return (v != null && v !== "") ? String(v) : fallback;
+}
+function num(v: unknown, fallback = 0): number {
+  const n = Number(v);
+  return isFinite(n) ? n : fallback;
+}
+function mapStatus(raw: unknown): User["status"] {
+  if (raw === "online" || raw === "away" || raw === "offline") return raw;
+  return "online";
+}
+
 // ─── Row → Domain mapping ─────────────────────────────────────────────────────
 
 function toUser(row: Record<string, unknown>): User {
+  console.log("[SupabaseUserRepository] toUser raw row:", JSON.stringify(row));
   return {
-    id:              row["id"] as string,
-    username:        row["username"] as string,
-    title:           row["title"] as string,
-    status:          row["status"] as User["status"],
-    level:           row["level"] as number,
-    xp:              row["xp"] as number,
-    maxXp:           row["max_xp"] as number,
-    progressPercent: row["progress_percent"] as number,
-    joinedAt:        row["joined_at"] as string,
-    createdAt:       row["created_at"] as string,
-    updatedAt:       row["updated_at"] as string,
+    id:              str(row["id"]),
+    username:        str(row["username"], "unknown"),
+    title:           str(row["display_name"] ?? row["title"], "Universe Member"),
+    status:          mapStatus(row["status"]),
+    level:           num(row["level"], 1),
+    xp:              num(row["xp"], 0),
+    maxXp:           num(row["max_xp"], 1000),
+    progressPercent: num(row["progress_percent"], 0),
+    joinedAt:        str(row["joined_at"] ?? row["created_at"]),
+    createdAt:       str(row["created_at"]),
+    updatedAt:       str(row["updated_at"]),
   };
 }
 
