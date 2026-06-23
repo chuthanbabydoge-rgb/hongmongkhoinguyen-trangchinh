@@ -218,8 +218,8 @@ export const walletService = new WalletService(
 
 export const inventoryService = new InventoryService(inventoryItemsRepo);
 
-const marketplacePaymentRepo    = new MockMarketplacePaymentRepository();
-const marketplacePaymentService = new MarketplacePaymentService(walletRepo, marketplacePaymentRepo);
+const marketplacePaymentRepo          = new MockMarketplacePaymentRepository();
+export const marketplacePaymentService = new MarketplacePaymentService(walletRepo, marketplacePaymentRepo);
 
 export const marketplaceService = new MarketplaceService(
   listingsRepo,

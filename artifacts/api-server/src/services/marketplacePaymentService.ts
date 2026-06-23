@@ -35,6 +35,7 @@ import type {
   IMarketplacePaymentRepository,
   MarketplaceWalletTransaction,
   PaymentSourceType,
+  FindPaymentsOptions,
 } from "../repositories/marketplacePaymentRepository";
 
 // ─── Fee configuration ────────────────────────────────────────────────────────
@@ -61,6 +62,8 @@ export interface ProcessPaymentInput {
 
 export interface IMarketplacePaymentService {
   processPayment(input: ProcessPaymentInput): Promise<MarketplaceWalletTransaction>;
+  getPayments(opts?: FindPaymentsOptions): Promise<{ data: MarketplaceWalletTransaction[]; total: number }>;
+  getPaymentById(id: string): Promise<MarketplaceWalletTransaction | null>;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -85,6 +88,18 @@ export class MarketplacePaymentService implements IMarketplacePaymentService {
     private readonly wallets:  IWalletRepository,
     private readonly payments: IMarketplacePaymentRepository,
   ) {}
+
+  // ── Query methods ─────────────────────────────────────────────────────────
+
+  async getPayments(
+    opts?: FindPaymentsOptions,
+  ): Promise<{ data: MarketplaceWalletTransaction[]; total: number }> {
+    return this.payments.findAll(opts);
+  }
+
+  async getPaymentById(id: string): Promise<MarketplaceWalletTransaction | null> {
+    return this.payments.findById(id);
+  }
 
   // ── Treasury wallet — auto-created on first use ───────────────────────────
 

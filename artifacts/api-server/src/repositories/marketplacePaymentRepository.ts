@@ -35,10 +35,38 @@ export interface MarketplaceWalletTransaction {
   createdAt:   string;
 }
 
+// ─── Query options ────────────────────────────────────────────────────────────
+
+export interface FindPaymentsOptions {
+  userId?:     string;              // buyer OR seller
+  currency?:   MarketplaceCurrency;
+  sourceType?: PaymentSourceType;
+  limit?:      number;              // default 50
+  offset?:     number;              // default 0
+}
+
 // ─── Repository interface ─────────────────────────────────────────────────────
 
 export interface IMarketplacePaymentRepository {
+  /** Write a new payment record. */
   create(tx: MarketplaceWalletTransaction): Promise<MarketplaceWalletTransaction>;
+
+  /**
+   * Return all records matching the optional filters, newest first.
+   * Always returns { data, total } where total is pre-pagination count.
+   */
+  findAll(opts?: FindPaymentsOptions): Promise<{ data: MarketplaceWalletTransaction[]; total: number }>;
+
+  /** Return a single record by ID, or null if not found. */
+  findById(id: string): Promise<MarketplaceWalletTransaction | null>;
+
+  /**
+   * Return all records where the given userId is the buyer or seller.
+   * Supports the same optional filters and pagination as findAll.
+   */
+  findByUser(userId: string, opts?: Omit<FindPaymentsOptions, "userId">): Promise<{ data: MarketplaceWalletTransaction[]; total: number }>;
+
+  /** @deprecated  Use findAll({ userId }) instead. */
   getByUserId(userId: string, limit?: number): Promise<MarketplaceWalletTransaction[]>;
 }
 
@@ -53,10 +81,35 @@ export class MockMarketplacePaymentRepository implements IMarketplacePaymentRepo
     return record;
   }
 
+  async findAll(opts: FindPaymentsOptions = {}): Promise<{ data: MarketplaceWalletTransaction[]; total: number }> {
+    let results = [...this.store].reverse(); // newest first
+
+    if (opts.userId) {
+      const uid = opts.userId;
+      results = results.filter(t => t.buyerId === uid || t.sellerId === uid);
+    }
+    if (opts.currency)   results = results.filter(t => t.currency   === opts.currency);
+    if (opts.sourceType) results = results.filter(t => t.sourceType === opts.sourceType);
+
+    const total  = results.length;
+    const offset = opts.offset ?? 0;
+    const limit  = opts.limit  ?? 50;
+    return { data: results.slice(offset, offset + limit), total };
+  }
+
+  async findById(id: string): Promise<MarketplaceWalletTransaction | null> {
+    return this.store.find(t => t.id === id) ?? null;
+  }
+
+  async findByUser(
+    userId: string,
+    opts: Omit<FindPaymentsOptions, "userId"> = {},
+  ): Promise<{ data: MarketplaceWalletTransaction[]; total: number }> {
+    return this.findAll({ ...opts, userId });
+  }
+
   async getByUserId(userId: string, limit = 50): Promise<MarketplaceWalletTransaction[]> {
-    return this.store
-      .filter(tx => tx.buyerId === userId || tx.sellerId === userId)
-      .slice(-limit)
-      .reverse();
+    const { data } = await this.findByUser(userId, { limit });
+    return data;
   }
 }

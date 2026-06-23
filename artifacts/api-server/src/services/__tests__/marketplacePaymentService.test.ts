@@ -80,6 +80,21 @@ class InMemoryPaymentRepo implements IMarketplacePaymentRepository {
     return tx;
   }
 
+  async findAll(opts: { userId?: string; currency?: string; sourceType?: string; limit?: number; offset?: number } = {}) {
+    let data = [...this.records].reverse();
+    if (opts.userId)     data = data.filter(r => r.buyerId === opts.userId || r.sellerId === opts.userId);
+    if (opts.currency)   data = data.filter(r => r.currency   === opts.currency);
+    if (opts.sourceType) data = data.filter(r => r.sourceType === opts.sourceType);
+    const total  = data.length;
+    const offset = opts.offset ?? 0;
+    const limit  = opts.limit  ?? 50;
+    return { data: data.slice(offset, offset + limit), total };
+  }
+
+  async findById(id: string) { return this.records.find(r => r.id === id) ?? null; }
+
+  async findByUser(userId: string, opts = {}) { return this.findAll({ ...opts, userId }); }
+
   async getByUserId(userId: string, limit = 50) {
     return this.records
       .filter(r => r.buyerId === userId || r.sellerId === userId)
@@ -91,7 +106,10 @@ class FailingPaymentRepo implements IMarketplacePaymentRepository {
   async create(_tx: MarketplaceWalletTransaction): Promise<MarketplaceWalletTransaction> {
     throw new Error("DB_ERROR: marketplace_wallet_transactions unavailable");
   }
-  async getByUserId() { return []; }
+  async findAll()            { return { data: [], total: 0 }; }
+  async findById(_id: string) { return null; }
+  async findByUser(_uid: string) { return { data: [], total: 0 }; }
+  async getByUserId()        { return []; }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

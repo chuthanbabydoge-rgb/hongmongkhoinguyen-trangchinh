@@ -14,6 +14,10 @@ import {
   handleSettleExpiredAuctions,
   handlePlaceBid,
 } from "../controllers/marketplaceController";
+import {
+  handleGetPayments,
+  handleGetPayment,
+} from "../controllers/marketplacePaymentController";
 
 const router: IRouter = Router();
 
@@ -37,5 +41,9 @@ router.post(   "/marketplace/auctions/settle-expired",         handleSettleExpir
 router.delete( "/marketplace/auctions/:id",                    handleCancelAuction);
 router.post(   "/marketplace/auctions/:id/complete",           handleCompleteAuction);
 router.post(   "/marketplace/auctions/:id/bid",                handlePlaceBid);
+
+// ─── Payment history ──────────────────────────────────────────────────────────
+router.get("/marketplace/payments",     handleGetPayments);
+router.get("/marketplace/payments/:id", handleGetPayment);
 
 export default router;
