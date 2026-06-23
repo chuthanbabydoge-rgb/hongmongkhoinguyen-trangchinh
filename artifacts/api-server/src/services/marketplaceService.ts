@@ -13,10 +13,12 @@ import type {
   IMarketplaceStatsRepository,
   Listing,
   ListingStatus,
+  ListingQueryParams,
   MarketplaceTransaction,
   MarketplaceStats,
   Auction,
   AuctionStatus,
+  AuctionQueryParams,
   Bid,
   CreateListingInput,
   CreateAuctionInput,
@@ -67,8 +69,8 @@ export class MarketplaceService {
 
   // ─── Listings ──────────────────────────────────────────────────────────────
 
-  async getListings(status?: ListingStatus, limit = 50): Promise<Listing[]> {
-    return this.listings.getAll(status, limit);
+  async getListings(params?: ListingQueryParams): Promise<Listing[]> {
+    return this.listings.getAll(params);
   }
 
   async getListing(id: string): Promise<Listing | null> {
@@ -188,8 +190,8 @@ export class MarketplaceService {
 
   // ─── Auctions ──────────────────────────────────────────────────────────────
 
-  async getAuctions(status?: AuctionStatus, limit = 50): Promise<Auction[]> {
-    return this.auctions.getAll(status, limit);
+  async getAuctions(params?: AuctionQueryParams): Promise<Auction[]> {
+    return this.auctions.getAll(params);
   }
 
   async getAuction(id: string): Promise<Auction | null> {

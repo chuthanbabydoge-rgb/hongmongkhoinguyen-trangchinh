@@ -16,6 +16,7 @@ import type {
   Auction,
   Bid,
   AuctionStatus,
+  AuctionQueryParams,
   CreateAuctionInput,
   PlaceBidInput,
   MarketplaceCurrency,
@@ -72,8 +73,9 @@ class MultiAuctionsStub implements IAuctionsRepository {
     this.auctions = auctions.map(a => ({ ...a }));
   }
 
-  async getAll(status?: AuctionStatus): Promise<Auction[]> {
-    return status ? this.auctions.filter(a => a.status === status) : [...this.auctions];
+  async getAll(params?: AuctionQueryParams): Promise<Auction[]> {
+    const s = params?.status;
+    return s ? this.auctions.filter(a => a.status === s) : [...this.auctions];
   }
 
   async getExpired(): Promise<Auction[]> {

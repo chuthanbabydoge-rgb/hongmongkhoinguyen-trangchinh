@@ -1,6 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // SupabaseMarketplaceAuctionsRepository
 // Table: marketplace_auctions
+//
+// V1.8: All filtering, sorting, and pagination pushed to Supabase query layer.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { getSupabaseClient, isValidUuid } from "../../database/supabase";
@@ -8,11 +10,23 @@ import type {
   IAuctionsRepository,
   Auction,
   AuctionStatus,
+  AuctionSortField,
+  AuctionQueryParams,
   ItemCategory,
   ItemRarity,
   MarketplaceCurrency,
   CreateAuctionInput,
 } from "../marketplaceRepository";
+
+const SORT_COL: Record<AuctionSortField, string> = {
+  price:        "starting_price",
+  currentPrice: "current_price",
+  createdAt:    "created_at",
+  rarity:       "rarity",
+  itemName:     "item_name",
+  bidCount:     "bid_count",
+  endsAt:       "ends_at",
+};
 
 function toAuction(row: Record<string, unknown>): Auction {
   return {
@@ -36,18 +50,31 @@ function toAuction(row: Record<string, unknown>): Auction {
 export class SupabaseMarketplaceAuctionsRepository implements IAuctionsRepository {
   private get db() { return getSupabaseClient(); }
 
-  async getAll(status?: AuctionStatus, limit = 50): Promise<Auction[]> {
-    let query = this.db
-      .from("marketplace_auctions")
-      .select("*")
-      .order("ends_at", { ascending: true })
-      .limit(limit);
+  async getAll(params: AuctionQueryParams = {}): Promise<Auction[]> {
+    const {
+      q, category, rarity, currency, sellerId, minPrice, maxPrice, status,
+      sort = "endsAt", order = "asc", limit = 50, offset = 0,
+    } = params;
 
-    if (status) query = query.eq("status", status);
+    let query = this.db.from("marketplace_auctions").select("*");
+
+    if (q)                       query = query.ilike("item_name", `%${q}%`);
+    if (category)                query = query.eq("category", category);
+    if (rarity)                  query = query.eq("rarity", rarity);
+    if (currency)                query = query.eq("currency", currency);
+    if (sellerId)                query = query.eq("seller_id", sellerId);
+    if (status)                  query = query.eq("status", status);
+    if (minPrice != null)        query = query.gte("current_price", minPrice);
+    if (maxPrice != null)        query = query.lte("current_price", maxPrice);
+
+    const col = SORT_COL[sort] ?? "ends_at";
+    query = query
+      .order(col, { ascending: order === "asc" })
+      .range(offset, offset + limit - 1);
 
     const { data, error } = await query;
     if (error) throw new Error(`SupabaseMarketplaceAuctionsRepository.getAll: ${error.message}`);
-    return (data ?? []).map(toAuction);
+    return (data ?? []).map(r => toAuction(r as Record<string, unknown>));
   }
 
   async getExpired(): Promise<Auction[]> {
@@ -59,7 +86,7 @@ export class SupabaseMarketplaceAuctionsRepository implements IAuctionsRepositor
       .lte("ends_at", now)
       .order("ends_at", { ascending: true });
     if (error) throw new Error(`SupabaseMarketplaceAuctionsRepository.getExpired: ${error.message}`);
-    return (data ?? []).map(toAuction);
+    return (data ?? []).map(r => toAuction(r as Record<string, unknown>));
   }
 
   async getById(id: string): Promise<Auction | null> {
@@ -70,7 +97,7 @@ export class SupabaseMarketplaceAuctionsRepository implements IAuctionsRepositor
       .eq("id", id)
       .maybeSingle();
     if (error) throw new Error(`SupabaseMarketplaceAuctionsRepository.getById: ${error.message}`);
-    return data ? toAuction(data) : null;
+    return data ? toAuction(data as Record<string, unknown>) : null;
   }
 
   async create(input: CreateAuctionInput): Promise<Auction> {
@@ -94,7 +121,7 @@ export class SupabaseMarketplaceAuctionsRepository implements IAuctionsRepositor
       .select()
       .single();
     if (error) throw new Error(`SupabaseMarketplaceAuctionsRepository.create: ${error.message}`);
-    return toAuction(data);
+    return toAuction(data as Record<string, unknown>);
   }
 
   async updateBid(id: string, currentPrice: number, bidCount: number): Promise<Auction | null> {
@@ -106,7 +133,7 @@ export class SupabaseMarketplaceAuctionsRepository implements IAuctionsRepositor
       .select()
       .maybeSingle();
     if (error) throw new Error(`SupabaseMarketplaceAuctionsRepository.updateBid: ${error.message}`);
-    return data ? toAuction(data) : null;
+    return data ? toAuction(data as Record<string, unknown>) : null;
   }
 
   async updateStatus(id: string, status: AuctionStatus): Promise<Auction | null> {
@@ -118,6 +145,6 @@ export class SupabaseMarketplaceAuctionsRepository implements IAuctionsRepositor
       .select()
       .maybeSingle();
     if (error) throw new Error(`SupabaseMarketplaceAuctionsRepository.updateStatus: ${error.message}`);
-    return data ? toAuction(data) : null;
+    return data ? toAuction(data as Record<string, unknown>) : null;
   }
 }

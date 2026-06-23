@@ -97,8 +97,46 @@ export interface PlaceBidInput {
 
 // ─── Repository interfaces ────────────────────────────────────────────────────
 
+// ─── Search & filter types (V1.8) ─────────────────────────────────────────────
+
+export type ListingSortField  = "price" | "createdAt" | "updatedAt" | "rarity" | "itemName";
+export type AuctionSortField  = "price" | "currentPrice" | "createdAt" | "rarity" | "itemName" | "bidCount" | "endsAt";
+export type SortOrder         = "asc" | "desc";
+
+export interface ListingQueryParams {
+  q?:        string;
+  category?: ItemCategory;
+  rarity?:   ItemRarity;
+  currency?: MarketplaceCurrency;
+  sellerId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  status?:   ListingStatus;
+  sort?:     ListingSortField;
+  order?:    SortOrder;
+  limit?:    number;
+  offset?:   number;
+}
+
+export interface AuctionQueryParams {
+  q?:        string;
+  category?: ItemCategory;
+  rarity?:   ItemRarity;
+  currency?: MarketplaceCurrency;
+  sellerId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  status?:   AuctionStatus;
+  sort?:     AuctionSortField;
+  order?:    SortOrder;
+  limit?:    number;
+  offset?:   number;
+}
+
+// ─── Repository interfaces ────────────────────────────────────────────────────
+
 export interface IListingsRepository {
-  getAll(status?: ListingStatus, limit?: number): Promise<Listing[]>;
+  getAll(params?: ListingQueryParams): Promise<Listing[]>;
   getById(id: string): Promise<Listing | null>;
   create(input: CreateListingInput): Promise<Listing>;
   updateStatus(id: string, status: ListingStatus): Promise<Listing | null>;
@@ -112,7 +150,7 @@ export interface ITransactionsRepository {
 }
 
 export interface IAuctionsRepository {
-  getAll(status?: AuctionStatus, limit?: number): Promise<Auction[]>;
+  getAll(params?: AuctionQueryParams): Promise<Auction[]>;
   getById(id: string): Promise<Auction | null>;
   getExpired(): Promise<Auction[]>;
   create(input: CreateAuctionInput): Promise<Auction>;

@@ -1,0 +1,209 @@
+Xây dựng Marketplace V1.8 — Tìm kiếm + Lọc + Sắp xếp
+
+Các mô-đun đã hoàn thành:
+
+* Hệ thống cốt lõi của Marketplace
+* Đấu giá
+* Thanh toán ví
+* Bảng điều khiển kho bạc
+* Thống kê Marketplace
+* Thông báo
+
+Mục tiêu:
+
+Thêm tính năng khám phá Marketplace nâng cao.
+
+====================================
+DANH SÁCH SẢN PHẨM
+========
+
+GET /api/marketplace/listings
+
+Hỗ trợ:
+
+?q=
+
+?category=
+
+?rarity=
+
+?currency=
+
+?sellerId=
+
+?minPrice=
+
+?maxPrice=
+
+?status=
+
+?sort=
+
+?order=
+
+?limit=
+
+?offset=
+
+=========================================
+ĐẤU GIÁ
+========
+
+GET /api/marketplace/auctions
+
+Hỗ trợ:
+
+?q=
+
+?category=
+
+?rarity=
+
+?currency=
+
+?sellerId=
+
+?status=
+
+?minPrice=
+
+?maxPrice=
+
+?sort=
+
+?order=
+
+?limit=
+
+?offset=
+
+=======================================
+TÙY CHỌN SẮP XẾP
+============
+
+Giá
+
+Ngày tạo
+
+Ngày cập nhật
+
+Độ hiếm
+
+Tên mặt hàng
+
+Số lần đấu giá
+
+Giá hiện tại (đấu giá)
+
+========================================
+ĐẶT HÀNG
+=====
+
+tăng dần
+
+mô tả
+
+========================================
+TÌM KIẾM
+======
+
+Không phân biệt chữ hoa chữ thường
+
+Trận đấu một phần
+
+Ví dụ:
+
+?q=rùa
+
+trận đấu:
+
+Rùa Thần Kim
+
+Rùa Băng Cổ Đại
+
+========================================
+LỌC VÍ DỤ
+===============
+
+?category=thú cưng
+
+?rarity=huyền thoại
+
+?currency=tín dụng
+
+?Giá tối thiểu=1000
+
+?Giá tối đa=5000
+
+======================================
+BỘ LỌC ĐA DẠNG
+============
+
+Phải hỗ trợ các tổ hợp:
+
+?category=thú cưng&rarity=hiếm
+
+?category=vật phẩm&currency=eth
+
+?status=hoạt động&sort=giá&order=tăng dần
+
+=======================================
+KHO LƯU TRỮ
+==========
+
+Đẩy chức năng lọc vào lớp truy vấn Supabase.
+
+Không nên tải toàn bộ dữ liệu và lọc trong bộ nhớ.
+
+=====================================
+KIỂM TRA
+=====
+
+Tối thiểu:
+
+✔ Tìm kiếm theo tên mặt hàng
+
+✔ Tìm kiếm văn bản một phần
+
+✔ Lọc theo danh mục
+
+✔ Lọc theo độ hiếm
+
+✔ Lọc theo loại tiền tệ
+
+✔ Lọc theo người bán
+
+✔ Giá tối thiểu
+
+✔ Giá tối đa
+
+✔ Kết hợp các bộ lọc
+
+✔ Sắp xếp tăng dần
+
+✔ Sắp xếp giảm dần
+
+✔ Phân trang
+
+✔ Kết quả trống
+
+✔ Tìm kiếm đấu giá
+
+✔ Lọc đấu giá
+
+Mục tiêu:
+
+Đạt 100%
+
+======================================
+BÁO CÁO GIAO HÀNG
+===============
+
+Kết quả:
+
+1. 1. Số tệp đã tạo
+2. Số tệp đã sửa đổi
+3. Số tham số truy vấn được hỗ trợ
+4. Các ví dụ về lệnh gọi API
+5. Kết quả kiểm thử
+6. Tổng số lần vượt qua

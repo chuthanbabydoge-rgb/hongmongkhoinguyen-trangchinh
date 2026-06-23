@@ -15,6 +15,8 @@ const VALID_AUCTION_STATUSES:  AuctionStatus[]        = ["live", "ended", "cance
 const VALID_CURRENCIES:        MarketplaceCurrency[]  = ["credits", "stars", "eth"];
 const VALID_CATEGORIES:        ItemCategory[]         = ["pets", "football", "world-assets", "tickets", "items"];
 const VALID_RARITIES:          ItemRarity[]           = ["common", "rare", "epic", "legendary", "mythic"];
+const VALID_LISTING_SORTS      = ["price", "createdAt", "updatedAt", "rarity", "itemName"] as const;
+const VALID_AUCTION_SORTS      = ["price", "currentPrice", "createdAt", "rarity", "itemName", "bidCount", "endsAt"] as const;
 
 // ─── Stats ────────────────────────────────────────────────────────────────────
 
@@ -33,13 +35,33 @@ export async function handleGetStats(req: Request, res: Response): Promise<void>
 
 export async function handleGetListings(req: Request, res: Response): Promise<void> {
   try {
-    const rawStatus = req.query["status"] as string | undefined;
-    const limit     = req.query["limit"] ? Number(req.query["limit"]) : 50;
-    const status    = rawStatus && VALID_LISTING_STATUSES.includes(rawStatus as ListingStatus)
-      ? (rawStatus as ListingStatus)
-      : undefined;
+    const q        = req.query["q"]        as string | undefined;
+    const rawCat   = req.query["category"] as string | undefined;
+    const rawRar   = req.query["rarity"]   as string | undefined;
+    const rawCur   = req.query["currency"] as string | undefined;
+    const sellerId = req.query["sellerId"] as string | undefined;
+    const rawStat  = req.query["status"]   as string | undefined;
+    const rawSort  = req.query["sort"]     as string | undefined;
+    const rawOrd   = req.query["order"]    as string | undefined;
+    const limit    = req.query["limit"]    ? Math.max(1, Number(req.query["limit"]))  : 50;
+    const offset   = req.query["offset"]   ? Math.max(0, Number(req.query["offset"])) : 0;
+    const minPrice = req.query["minPrice"] ? Number(req.query["minPrice"]) : undefined;
+    const maxPrice = req.query["maxPrice"] ? Number(req.query["maxPrice"]) : undefined;
 
-    const listings = await marketplaceService.getListings(status, limit);
+    const listings = await marketplaceService.getListings({
+      q,
+      category: rawCat && VALID_CATEGORIES.includes(rawCat as ItemCategory)               ? (rawCat as ItemCategory)         : undefined,
+      rarity:   rawRar && VALID_RARITIES.includes(rawRar as ItemRarity)                   ? (rawRar as ItemRarity)           : undefined,
+      currency: rawCur && VALID_CURRENCIES.includes(rawCur as MarketplaceCurrency)        ? (rawCur as MarketplaceCurrency)  : undefined,
+      sellerId,
+      minPrice: minPrice != null && !isNaN(minPrice) ? minPrice : undefined,
+      maxPrice: maxPrice != null && !isNaN(maxPrice) ? maxPrice : undefined,
+      status:   rawStat && VALID_LISTING_STATUSES.includes(rawStat as ListingStatus)     ? (rawStat as ListingStatus)        : undefined,
+      sort:     rawSort && (VALID_LISTING_SORTS as readonly string[]).includes(rawSort)   ? (rawSort as typeof VALID_LISTING_SORTS[number]) : undefined,
+      order:    rawOrd === "asc" || rawOrd === "desc"                                     ? rawOrd                           : undefined,
+      limit,
+      offset,
+    });
     res.json({ ok: true, data: listings, total: listings.length });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -162,13 +184,33 @@ export async function handleGetTransactions(req: Request, res: Response): Promis
 
 export async function handleGetAuctions(req: Request, res: Response): Promise<void> {
   try {
-    const rawStatus = req.query["status"] as string | undefined;
-    const limit     = req.query["limit"] ? Number(req.query["limit"]) : 50;
-    const status    = rawStatus && VALID_AUCTION_STATUSES.includes(rawStatus as AuctionStatus)
-      ? (rawStatus as AuctionStatus)
-      : undefined;
+    const q        = req.query["q"]        as string | undefined;
+    const rawCat   = req.query["category"] as string | undefined;
+    const rawRar   = req.query["rarity"]   as string | undefined;
+    const rawCur   = req.query["currency"] as string | undefined;
+    const sellerId = req.query["sellerId"] as string | undefined;
+    const rawStat  = req.query["status"]   as string | undefined;
+    const rawSort  = req.query["sort"]     as string | undefined;
+    const rawOrd   = req.query["order"]    as string | undefined;
+    const limit    = req.query["limit"]    ? Math.max(1, Number(req.query["limit"]))  : 50;
+    const offset   = req.query["offset"]   ? Math.max(0, Number(req.query["offset"])) : 0;
+    const minPrice = req.query["minPrice"] ? Number(req.query["minPrice"]) : undefined;
+    const maxPrice = req.query["maxPrice"] ? Number(req.query["maxPrice"]) : undefined;
 
-    const auctions = await marketplaceService.getAuctions(status, limit);
+    const auctions = await marketplaceService.getAuctions({
+      q,
+      category: rawCat && VALID_CATEGORIES.includes(rawCat as ItemCategory)               ? (rawCat as ItemCategory)         : undefined,
+      rarity:   rawRar && VALID_RARITIES.includes(rawRar as ItemRarity)                   ? (rawRar as ItemRarity)           : undefined,
+      currency: rawCur && VALID_CURRENCIES.includes(rawCur as MarketplaceCurrency)        ? (rawCur as MarketplaceCurrency)  : undefined,
+      sellerId,
+      minPrice: minPrice != null && !isNaN(minPrice) ? minPrice : undefined,
+      maxPrice: maxPrice != null && !isNaN(maxPrice) ? maxPrice : undefined,
+      status:   rawStat && VALID_AUCTION_STATUSES.includes(rawStat as AuctionStatus)      ? (rawStat as AuctionStatus)       : undefined,
+      sort:     rawSort && (VALID_AUCTION_SORTS as readonly string[]).includes(rawSort)    ? (rawSort as typeof VALID_AUCTION_SORTS[number]) : undefined,
+      order:    rawOrd === "asc" || rawOrd === "desc"                                      ? rawOrd                          : undefined,
+      limit,
+      offset,
+    });
     res.json({ ok: true, data: auctions, total: auctions.length });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
