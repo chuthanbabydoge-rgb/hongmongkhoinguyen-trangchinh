@@ -114,6 +114,7 @@ export interface ITransactionsRepository {
 export interface IAuctionsRepository {
   getAll(status?: AuctionStatus, limit?: number): Promise<Auction[]>;
   getById(id: string): Promise<Auction | null>;
+  getExpired(): Promise<Auction[]>;
   create(input: CreateAuctionInput): Promise<Auction>;
   updateBid(id: string, currentPrice: number, bidCount: number): Promise<Auction | null>;
   updateStatus(id: string, status: AuctionStatus): Promise<Auction | null>;

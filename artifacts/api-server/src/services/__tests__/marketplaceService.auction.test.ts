@@ -99,6 +99,8 @@ class AuctionsStub implements IAuctionsRepository {
 
   async getAll(): Promise<Auction[]> { return this.auction ? [this.auction] : []; }
 
+  async getExpired(): Promise<Auction[]> { return []; }
+
   async getById(id: string): Promise<Auction | null> {
     return this.auction?.id === id ? { ...this.auction } : null;
   }

@@ -284,4 +284,34 @@ export class MarketplaceService {
   async getBids(auctionId: string): Promise<Bid[]> {
     return this.bids.getByAuctionId(auctionId);
   }
+
+  // ─── Settle expired auctions ────────────────────────────────────────────────
+
+  async settleExpiredAuctions(): Promise<{
+    processed: number;
+    completed: number;
+    restored:  number;
+    errors:    number;
+  }> {
+    const expired = await this.auctions.getExpired();
+
+    let completed = 0;
+    let restored  = 0;
+    let errors    = 0;
+
+    for (const auction of expired) {
+      try {
+        const { winnerId } = await this.completeAuction(auction.id);
+        if (winnerId) {
+          completed++;
+        } else {
+          restored++;
+        }
+      } catch {
+        errors++;
+      }
+    }
+
+    return { processed: expired.length, completed, restored, errors };
+  }
 }

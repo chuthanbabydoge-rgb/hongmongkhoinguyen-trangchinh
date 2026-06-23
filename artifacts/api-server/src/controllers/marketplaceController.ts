@@ -255,6 +255,17 @@ export async function handleCompleteAuction(req: Request, res: Response): Promis
   }
 }
 
+export async function handleSettleExpiredAuctions(req: Request, res: Response): Promise<void> {
+  try {
+    const summary = await marketplaceService.settleExpiredAuctions();
+    res.json({ ok: true, ...summary });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    req.log.error({ err }, `marketplaceController.settleExpiredAuctions: ${msg}`);
+    res.status(500).json({ ok: false, error: "Không thể thanh toán các phiên đấu giá đã hết hạn." });
+  }
+}
+
 export async function handlePlaceBid(req: Request, res: Response): Promise<void> {
   try {
     const auctionId = req.params["id"] as string;

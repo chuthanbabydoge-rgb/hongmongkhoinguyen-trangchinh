@@ -50,6 +50,18 @@ export class SupabaseMarketplaceAuctionsRepository implements IAuctionsRepositor
     return (data ?? []).map(toAuction);
   }
 
+  async getExpired(): Promise<Auction[]> {
+    const now = new Date().toISOString();
+    const { data, error } = await this.db
+      .from("marketplace_auctions")
+      .select("*")
+      .eq("status", "live")
+      .lte("ends_at", now)
+      .order("ends_at", { ascending: true });
+    if (error) throw new Error(`SupabaseMarketplaceAuctionsRepository.getExpired: ${error.message}`);
+    return (data ?? []).map(toAuction);
+  }
+
   async getById(id: string): Promise<Auction | null> {
     if (!isValidUuid(id)) return null;
     const { data, error } = await this.db
