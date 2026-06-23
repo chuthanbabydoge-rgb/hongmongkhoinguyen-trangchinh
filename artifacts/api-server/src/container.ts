@@ -16,7 +16,7 @@ import { MockWalletRepository }             from "./repositories/walletRepositor
 import { MockWalletTransactionRepository }  from "./repositories/walletTransactionRepository";
 import { MockInventoryRepository }          from "./repositories/inventoryRepository";
 import { MockInventoryItemsRepository }     from "./repositories/inventoryItemsRepository";
-import { PgInventoryItemsRepository }       from "./repositories/pg/PgInventoryItemsRepository";
+import { SupabaseInventoryItemsRepository } from "./repositories/supabase/SupabaseInventoryItemsRepository";
 
 import {
   SupabaseUserRepository,
@@ -147,9 +147,9 @@ let walletTransactionRepo:  IWalletTransactionRepository;
 let inventoryRepo:          IInventoryRepository;
 let inventoryItemsRepo:     IInventoryItemsRepository;
 
-// inventory_items live in Replit PostgreSQL (DATABASE_URL) — always use PgInventoryItemsRepository
-inventoryItemsRepo = new PgInventoryItemsRepository();
-logger.info("Container: inventory items → Replit PostgreSQL (PgInventoryItemsRepository)");
+// inventory_items live in Supabase — always use SupabaseInventoryItemsRepository
+inventoryItemsRepo = new SupabaseInventoryItemsRepository();
+logger.info("Container: inventory items → Supabase (SupabaseInventoryItemsRepository)");
 
 if (useSupabase) {
   logger.info("Container: using Supabase repositories (mock fallback active for missing rows)");
