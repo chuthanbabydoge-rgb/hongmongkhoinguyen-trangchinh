@@ -42,6 +42,14 @@ import {
   handleCheckPrice,
   handleRunPriceCheck,
 } from "../controllers/marketplaceWatchlistController";
+import {
+  handleCreateSavedSearch,
+  handleListSavedSearches,
+  handleGetSavedSearch,
+  handleUpdateSavedSearch,
+  handleDeleteSavedSearch,
+  handleRunScan,
+} from "../controllers/marketplaceSavedSearchController";
 
 const router: IRouter = Router();
 
@@ -52,10 +60,10 @@ router.get("/marketplace/stats/top-items",   handleGetTopItems);
 router.get("/marketplace/stats",             handleGetStatsDashboard);
 
 // ─── Listings ─────────────────────────────────────────────────────────────────
-router.get(    "/marketplace/listings",             handleGetListings);
-router.post(   "/marketplace/listings",             handleCreateListing);
-router.get(    "/marketplace/listings/:id",         handleGetListing);
-router.delete( "/marketplace/listings/:id",         handleDeleteListing);
+router.get(    "/marketplace/listings",              handleGetListings);
+router.post(   "/marketplace/listings",              handleCreateListing);
+router.get(    "/marketplace/listings/:id",          handleGetListing);
+router.delete( "/marketplace/listings/:id",          handleDeleteListing);
 router.post(   "/marketplace/listings/:id/purchase", handlePurchaseListing);
 
 // ─── Transactions ─────────────────────────────────────────────────────────────
@@ -84,6 +92,15 @@ router.get(   "/marketplace/notifications/count",      handleGetUnreadCount);
 router.patch( "/marketplace/notifications/read-all",   handleMarkAllAsRead);
 router.patch( "/marketplace/notifications/:id/read",   handleMarkAsRead);
 router.delete("/marketplace/notifications/:id",        handleDeleteNotification);
+
+// ─── Saved Searches (V2.3) ────────────────────────────────────────────────────
+// Note: static sub-paths (run-scan) must precede /:id to avoid routing conflicts.
+router.post(  "/marketplace/saved-searches",           handleCreateSavedSearch);
+router.get(   "/marketplace/saved-searches",           handleListSavedSearches);
+router.post(  "/marketplace/saved-searches/run-scan",  handleRunScan);
+router.get(   "/marketplace/saved-searches/:id",       handleGetSavedSearch);
+router.patch( "/marketplace/saved-searches/:id",       handleUpdateSavedSearch);
+router.delete("/marketplace/saved-searches/:id",       handleDeleteSavedSearch);
 
 // ─── Watchlist (V2.1 / V2.2) ──────────────────────────────────────────────────
 // Note: all static sub-paths must precede /:id to avoid routing conflicts.

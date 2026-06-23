@@ -1,6 +1,10 @@
 import { logger } from "./lib/logger";
 import { isSupabaseConfigured } from "./database/supabase";
 import { MarketplacePricePoller } from "./services/marketplacePricePoller";
+import { MockSavedSearchRepository } from "./repositories/marketplaceSavedSearchRepository";
+import { SupabaseMarketplaceSavedSearchRepository } from "./repositories/supabase/SupabaseMarketplaceSavedSearchRepository";
+import { MarketplaceSavedSearchService } from "./services/marketplaceSavedSearchService";
+import { MarketplaceSavedSearchPoller } from "./services/marketplaceSavedSearchPoller";
 import { MockMarketplaceWatchlistRepository }    from "./repositories/marketplaceWatchlistRepository";
 import { SupabaseMarketplaceWatchlistRepository } from "./repositories/supabase/SupabaseMarketplaceWatchlistRepository";
 import { MarketplaceWatchlistService }            from "./services/marketplaceWatchlistService";
@@ -322,3 +326,23 @@ export const marketplacePricePoller = new MarketplacePricePoller(
 );
 
 marketplacePricePoller.start();
+
+// ─── Saved Searches (V2.3) ────────────────────────────────────────────────────
+
+const savedSearchRepo = useSupabase
+  ? new SupabaseMarketplaceSavedSearchRepository()
+  : new MockSavedSearchRepository();
+logger.info(`Container: saved searches → ${useSupabase ? "Supabase" : "Mock"}`);
+
+export const savedSearchService = new MarketplaceSavedSearchService(savedSearchRepo);
+
+const searchPollIntervalMs = Number(process.env["MARKETPLACE_SEARCH_POLL_INTERVAL_MS"] ?? 300_000);
+
+export const savedSearchPoller = new MarketplaceSavedSearchPoller(
+  savedSearchRepo,
+  listingsRepo,
+  marketplaceNotificationService,
+  searchPollIntervalMs,
+);
+
+savedSearchPoller.start();

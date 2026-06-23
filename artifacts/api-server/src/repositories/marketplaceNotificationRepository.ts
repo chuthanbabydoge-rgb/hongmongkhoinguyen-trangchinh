@@ -21,7 +21,8 @@ export type NotificationType =
   | "BID_PLACED"
   | "PAYMENT_RECEIVED"
   | "PAYMENT_SENT"
-  | "PRICE_DROP";
+  | "PRICE_DROP"
+  | "SAVED_SEARCH_MATCH";
 
 // ─── Domain model ─────────────────────────────────────────────────────────────
 

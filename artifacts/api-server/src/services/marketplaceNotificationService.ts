@@ -31,6 +31,15 @@ export interface PriceDropPayload {
   dropPct:    number;
 }
 
+export interface SavedSearchMatchPayload {
+  searchId:   string;
+  searchName: string;
+  listingId:  string;
+  itemName:   string;
+  price:      number;
+  currency:   string;
+}
+
 export interface IMarketplaceNotificationService {
   getNotifications(userId: string, limit?: number, offset?: number): Promise<{ data: MarketplaceNotification[]; total: number }>;
   getUnread(userId: string): Promise<MarketplaceNotification[]>;
@@ -49,6 +58,7 @@ export interface IMarketplaceNotificationService {
   onAuctionCompleted(winnerId: string, sellerId: string, loserIds: string[], auction: AuctionWinPayload): Promise<void>;
   onAuctionEndedNoBids(sellerId: string, auction: Pick<AuctionPayload, "id" | "itemId" | "itemName">): Promise<void>;
   onPriceDrop(userId: string, payload: PriceDropPayload): Promise<void>;
+  onSavedSearchMatch(userId: string, payload: SavedSearchMatchPayload): Promise<void>;
 }
 
 // ─── Service ──────────────────────────────────────────────────────────────────
@@ -246,6 +256,26 @@ export class MarketplaceNotificationService implements IMarketplaceNotificationS
         oldPrice:   payload.oldPrice,
         newPrice:   payload.newPrice,
         dropPct:    payload.dropPct,
+      },
+    );
+  }
+
+  async onSavedSearchMatch(userId: string, payload: SavedSearchMatchPayload): Promise<void> {
+    const fmtCR = (v: number) =>
+      v >= 1_000_000 ? `${(v / 1_000_000).toFixed(2)}M CR`
+      : v >= 1_000   ? `${(v / 1_000).toFixed(0)}K CR`
+      : `${v.toLocaleString("vi-VN")} CR`;
+
+    await this.emit(
+      userId,
+      "SAVED_SEARCH_MATCH",
+      "Kết quả tìm kiếm mới",
+      `Có vật phẩm mới phù hợp với tìm kiếm '${payload.searchName}': ${payload.itemName} (${fmtCR(payload.price)})`,
+      {
+        searchId:  payload.searchId,
+        listingId: payload.listingId,
+        price:     payload.price,
+        currency:  payload.currency,
       },
     );
   }

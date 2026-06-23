@@ -1,0 +1,161 @@
+Marketplace V2.3 — Tìm kiếm đã lưu
+
+Mục tiêu
+
+Cho phép người dùng lưu các tìm kiếm trên Marketplace và nhận thông báo khi có sản phẩm mới phù hợp với tiêu chí tìm kiếm của họ.
+
+Các tệp cần tạo
+
+repositories/marketplaceSavedSearchRepository.ts
+
+repositories/supabase/SupabaseMarketplaceSavedSearchRepository.ts
+
+services/marketplaceSavedSearchService.ts
+
+controllers/marketplaceSavedSearchController.ts
+
+services/marketplaceSavedSearchPoller.ts
+
+services/**tests**/marketplaceSavedSearch.test.ts
+
+Mô hình miền
+
+Tìm kiếm đã lưu
+
+{
+id: chuỗi,
+
+userId: chuỗi,
+
+name: chuỗi,
+
+query: chuỗi | null,
+
+category: chuỗi | null,
+
+rarity: chuỗi | null,
+
+currency: chuỗi | null,
+
+minPrice: số | null,
+
+maxPrice: số | null,
+
+createdAt: chuỗi,
+
+updatedAt: chuỗi
+
+}
+
+Kho lưu trữ
+
+create()
+
+update()
+
+delete()
+findById()
+findByUser()
+getAll()
+
+API
+
+POST /api/marketplace/saved-searches
+
+GET /api/marketplace/saved-searches?userId=...
+
+GET /api/marketplace/saved-searches/:id
+
+PATCH /api/marketplace/saved-searches/:id
+
+DELETE /api/marketplace/saved-searches/:id
+
+Ví dụ
+
+POST
+
+{
+"userId":"abc",
+
+"name":"Thú cưng huyền thoại",
+
+"category":"pets",
+
+"rarity":"huyền thoại",
+
+"maxPrice":5000
+
+}
+
+Bộ thăm dò
+
+Tạo:
+
+MarketplaceSavedSearchPoller
+
+Chạy mỗi 5 phút
+
+Đối với mỗi Tìm kiếm đã lưu:
+
+* Truy vấn danh sách trên thị trường
+* Tìm các danh sách mới được tạo
+* So sánh với các kết quả phù hợp trước đó
+* Chỉ phát hiện các kết quả phù hợp mới
+
+Thông báo
+
+Loại mới:
+
+SAVED_SEARCH_MATCH
+
+Tin nhắn:
+
+"Có vật phẩm mới phù hợp với tìm kiếm 'Thú cưng huyền thoại': Rồng Lửa"
+
+Ngăn chặn thông báo trùng lặp.
+
+Điểm cuối quản trị
+
+POST /api/marketplace/saved-searches/run-scan
+
+Phản hồi
+
+{ "ok": true,
+
+"savedSearches": 25,
+
+"newMatches": 4
+
+}
+
+Kiểm tra
+
+✔ Tạo tìm kiếm
+
+✔ Cập nhật tìm kiếm
+
+✔ Xóa tìm kiếm
+
+✔ Truy vấn theo người dùng
+
+✔ Tìm kiếm khớp theo danh mục
+
+✔ Tìm kiếm khớp theo độ hiếm
+
+✔ Tìm kiếm khớp theo khoảng giá
+
+✔ Kết hợp các bộ lọc
+
+✔ Đã tạo thông báo
+
+✔ Ngăn chặn thông báo trùng lặp
+
+✔ Tóm tắt thăm dò chính xác
+
+✔ Cơ sở dữ liệu trống trả về giá trị 0
+
+Kết quả mong đợi
+
+Tất cả các bài kiểm tra đều đạt.
+
+Không có thay đổi nào gây ảnh hưởng đến các API hiện có.
