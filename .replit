@@ -60,13 +60,13 @@ waitForPort = 8080
 name = "Start ecosystem-analytics"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "console"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "PORT=3002 BASE_PATH=/ pnpm --filter @workspace/ecosystem-analytics run dev"
 waitForPort = 3002
-
-[workflows.workflow.metadata]
-outputType = "console"
 
 [[workflows.workflow]]
 name = "Start wallet-app"
@@ -99,6 +99,10 @@ externalPort = 80
 [[ports]]
 localPort = 8080
 externalPort = 8080
+
+[[ports]]
+localPort = 3002
+externalPort = 3002
 
 [nix]
 channel = "stable-25_05"
