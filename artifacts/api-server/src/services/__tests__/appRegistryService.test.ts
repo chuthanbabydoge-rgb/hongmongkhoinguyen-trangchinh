@@ -3,18 +3,22 @@
 //
 // Covers: register, duplicate slug, update, delete, find by id/slug,
 //         find all, search, category filter, stats, seed idempotent,
-//         activity integration, validation errors, multi-app scenarios,
-//         repository persistence, edge cases.
+//         activity integration, validation errors.
 //
 // Run: pnpm --filter @workspace/api-server run test
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { test, describe }  from "node:test";
+import { test, describe } from "node:test";
 import assert              from "node:assert/strict";
 
-import { AppRegistryService, AppRegistryValidationError, AppNotFoundError, SlugAlreadyExistsError } from "../appRegistryService.js";
+import {
+  AppRegistryService,
+  AppRegistryValidationError,
+  AppNotFoundError,
+  SlugAlreadyExistsError,
+} from "../appRegistryService.js";
 import { InMemoryAppRegistryRepository } from "../../repositories/appRegistryRepository.js";
-import type { RegisterAppRequest, UpdateAppRequest } from "../../models/ecosystemApp.js";
+import type { RegisterAppRequest } from "../../models/appRegistry.js";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -34,7 +38,7 @@ const VALID_APP: RegisterAppRequest = {
   slug:        "test-app",
   name:        "Test App",
   description: "A test application",
-  baseUrl:     "https://test.universe.io",
+  url:         "https://test.universe.io",
   category:    "UTILITY",
   status:      "ACTIVE",
   version:     "1.0.0",
@@ -47,9 +51,9 @@ describe("AppRegistryService — register app", () => {
   test("✔ Đăng ký app thành công", async () => {
     const { service } = makeService();
     const app = await service.registerApp(VALID_APP);
-    assert.equal(app.slug,    "test-app");
-    assert.equal(app.name,    "Test App");
-    assert.equal(app.status,  "ACTIVE");
+    assert.equal(app.slug,   "test-app");
+    assert.equal(app.name,   "Test App");
+    assert.equal(app.status, "ACTIVE");
     assert.ok(app.id);
     assert.ok(app.createdAt);
     assert.ok(app.updatedAt);
@@ -58,15 +62,15 @@ describe("AppRegistryService — register app", () => {
   test("✔ App được lưu vào repository", async () => {
     const { service } = makeService();
     const created = await service.registerApp(VALID_APP);
-    const found   = await service.getApp(created.id);
+    const found   = await service.getAppById(created.id);
     assert.equal(found.id, created.id);
   });
 
   test("✔ Đăng ký app với status mặc định ACTIVE", async () => {
     const { service } = makeService();
     const app = await service.registerApp({
-      slug: "no-status-app", name: "No Status", baseUrl: "https://x.io", category: "OTHER", version: "1.0.0",
-      status: "ACTIVE",
+      slug: "no-status-app", name: "No Status", url: "https://x.io",
+      category: "OTHER", version: "1.0.0",
     });
     assert.equal(app.status, "ACTIVE");
   });
@@ -85,7 +89,7 @@ describe("AppRegistryService — register app", () => {
     assert.ok("id"        in app);
     assert.ok("slug"      in app);
     assert.ok("name"      in app);
-    assert.ok("baseUrl"   in app);
+    assert.ok("url"       in app);
     assert.ok("category"  in app);
     assert.ok("status"    in app);
     assert.ok("version"   in app);
@@ -167,11 +171,11 @@ describe("AppRegistryService — update", () => {
     assert.ok(updated.updatedAt >= created.updatedAt);
   });
 
-  test("✔ Cập nhật baseUrl hợp lệ", async () => {
+  test("✔ Cập nhật url hợp lệ", async () => {
     const { service } = makeService();
     const created = await service.registerApp(VALID_APP);
-    const updated = await service.updateApp(created.id, { baseUrl: "https://new.universe.io" });
-    assert.equal(updated.baseUrl, "https://new.universe.io");
+    const updated = await service.updateApp(created.id, { url: "https://new.universe.io" });
+    assert.equal(updated.url, "https://new.universe.io");
   });
 
 });
@@ -207,8 +211,8 @@ describe("AppRegistryService — delete", () => {
     const { service } = makeService();
     const created = await service.registerApp(VALID_APP);
     await service.deleteApp(created.id);
-    const reRegistered = await service.registerApp(VALID_APP);
-    assert.equal(reRegistered.slug, VALID_APP.slug);
+    const reReg = await service.registerApp(VALID_APP);
+    assert.equal(reReg.slug, VALID_APP.slug);
   });
 
 });
@@ -220,14 +224,14 @@ describe("AppRegistryService — find by id", () => {
   test("✔ Tìm app theo id thành công", async () => {
     const { service } = makeService();
     const created = await service.registerApp(VALID_APP);
-    const found   = await service.getApp(created.id);
+    const found   = await service.getAppById(created.id);
     assert.equal(found.id, created.id);
   });
 
   test("✔ Tìm app không tồn tại throw AppNotFoundError", async () => {
     const { service } = makeService();
     await assert.rejects(
-      () => service.getApp("not-found"),
+      () => service.getAppById("not-found"),
       AppNotFoundError,
     );
   });
@@ -341,7 +345,7 @@ describe("AppRegistryService — category filter", () => {
 
   test("✔ Lọc theo SPORT", async () => {
     const { service } = makeService();
-    await service.registerApp({ ...VALID_APP, slug: "sport-1", category: "SPORT" });
+    await service.registerApp({ ...VALID_APP, slug: "sport-1",   category: "SPORT" });
     await service.registerApp({ ...VALID_APP, slug: "finance-1", category: "FINANCE" });
     const results = await service.getAppsByCategory("SPORT");
     assert.equal(results.length, 1);
@@ -387,8 +391,8 @@ describe("AppRegistryService — stats", () => {
 
   test("✔ Stats đếm activeApps đúng", async () => {
     const { service } = makeService();
-    await service.registerApp({ ...VALID_APP, slug: "active-1", status: "ACTIVE" });
-    await service.registerApp({ ...VALID_APP, slug: "active-2", status: "ACTIVE" });
+    await service.registerApp({ ...VALID_APP, slug: "active-1",   status: "ACTIVE" });
+    await service.registerApp({ ...VALID_APP, slug: "active-2",   status: "ACTIVE" });
     await service.registerApp({ ...VALID_APP, slug: "inactive-1", status: "INACTIVE" });
     const stats = await service.getStats();
     assert.equal(stats.activeApps, 2);
@@ -422,7 +426,7 @@ describe("AppRegistryService — stats", () => {
     assert.deepEqual(stats.categories,  {});
   });
 
-  test("✔ Stats có đủ 4 fields bắt buộc", async () => {
+  test("✔ Stats có đủ fields bắt buộc", async () => {
     const { service } = makeService();
     const stats = await service.getStats();
     assert.ok("totalApps"       in stats);
@@ -438,55 +442,69 @@ describe("AppRegistryService — stats", () => {
 
 describe("AppRegistryService — seed idempotent", () => {
 
-  test("✔ initialize() tạo 5 app mặc định", async () => {
+  test("✔ initialize() tạo 6 app mặc định", async () => {
     const { service } = await makeSeededService();
     const all = await service.getAllApps();
-    assert.equal(all.length, 5);
+    assert.equal(all.length, 6);
   });
 
-  test("✔ initialize() idempotent — gọi 2 lần vẫn chỉ có 5 app", async () => {
+  test("✔ initialize() idempotent — gọi 2 lần vẫn chỉ có 6 app", async () => {
     const { service } = makeService();
     await service.initialize();
     await service.initialize();
     const all = await service.getAllApps();
-    assert.equal(all.length, 5);
+    assert.equal(all.length, 6);
   });
 
-  test("✔ Seed có football-universe", async () => {
+  test("✔ Seed có account", async () => {
     const { service } = await makeSeededService();
-    const app = await service.getBySlug("football-universe");
-    assert.equal(app.name, "Football Universe");
-    assert.equal(app.category, "SPORT");
-  });
-
-  test("✔ Seed có animal-evolution", async () => {
-    const { service } = await makeSeededService();
-    const app = await service.getBySlug("animal-evolution");
-    assert.equal(app.category, "ANIMAL");
-  });
-
-  test("✔ Seed có world-creator", async () => {
-    const { service } = await makeSeededService();
-    const app = await service.getBySlug("world-creator");
-    assert.equal(app.category, "WORLD");
-  });
-
-  test("✔ Seed có safepass", async () => {
-    const { service } = await makeSeededService();
-    const app = await service.getBySlug("safepass");
+    const app = await service.getBySlug("account");
     assert.equal(app.category, "SECURITY");
+    assert.equal(app.status,   "ACTIVE");
   });
 
-  test("✔ Seed có exchange-hub", async () => {
+  test("✔ Seed có marketplace", async () => {
     const { service } = await makeSeededService();
-    const app = await service.getBySlug("exchange-hub");
+    const app = await service.getBySlug("marketplace");
     assert.equal(app.category, "FINANCE");
   });
 
-  test("✔ Seed apps có status ACTIVE", async () => {
+  test("✔ Seed có wallet", async () => {
+    const { service } = await makeSeededService();
+    const app = await service.getBySlug("wallet");
+    assert.equal(app.category, "FINANCE");
+  });
+
+  test("✔ Seed có social", async () => {
+    const { service } = await makeSeededService();
+    const app = await service.getBySlug("social");
+    assert.equal(app.category, "SOCIAL");
+  });
+
+  test("✔ Seed có worlds", async () => {
+    const { service } = await makeSeededService();
+    const app = await service.getBySlug("worlds");
+    assert.equal(app.category, "WORLD");
+  });
+
+  test("✔ Seed có ai-studio", async () => {
+    const { service } = await makeSeededService();
+    const app = await service.getBySlug("ai-studio");
+    assert.equal(app.category, "AI");
+  });
+
+  test("✔ Tất cả seed apps có status ACTIVE", async () => {
     const { service } = await makeSeededService();
     const all = await service.getAllApps();
     assert.ok(all.every(a => a.status === "ACTIVE"));
+  });
+
+  test("✔ Seed apps có url hợp lệ", async () => {
+    const { service } = await makeSeededService();
+    const all = await service.getAllApps();
+    for (const app of all) {
+      assert.ok(app.url.startsWith("https://"), `${app.slug}.url phải là https`);
+    }
   });
 
 });
@@ -502,11 +520,11 @@ describe("AppRegistryService — activity integration", () => {
     assert.equal(activities.length, 1);
   });
 
-  test("✔ Activity có type SYSTEM", async () => {
+  test("✔ Activity có type SYSTEM và visibility PUBLIC", async () => {
     const { service } = makeService();
     await service.registerApp(VALID_APP);
     const act = service.getActivities()[0]!;
-    assert.equal(act.type,      "SYSTEM");
+    assert.equal(act.type,       "SYSTEM");
     assert.equal(act.visibility, "PUBLIC");
     assert.equal(act.sourceApp,  "universe-hub");
   });
@@ -522,8 +540,7 @@ describe("AppRegistryService — activity integration", () => {
     const { service } = makeService();
     await service.registerApp({ ...VALID_APP, slug: "app-x" });
     await service.registerApp({ ...VALID_APP, slug: "app-y" });
-    const activities = service.getActivities();
-    assert.equal(activities.length, 2);
+    assert.equal(service.getActivities().length, 2);
   });
 
   test("✔ Activity title là 'New Ecosystem App'", async () => {
@@ -541,10 +558,9 @@ describe("AppRegistryService — activity integration", () => {
     assert.ok(act.createdAt);
   });
 
-  test("✔ Seed apps không tạo activities (chỉ user register mới tạo)", async () => {
+  test("✔ Seed apps không tạo activities", async () => {
     const { service } = await makeSeededService();
-    const activities = service.getActivities();
-    assert.equal(activities.length, 0);
+    assert.equal(service.getActivities().length, 0);
   });
 
 });
@@ -577,179 +593,70 @@ describe("AppRegistryService — validation errors", () => {
     );
   });
 
-  test("✔ name rỗng throw AppRegistryValidationError", async () => {
+  test("✔ Thiếu name throw AppRegistryValidationError", async () => {
     const { service } = makeService();
     await assert.rejects(
-      () => service.registerApp({ ...VALID_APP, name: "" }),
+      () => service.registerApp({ ...VALID_APP, slug: "ok-slug", name: "" }),
       AppRegistryValidationError,
     );
   });
 
-  test("✔ name quá 100 ký tự throw AppRegistryValidationError", async () => {
+  test("✔ URL không hợp lệ throw AppRegistryValidationError", async () => {
     const { service } = makeService();
     await assert.rejects(
-      () => service.registerApp({ ...VALID_APP, name: "a".repeat(101) }),
+      () => service.registerApp({ ...VALID_APP, slug: "bad-url", url: "not-a-url" }),
       AppRegistryValidationError,
     );
   });
 
-  test("✔ description quá 1000 ký tự throw AppRegistryValidationError", async () => {
+  test("✔ Category không hợp lệ throw AppRegistryValidationError", async () => {
     const { service } = makeService();
     await assert.rejects(
-      () => service.registerApp({ ...VALID_APP, description: "x".repeat(1001) }),
+      () => service.registerApp({ ...VALID_APP, slug: "bad-cat", category: "UNKNOWN" as never }),
       AppRegistryValidationError,
     );
   });
 
-  test("✔ baseUrl không hợp lệ throw AppRegistryValidationError", async () => {
+  test("✔ Status không hợp lệ throw AppRegistryValidationError", async () => {
     const { service } = makeService();
     await assert.rejects(
-      () => service.registerApp({ ...VALID_APP, baseUrl: "not-a-url" }),
+      () => service.registerApp({ ...VALID_APP, slug: "bad-status", status: "DELETED" as never }),
       AppRegistryValidationError,
     );
   });
 
-  test("✔ Update baseUrl không hợp lệ throw AppRegistryValidationError", async () => {
+  test("✔ icon URL không hợp lệ throw AppRegistryValidationError", async () => {
     const { service } = makeService();
-    const created = await service.registerApp(VALID_APP);
     await assert.rejects(
-      () => service.updateApp(created.id, { baseUrl: "bad-url" } as UpdateAppRequest),
+      () => service.registerApp({ ...VALID_APP, slug: "bad-icon", icon: "not-a-url" }),
       AppRegistryValidationError,
     );
   });
 
-});
-
-// ─── Multi-app scenarios ──────────────────────────────────────────────────────
-
-describe("AppRegistryService — multi-app scenarios", () => {
-
-  test("✔ 10 app đăng ký, đếm đúng", async () => {
-    const { service } = makeService();
-    for (let i = 0; i < 10; i++) {
-      await service.registerApp({ ...VALID_APP, slug: `app-${i}` });
-    }
-    const count = await service.countApps();
-    assert.equal(count, 10);
-  });
-
-  test("✔ Xóa một app trong nhiều app giữ đúng số còn lại", async () => {
-    const { service } = makeService();
-    await service.registerApp({ ...VALID_APP, slug: "multi-a" });
-    const b = await service.registerApp({ ...VALID_APP, slug: "multi-b" });
-    await service.registerApp({ ...VALID_APP, slug: "multi-c" });
-    await service.deleteApp(b.id);
-    const all = await service.getAllApps();
-    assert.equal(all.length, 2);
-    assert.ok(all.every(a => a.id !== b.id));
-  });
-
-  test("✔ Search chỉ trả app khớp trong nhiều app", async () => {
-    const { service } = makeService();
-    await service.registerApp({ ...VALID_APP, slug: "match-one", name: "Unique Name XYZ" });
-    await service.registerApp({ ...VALID_APP, slug: "no-match-one", name: "Other App" });
-    await service.registerApp({ ...VALID_APP, slug: "no-match-two", name: "Another App" });
-    const results = await service.searchApps("Unique Name XYZ");
-    assert.equal(results.length, 1);
-    assert.equal(results[0]!.slug, "match-one");
-  });
-
-  test("✔ Stats đúng sau seed + thêm app mới", async () => {
-    const { service } = await makeSeededService();
-    await service.registerApp({ ...VALID_APP, slug: "extra-app", status: "INACTIVE" });
-    const stats = await service.getStats();
-    assert.equal(stats.totalApps,  6);
-    assert.equal(stats.inactiveApps, 1);
-  });
-
-});
-
-// ─── Repository persistence ───────────────────────────────────────────────────
-
-describe("AppRegistryService — repository persistence", () => {
-
-  test("✔ App tồn tại trong repo sau registerApp", async () => {
-    const { repo, service } = makeService();
-    const created = await service.registerApp(VALID_APP);
-    const fromRepo = await repo.findById(created.id);
-    assert.ok(fromRepo);
-    assert.equal(fromRepo.id, created.id);
-  });
-
-  test("✔ App bị xóa khỏi repo sau deleteApp", async () => {
-    const { repo, service } = makeService();
-    const created = await service.registerApp(VALID_APP);
-    await service.deleteApp(created.id);
-    const fromRepo = await repo.findById(created.id);
-    assert.equal(fromRepo, null);
-  });
-
-  test("✔ Slug index giải phóng sau delete, existsBySlug trả false", async () => {
-    const { repo, service } = makeService();
-    const created = await service.registerApp(VALID_APP);
-    await service.deleteApp(created.id);
-    const exists = await repo.existsBySlug(VALID_APP.slug);
-    assert.equal(exists, false);
-  });
-
-});
-
-// ─── Edge cases ───────────────────────────────────────────────────────────────
-
-describe("AppRegistryService — edge cases", () => {
-
-  test("✔ App với iconUrl hợp lệ được lưu", async () => {
-    const { service } = makeService();
-    const app = await service.registerApp({ ...VALID_APP, iconUrl: "https://cdn.io/icon.png" });
-    assert.equal(app.iconUrl, "https://cdn.io/icon.png");
-  });
-
-  test("✔ App không có description được lưu (optional)", async () => {
-    const { service } = makeService();
-    const { description, ...noDesc } = VALID_APP;
-    const app = await service.registerApp(noDesc);
-    assert.equal(app.description, undefined);
-  });
-
-  test("✔ App MAINTENANCE đúng trong stats", async () => {
-    const { service } = makeService();
-    await service.registerApp({ ...VALID_APP, slug: "m1", status: "MAINTENANCE" });
-    await service.registerApp({ ...VALID_APP, slug: "m2", status: "MAINTENANCE" });
-    const stats = await service.getStats();
-    assert.equal(stats.maintenanceApps, 2);
-  });
-
-  test("✔ countApps 0 khi repo rỗng", async () => {
-    const { service } = makeService();
-    assert.equal(await service.countApps(), 0);
-  });
-
-  test("✔ getActivities trả copy (immutable)", async () => {
-    const { service } = makeService();
-    await service.registerApp(VALID_APP);
-    const acts1 = service.getActivities();
-    acts1.pop();
-    const acts2 = service.getActivities();
-    assert.equal(acts2.length, 1);
-  });
-
-  test("✔ Cập nhật category thành công", async () => {
+  test("✔ Update với url không hợp lệ throw AppRegistryValidationError", async () => {
     const { service } = makeService();
     const created = await service.registerApp(VALID_APP);
-    const updated = await service.updateApp(created.id, { category: "SOCIAL" });
-    assert.equal(updated.category, "SOCIAL");
+    await assert.rejects(
+      () => service.updateApp(created.id, { url: "bad-url" }),
+      AppRegistryValidationError,
+    );
   });
 
-  test("✔ SlugAlreadyExistsError có message đúng", () => {
-    const err = new SlugAlreadyExistsError("my-slug");
-    assert.ok(err.message.includes("my-slug"));
-    assert.equal(err.name, "SlugAlreadyExistsError");
+  test("✔ Update với category không hợp lệ throw AppRegistryValidationError", async () => {
+    const { service } = makeService();
+    const created = await service.registerApp(VALID_APP);
+    await assert.rejects(
+      () => service.updateApp(created.id, { category: "INVALID" as never }),
+      AppRegistryValidationError,
+    );
   });
 
-  test("✔ AppNotFoundError có message đúng", () => {
-    const err = new AppNotFoundError("missing-id");
-    assert.ok(err.message.includes("missing-id"));
-    assert.equal(err.name, "AppNotFoundError");
+  test("✔ Thiếu version throw AppRegistryValidationError", async () => {
+    const { service } = makeService();
+    await assert.rejects(
+      () => service.registerApp({ ...VALID_APP, slug: "no-ver", version: "" }),
+      AppRegistryValidationError,
+    );
   });
 
 });

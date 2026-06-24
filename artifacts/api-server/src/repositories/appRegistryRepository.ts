@@ -5,7 +5,7 @@
 // InMemoryAppRegistryRepository: fully in-memory, used as default and in tests.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { EcosystemApp, AppCategory } from "../models/ecosystemApp.js";
+import type { EcosystemApp, AppCategory } from "../models/appRegistry.js";
 
 // ─── Interface ────────────────────────────────────────────────────────────────
 
@@ -24,12 +24,12 @@ export interface IAppRegistryRepository {
 // ─── In-Memory Implementation ─────────────────────────────────────────────────
 
 export class InMemoryAppRegistryRepository implements IAppRegistryRepository {
-  private readonly store = new Map<string, EcosystemApp>();
-  private readonly slugIndex = new Map<string, string>();
+  private readonly store      = new Map<string, EcosystemApp>();
+  private readonly slugIndex  = new Map<string, string>();
 
   async create(app: EcosystemApp): Promise<EcosystemApp> {
-    const now = new Date().toISOString();
-    const record: EcosystemApp = { ...app, createdAt: app.createdAt ?? now, updatedAt: now };
+    const now    = new Date().toISOString();
+    const record = { ...app, createdAt: app.createdAt ?? now, updatedAt: now };
     this.store.set(record.id, record);
     this.slugIndex.set(record.slug, record.id);
     return { ...record };
@@ -42,7 +42,7 @@ export class InMemoryAppRegistryRepository implements IAppRegistryRepository {
       this.slugIndex.delete(existing.slug);
       this.slugIndex.set(app.slug, app.id);
     }
-    const updated: EcosystemApp = { ...app, updatedAt: new Date().toISOString() };
+    const updated = { ...app, updatedAt: new Date().toISOString() };
     this.store.set(app.id, updated);
     return { ...updated };
   }

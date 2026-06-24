@@ -1,34 +1,28 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Apps router — HUB-5
+// Apps router — HUB-2 App Registry
+//
+// GET    /api/apps          — list all apps (supports ?q= and ?category=)
+// GET    /api/apps/:id      — get app by id
+// POST   /api/apps/register — register a new app
+// PUT    /api/apps/:id      — update an app
+// DELETE /api/apps/:id      — delete an app
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { Router, type IRouter } from "express";
 import {
   handleGetApps,
-  handleGetFeaturedApps,
-  handleGetRecentApps,
-  handleGetMyApps,
-  handleGetAppBySlug,
+  handleGetAppById,
   handleRegisterApp,
-  handleInstallApp,
-  handleUninstallApp,
-  handleOpenApp,
-  handleDisableApp,
-  handleEnableApp,
-} from "../controllers/applicationController.js";
+  handleUpdateApp,
+  handleDeleteApp,
+} from "../controllers/appRegistryController.js";
 
 const router: IRouter = Router();
 
-router.get("/apps/featured",          handleGetFeaturedApps);
-router.get("/apps/recent",            handleGetRecentApps);
-router.get("/apps/my",                handleGetMyApps);
-router.get("/apps",                   handleGetApps);
-router.get("/apps/:slug",             handleGetAppBySlug);
-router.post("/apps/register",         handleRegisterApp);
-router.post("/apps/install",          handleInstallApp);
-router.delete("/apps/install/:slug",  handleUninstallApp);
-router.post("/apps/:slug/open",       handleOpenApp);
-router.patch("/apps/:slug/disable",   handleDisableApp);
-router.patch("/apps/:slug/enable",    handleEnableApp);
+router.get("/apps",           handleGetApps);
+router.post("/apps/register", handleRegisterApp);
+router.get("/apps/:id",       handleGetAppById);
+router.put("/apps/:id",       handleUpdateApp);
+router.delete("/apps/:id",    handleDeleteApp);
 
 export default router;

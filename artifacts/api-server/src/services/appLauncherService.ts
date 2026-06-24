@@ -24,7 +24,7 @@ import type {
   LauncherActivity,
   LauncherNotification,
 } from "../models/appLauncher.js";
-import type { EcosystemApp } from "../models/ecosystemApp.js";
+import type { EcosystemApp } from "../models/appRegistry.js";
 import { AppNotFoundError }  from "./appRegistryService.js";
 
 // ─── Errors ───────────────────────────────────────────────────────────────────
@@ -53,7 +53,7 @@ const SLUG_TO_DOMAIN: Record<string, string> = {
 };
 
 function buildLaunchUrl(app: EcosystemApp, token: string): string {
-  const base = SLUG_TO_DOMAIN[app.slug] ?? app.baseUrl;
+  const base = SLUG_TO_DOMAIN[app.slug] ?? app.url;
   return `${base}/app?token=${token}`;
 }
 
@@ -135,9 +135,9 @@ export class AppLauncherService {
 
     return {
       app: {
-        slug:     app.slug,
-        name:     app.name,
-        iconUrl:  app.iconUrl,
+        slug:    app.slug,
+        name:    app.name,
+        iconUrl: app.icon,
       },
       launchUrl:   buildLaunchUrl(app, accessToken),
       accessToken,

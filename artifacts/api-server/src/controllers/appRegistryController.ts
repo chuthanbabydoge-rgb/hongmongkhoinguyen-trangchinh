@@ -1,13 +1,14 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // AppRegistryController — HUB-2
 //
-// GET  /api/ecosystem/apps              → list all (supports ?q= search)
-// GET  /api/ecosystem/apps/:slug        → get by slug
-// GET  /api/ecosystem/categories/:cat  → list by category
-// POST /api/ecosystem/apps             → register new app
-// PATCH /api/ecosystem/apps/:id        → update app
-// DELETE /api/ecosystem/apps/:id       → delete app
-// GET  /api/ecosystem/stats            → registry stats
+// GET    /api/apps          → list all (supports ?q= search, ?category=)
+// GET    /api/apps/:id      → get by id
+// POST   /api/apps/register → register new app
+// PUT    /api/apps/:id      → update app
+// DELETE /api/apps/:id      → delete app
+// GET    /api/ecosystem/stats         → registry stats (ecosystem router)
+// GET    /api/ecosystem/apps          → alias list (ecosystem router)
+// GET    /api/ecosystem/apps/:slug    → get by slug (ecosystem router)
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { type Request, type Response } from "express";
@@ -17,10 +18,10 @@ import {
   AppNotFoundError,
   SlugAlreadyExistsError,
 } from "../services/appRegistryService.js";
-import { APP_CATEGORIES } from "../models/ecosystemApp.js";
-import type { AppCategory } from "../models/ecosystemApp.js";
+import { APP_CATEGORIES } from "../models/appRegistry.js";
+import type { AppCategory } from "../models/appRegistry.js";
 
-function handleError(req: Request, res: Response, err: unknown, context: string): void {
+function handleError(req: Request, res: Response, err: unknown, ctx: string): void {
   if (err instanceof SlugAlreadyExistsError) {
     res.status(409).json({ ok: false, error: err.message });
     return;
@@ -34,25 +35,50 @@ function handleError(req: Request, res: Response, err: unknown, context: string)
     return;
   }
   const msg = err instanceof Error ? err.message : String(err);
-  req.log.error({ err }, `${context}: ${msg}`);
+  req.log.error({ err }, `${ctx}: ${msg}`);
   res.status(500).json({ ok: false, error: "Lỗi server không xác định." });
 }
 
-// ─── GET /api/ecosystem/apps ─────────────────────────────────────────────────
+// ─── GET /api/apps ────────────────────────────────────────────────────────────
 
 export async function handleGetApps(req: Request, res: Response): Promise<void> {
   try {
-    const q = req.query["q"] as string | undefined;
-    const data = q
-      ? await appRegistryService.searchApps(q)
-      : await appRegistryService.getAllApps();
+    const q        = req.query["q"] as string | undefined;
+    const category = req.query["category"] as string | undefined;
+
+    let data;
+    if (q) {
+      data = await appRegistryService.searchApps(q);
+    } else if (category) {
+      const cat = category.toUpperCase();
+      if (!(APP_CATEGORIES as readonly string[]).includes(cat)) {
+        res.status(400).json({ ok: false, error: `category không hợp lệ: ${cat}` });
+        return;
+      }
+      data = await appRegistryService.getAppsByCategory(cat as AppCategory);
+    } else {
+      data = await appRegistryService.getAllApps();
+    }
+
     res.json({ ok: true, data });
   } catch (err) {
     handleError(req, res, err, "appRegistryController.getApps");
   }
 }
 
-// ─── GET /api/ecosystem/apps/:slug ───────────────────────────────────────────
+// ─── GET /api/apps/:id ────────────────────────────────────────────────────────
+
+export async function handleGetAppById(req: Request, res: Response): Promise<void> {
+  try {
+    const id   = req.params["id"] as string;
+    const data = await appRegistryService.getAppById(id);
+    res.json({ ok: true, data });
+  } catch (err) {
+    handleError(req, res, err, "appRegistryController.getAppById");
+  }
+}
+
+// ─── GET /api/ecosystem/apps/:slug (alias — lookup by slug) ──────────────────
 
 export async function handleGetAppBySlug(req: Request, res: Response): Promise<void> {
   try {
@@ -80,7 +106,7 @@ export async function handleGetByCategory(req: Request, res: Response): Promise<
   }
 }
 
-// ─── POST /api/ecosystem/apps ────────────────────────────────────────────────
+// ─── POST /api/apps/register ──────────────────────────────────────────────────
 
 export async function handleRegisterApp(req: Request, res: Response): Promise<void> {
   try {
@@ -91,7 +117,7 @@ export async function handleRegisterApp(req: Request, res: Response): Promise<vo
   }
 }
 
-// ─── PATCH /api/ecosystem/apps/:id ───────────────────────────────────────────
+// ─── PUT /api/apps/:id ────────────────────────────────────────────────────────
 
 export async function handleUpdateApp(req: Request, res: Response): Promise<void> {
   try {
@@ -103,7 +129,7 @@ export async function handleUpdateApp(req: Request, res: Response): Promise<void
   }
 }
 
-// ─── DELETE /api/ecosystem/apps/:id ──────────────────────────────────────────
+// ─── DELETE /api/apps/:id ─────────────────────────────────────────────────────
 
 export async function handleDeleteApp(req: Request, res: Response): Promise<void> {
   try {

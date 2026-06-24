@@ -1,1 +1,2 @@
-- [HUB-5 App Registry](hub5-app-registry.md) — ApplicationRegistryService tách biệt hoàn toàn với HUB-2 EcosystemApp; dùng IApplicationRegistryRepository + IUserAppRepository; route prefix /api/apps.
+- [HUB-2 App Registry](hub2-app-registry.md) — field names là `icon` và `url` (không phải `iconUrl`/`baseUrl`); seed 6 apps: account, marketplace, wallet, social, worlds, ai-studio; routes tại /api/apps; model canonical tại models/appRegistry.ts; ecosystemApp.ts chỉ re-export.
+- [HUB-5 App Registry](hub5-app-registry.md) — ApplicationRegistryService tách biệt hoàn toàn với HUB-2 EcosystemApp; dùng IApplicationRegistryRepository + IUserAppRepository; route prefix /api/apps (đã bị HUB-2 thay thế).
