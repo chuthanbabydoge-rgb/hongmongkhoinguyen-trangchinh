@@ -27,6 +27,8 @@ export interface ApiNotificationsResponse {
   unreadCount: number;
 }
 
+// apiFetch automatically attaches Bearer token and unwraps { ok, data } envelope.
+// GET /api/notifications returns envelope.data as ApiNotification[].
 export async function fetchNotifications(opts?: {
   type?: ApiNotificationType;
   unreadOnly?: boolean;
@@ -35,32 +37,12 @@ export async function fetchNotifications(opts?: {
   if (opts?.type) params.set("type", opts.type);
   if (opts?.unreadOnly) params.set("unread", "true");
 
-  // The endpoint wraps data in { ok, data, total, unreadCount }
-  // apiFetch unwraps `data`, but we also need `total` and `unreadCount`.
-  // So we fetch raw here and unwrap manually.
-  const res = await fetch(`/api/notifications?${params}`, {
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}: /api/notifications`);
-  }
-
-  const envelope = await res.json() as {
-    ok: boolean;
-    data: ApiNotification[];
-    total: number;
-    unreadCount: number;
-    error?: string;
-  };
-
-  if (!envelope.ok) {
-    throw new Error(envelope.error ?? "Không thể tải thông báo.");
-  }
+  const suffix = params.toString() ? `?${params}` : "";
+  const data = await apiFetch<ApiNotification[]>(`/notifications${suffix}`);
 
   return {
-    notifications: envelope.data,
-    total: envelope.total,
-    unreadCount: envelope.unreadCount,
+    notifications: data ?? [],
+    total: data?.length ?? 0,
+    unreadCount: (data ?? []).filter(n => !n.isRead).length,
   };
 }

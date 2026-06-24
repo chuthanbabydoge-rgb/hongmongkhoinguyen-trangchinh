@@ -152,10 +152,9 @@ interface ApiNotification {
   createdAt: string;
 }
 
-interface NotifResponse {
-  data: ApiNotification[];
-  unreadCount: number;
-}
+// apiFetch unwraps { ok, data } envelope → returns envelope.data directly,
+// which for GET /api/notifications is ApiNotification[] (the array itself).
+type NotifArray = ApiNotification[];
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
@@ -185,18 +184,17 @@ export function useAccount(): AccountState {
     async function load() {
       setState(prev => ({ ...prev, loading: true, error: null }));
       try {
-        const EMPTY_NOTIF: NotifResponse = { data: [], unreadCount: 0 };
-
-        const [me, notifResult] = await Promise.all([
+        const [me, notifArray] = await Promise.all([
           apiFetch<HubMeResponse>("/hub/me"),
-          apiFetch<NotifResponse>("/notifications").catch(() => EMPTY_NOTIF),
+          // apiFetch unwraps envelope.data → returns ApiNotification[] directly
+          apiFetch<NotifArray>("/notifications").catch(() => [] as NotifArray),
         ]);
 
         if (cancelled) return;
 
         const { profile: p, avatar: a, reputation: r } = me;
 
-        const notifications: Notification[] = notifResult.data.map(n => ({
+        const notifications: Notification[] = (notifArray ?? []).map(n => ({
           id:        n.id,
           type:      n.type,
           title:     n.title,
@@ -211,7 +209,7 @@ export function useAccount(): AccountState {
           level:         mapLevel(a, r),
           reputation:    mapReputation(r),
           notifications,
-          unreadCount:   notifResult.unreadCount ?? notifications.filter(n => !n.isRead).length,
+          unreadCount:   notifications.filter(n => !n.isRead).length,
           loading:       false,
           error:         null,
         });
