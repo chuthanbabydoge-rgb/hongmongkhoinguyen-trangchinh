@@ -146,6 +146,13 @@ export function Sidebar() {
 
         <div className="pt-1 pb-1">
           <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Launcher
+          </p>
+          <NavItem icon={Rocket} label="App Launcher" path="/launcher" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
             Mô-đun
           </p>
           {MODULES.map((mod) => (

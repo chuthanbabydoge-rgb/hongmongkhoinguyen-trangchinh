@@ -33,6 +33,7 @@ import Trades from "@/pages/marketplace/Trades";
 import WatchlistPage from "@/pages/marketplace/Watchlist";
 import ActivityFeed from "@/pages/marketplace/ActivityFeed";
 import Launcher from "@/pages/Launcher";
+import AppDetail from "@/pages/AppDetail";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,7 @@ function Router() {
       <Route path="/marketplace/watchlist"  component={WatchlistPage} />
       <Route path="/marketplace/activity"  component={ActivityFeed} />
       <Route path="/launcher" component={Launcher} />
+      <Route path="/apps/:slug" component={AppDetail} />
       <Route component={NotFound} />
     </Switch>
   );
