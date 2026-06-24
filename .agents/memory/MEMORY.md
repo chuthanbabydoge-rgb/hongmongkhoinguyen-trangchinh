@@ -1,0 +1,1 @@
+- [HUB-5 App Registry](hub5-app-registry.md) — ApplicationRegistryService tách biệt hoàn toàn với HUB-2 EcosystemApp; dùng IApplicationRegistryRepository + IUserAppRepository; route prefix /api/apps.

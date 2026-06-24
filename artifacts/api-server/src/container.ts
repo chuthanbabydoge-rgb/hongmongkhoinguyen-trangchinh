@@ -460,3 +460,25 @@ const notificationSyncRepo = useSupabase
 logger.info(`Container: notification sync → ${useSupabase ? "Supabase" : "InMemory"}`);
 
 export const notificationSyncService = new NotificationSyncService(notificationSyncRepo, accountClient);
+
+// ─── Application Registry (HUB-5) ─────────────────────────────────────────────
+
+import { InMemoryApplicationRegistryRepository, InMemoryUserAppRepository } from "./repositories/applicationRegistryRepository.js";
+import { SupabaseApplicationRegistryRepository } from "./repositories/supabase/SupabaseApplicationRegistryRepository.js";
+import { SupabaseUserAppRepository } from "./repositories/supabase/SupabaseUserAppRepository.js";
+import { ApplicationRegistryService } from "./services/applicationRegistryService.js";
+
+const applicationRegistryRepo = useSupabase
+  ? new SupabaseApplicationRegistryRepository()
+  : new InMemoryApplicationRegistryRepository();
+
+const userAppRepo = useSupabase
+  ? new SupabaseUserAppRepository()
+  : new InMemoryUserAppRepository();
+
+logger.info(`Container: application registry (HUB-5) → ${useSupabase ? "Supabase" : "InMemory"}`);
+
+export const applicationRegistryService = new ApplicationRegistryService(
+  applicationRegistryRepo,
+  userAppRepo,
+);

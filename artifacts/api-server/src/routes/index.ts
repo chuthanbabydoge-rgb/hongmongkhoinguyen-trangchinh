@@ -9,6 +9,7 @@ import accountBridgeRouter from "./accountBridge";
 import ecosystemRouter from "./ecosystem";
 import launcherRouter from "./launcher";
 import notificationSyncRouter from "./notificationSync";
+import appsRouter from "./apps";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(accountBridgeRouter);
 router.use(ecosystemRouter);
 router.use(launcherRouter);
 router.use(notificationSyncRouter);
+router.use(appsRouter);
 
 export default router;

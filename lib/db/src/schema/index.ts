@@ -20,3 +20,5 @@
 export * from "./ecosystemApps";
 export * from "./appLaunches";
 export * from "./notificationSync";
+export * from "./applicationsRegistry";
+export * from "./userApps";
