@@ -133,9 +133,7 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     name:        "Universe Wallet",
     description: "Ví đa tiền tệ: Credits, XU và Token cho toàn hệ sinh thái",
     icon:        "https://cdn.universe.io/icons/wallet.png",
-    url:         process.env.REPLIT_DEV_DOMAIN
-                   ? `https://${process.env.REPLIT_DEV_DOMAIN.replace(/^([^.]+)/, "$1-3001")}`
-                   : "http://localhost:3001",
+    url:         `${REPLIT_HUB_URL}/wallet-app`,
     category:    "FINANCE",
     status:      "ACTIVE",
     version:     "1.0.0",

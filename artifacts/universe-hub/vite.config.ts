@@ -76,6 +76,10 @@ export default defineConfig({
         ws: true,
         changeOrigin: true,
       },
+      "/wallet-app": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
     },
   },
   preview: {

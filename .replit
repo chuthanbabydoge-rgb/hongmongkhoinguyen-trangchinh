@@ -72,13 +72,13 @@ outputType = "console"
 name = "Start wallet-app"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "PORT=3001 BASE_PATH=/ pnpm --filter @workspace/wallet-app run dev"
-waitForPort = 3001
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=3001 BASE_PATH=/wallet-app pnpm --filter @workspace/wallet-app run dev"
+waitForPort = 3001
 
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
@@ -91,10 +91,6 @@ timeoutMs = 20000
 [[ports]]
 localPort = 3001
 externalPort = 3001
-
-[[ports]]
-localPort = 3002
-externalPort = 3002
 
 [[ports]]
 localPort = 5000
