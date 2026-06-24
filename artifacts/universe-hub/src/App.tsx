@@ -7,6 +7,7 @@ import { InventoryProvider } from "@/context/InventoryContext";
 import { MarketplaceProvider } from "@/context/MarketplaceContext";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import LoginPage from "@/pages/LoginPage";
+import RegisterPage from "@/pages/RegisterPage";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/Dashboard";
 import UniverseMap from "@/pages/UniverseMap";
@@ -94,11 +95,16 @@ function App() {
           <WalletProvider>
             <InventoryProvider>
               <MarketplaceProvider>
-                <AuthGuard>
-                  <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-                    <Router />
-                  </WouterRouter>
-                </AuthGuard>
+                <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                  <Switch>
+                    <Route path="/register" component={RegisterPage} />
+                    <Route>
+                      <AuthGuard>
+                        <Router />
+                      </AuthGuard>
+                    </Route>
+                  </Switch>
+                </WouterRouter>
                 <Toaster />
               </MarketplaceProvider>
             </InventoryProvider>

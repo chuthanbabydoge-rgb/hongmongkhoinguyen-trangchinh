@@ -34,6 +34,41 @@ async function proxyPost<T>(path: string, body: unknown): Promise<T> {
   }
 }
 
+// ─── POST /api/auth/register ─────────────────────────────────────────────────
+
+export async function handleRegister(req: Request, res: Response): Promise<void> {
+  try {
+    const { email, password, username } = req.body as {
+      email?: string;
+      password?: string;
+      username?: string;
+    };
+    if (!email || !password || !username) {
+      res.status(400).json({ ok: false, error: "email, password và username là bắt buộc." });
+      return;
+    }
+
+    const acct = await proxyPost<{
+      user: { id: string; email: string; username: string; createdAt: string };
+      tokens: { accessToken: string; refreshToken: string; expiresIn: number };
+    }>("/api/auth/register", { email, password, username });
+
+    res.status(201).json({
+      ok: true,
+      data: {
+        accessToken:  acct.tokens.accessToken,
+        refreshToken: acct.tokens.refreshToken,
+        expiresIn:    acct.tokens.expiresIn,
+        user:         acct.user,
+      },
+    });
+  } catch (err) {
+    const e = err as Error & { status?: number };
+    const status = e.status === 409 ? 409 : e.status === 400 ? 400 : 502;
+    res.status(status).json({ ok: false, error: e.message ?? "Đăng ký thất bại." });
+  }
+}
+
 // ─── POST /api/auth/login ────────────────────────────────────────────────────
 
 export async function handleLogin(req: Request, res: Response): Promise<void> {
