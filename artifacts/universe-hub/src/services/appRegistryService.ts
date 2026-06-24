@@ -31,3 +31,15 @@ export async function fetchApps(): Promise<EcosystemApp[]> {
 export async function fetchAppById(id: string): Promise<EcosystemApp> {
   return apiFetch<EcosystemApp>(`/apps/${id}`);
 }
+
+export interface AppStats {
+  totalApps:       number;
+  activeApps:      number;
+  inactiveApps:    number;
+  maintenanceApps: number;
+  categories:      Record<string, number>;
+}
+
+export async function fetchAppStats(): Promise<AppStats> {
+  return apiFetch<AppStats>("/apps/stats");
+}

@@ -1,13 +1,16 @@
+import React, { useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { fetchApps, type EcosystemApp, type AppStatus } from "@/services/appRegistryService";
+import { useLauncherStore } from "@/hooks/useLauncherStore";
 import { cn } from "@/lib/utils";
 import {
   ArrowLeft, ExternalLink, AlertTriangle, RefreshCw,
   Zap, Shield, Globe, Users, Brain, TrendingUp, Box, Layers, Rocket,
+  Star, Lock, Calendar, Tag, Hash, Link as LinkIcon,
 } from "lucide-react";
 
 const CATEGORY_ICON: Record<string, React.ElementType> = {
@@ -51,19 +54,47 @@ function AppIcon({ app }: { app: EcosystemApp }) {
   );
 }
 
-import React from "react";
+function formatDate(iso: string): string {
+  try {
+    return new Date(iso).toLocaleDateString("vi-VN", {
+      year: "numeric", month: "short", day: "numeric",
+      hour: "2-digit", minute: "2-digit",
+    });
+  } catch {
+    return iso;
+  }
+}
 
 export default function AppDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [, navigate] = useLocation();
+  const { recordLaunch, isFavorite, toggleFavorite } = useLauncherStore();
 
   const { data: apps, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["apps"],
-    queryFn: fetchApps,
+    queryFn:  fetchApps,
     staleTime: 30_000,
   });
 
   const app = apps?.find(a => a.slug === slug);
+
+  const handleLaunch = useCallback(() => {
+    if (!app) return;
+    recordLaunch({
+      slug:     app.slug,
+      name:     app.name,
+      icon:     app.icon,
+      category: app.category,
+      openedAt: new Date().toISOString(),
+    });
+    if (app.url) {
+      window.open(app.url, "_blank", "noopener,noreferrer");
+    }
+  }, [app, recordLaunch]);
+
+  const isActive   = app?.status === "ACTIVE";
+  const hasUrl     = Boolean(app?.url);
+  const fav        = app ? isFavorite(app.slug) : false;
 
   return (
     <div className="flex min-h-screen bg-background text-foreground scanline">
@@ -87,13 +118,30 @@ export default function AppDetail() {
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
           <div className="max-w-3xl mx-auto space-y-6">
 
-            <button
-              onClick={() => navigate("/launcher")}
-              className="flex items-center gap-2 text-xs font-mono text-muted-foreground/50 hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              Quay lại Launcher
-            </button>
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => navigate("/launcher")}
+                className="flex items-center gap-2 text-xs font-mono text-muted-foreground/50 hover:text-white transition-colors"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                Quay lại Launcher
+              </button>
+
+              {app && (
+                <button
+                  onClick={() => toggleFavorite(app.slug)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[11px] font-semibold transition-all duration-200",
+                    fav
+                      ? "border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20"
+                      : "border-white/10 bg-white/3 text-muted-foreground/50 hover:border-amber-500/30 hover:text-amber-400",
+                  )}
+                >
+                  <Star className={cn("w-3.5 h-3.5", fav && "fill-current")} />
+                  {fav ? "Đã yêu thích" : "Yêu thích"}
+                </button>
+              )}
+            </div>
 
             {isLoading && (
               <div className="rounded-2xl border border-white/8 bg-white/3 p-8 animate-pulse space-y-4">
@@ -106,6 +154,7 @@ export default function AppDetail() {
                 </div>
                 <div className="h-4 w-full rounded bg-white/5" />
                 <div className="h-4 w-3/4 rounded bg-white/5" />
+                <div className="h-10 w-full rounded-xl bg-white/5" />
               </div>
             )}
 
@@ -144,54 +193,92 @@ export default function AppDetail() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35 }}
-                className="rounded-2xl border border-white/8 bg-white/3 p-6 sm:p-8 space-y-6"
+                className="space-y-4"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-                  <AppIcon app={app} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-3 mb-1.5">
-                      <h1 className="text-2xl font-bold text-white tracking-wide">{app.name}</h1>
-                      {(() => {
-                        const m = STATUS_META[app.status] ?? STATUS_META.INACTIVE;
-                        return (
-                          <span className={cn(
-                            "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[10px] font-mono font-semibold tracking-wider uppercase",
-                            m.cls,
-                          )}>
-                            <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", m.dot, app.status === "ACTIVE" && "animate-pulse")} />
-                            {m.label}
-                          </span>
-                        );
-                      })()}
+                {/* ── Hero card ─────────────────────────────────────────────── */}
+                <div className="rounded-2xl border border-white/8 bg-white/3 p-6 sm:p-8">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-5 mb-6">
+                    <AppIcon app={app} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-3 mb-2">
+                        <h1 className="text-2xl font-bold text-white tracking-wide">{app.name}</h1>
+                        {(() => {
+                          const m = STATUS_META[app.status] ?? STATUS_META.INACTIVE;
+                          return (
+                            <span className={cn(
+                              "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[10px] font-mono font-semibold tracking-wider uppercase",
+                              m.cls,
+                            )}>
+                              <span className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", m.dot, app.status === "ACTIVE" && "animate-pulse")} />
+                              {m.label}
+                            </span>
+                          );
+                        })()}
+                      </div>
+                      {app.description && (
+                        <p className="text-sm text-muted-foreground/60 leading-relaxed">{app.description}</p>
+                      )}
                     </div>
-                    <p className="text-sm text-muted-foreground/60 leading-relaxed">{app.description}</p>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {[
-                    { label: "Phiên bản",  value: `v${app.version}` },
-                    { label: "Danh mục",   value: app.category },
-                    { label: "Slug",       value: app.slug },
-                  ].map(({ label, value }) => (
-                    <div key={label} className="rounded-xl border border-white/5 bg-white/2 px-4 py-3">
-                      <p className="text-[10px] font-mono text-muted-foreground/35 uppercase tracking-widest mb-1">{label}</p>
-                      <p className="text-sm font-semibold font-mono text-white/80">{value}</p>
+                  {/* ── Meta grid ─────────────────────────────────────────── */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                    {[
+                      { label: "Phiên bản",  value: `v${app.version}`, Icon: Tag },
+                      { label: "Danh mục",   value: app.category,      Icon: Box },
+                      { label: "Slug",       value: app.slug,           Icon: Hash },
+                    ].map(({ label, value, Icon }) => (
+                      <div key={label} className="rounded-xl border border-white/5 bg-white/2 px-4 py-3">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <Icon className="w-3 h-3 text-muted-foreground/25" />
+                          <p className="text-[10px] font-mono text-muted-foreground/35 uppercase tracking-widest">{label}</p>
+                        </div>
+                        <p className="text-sm font-semibold font-mono text-white/80 truncate">{value}</p>
+                      </div>
+                    ))}
+                    {app.url && (
+                      <div className="rounded-xl border border-white/5 bg-white/2 px-4 py-3 col-span-2 sm:col-span-3">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <LinkIcon className="w-3 h-3 text-muted-foreground/25" />
+                          <p className="text-[10px] font-mono text-muted-foreground/35 uppercase tracking-widest">URL</p>
+                        </div>
+                        <p className="text-xs font-mono text-primary/70 truncate">{app.url}</p>
+                      </div>
+                    )}
+                    <div className="rounded-xl border border-white/5 bg-white/2 px-4 py-3">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <Calendar className="w-3 h-3 text-muted-foreground/25" />
+                        <p className="text-[10px] font-mono text-muted-foreground/35 uppercase tracking-widest">Tạo lúc</p>
+                      </div>
+                      <p className="text-xs font-semibold font-mono text-white/60">{formatDate(app.createdAt)}</p>
                     </div>
-                  ))}
-                </div>
+                    <div className="rounded-xl border border-white/5 bg-white/2 px-4 py-3">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <Calendar className="w-3 h-3 text-muted-foreground/25" />
+                        <p className="text-[10px] font-mono text-muted-foreground/35 uppercase tracking-widest">Cập nhật</p>
+                      </div>
+                      <p className="text-xs font-semibold font-mono text-white/60">{formatDate(app.updatedAt)}</p>
+                    </div>
+                  </div>
 
-                {app.url && (
-                  <a
-                    href={app.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-primary/30 bg-primary/5 text-primary text-sm font-semibold hover:bg-primary/10 transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Mở ứng dụng
-                  </a>
-                )}
+                  {/* ── Launch button ───────────────────────────────────────── */}
+                  {isActive && hasUrl ? (
+                    <button
+                      onClick={handleLaunch}
+                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-primary/40 bg-primary/10 text-primary text-sm font-semibold hover:bg-primary/20 hover:border-primary/60 transition-all duration-200 active:scale-[0.99]"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      Launch App
+                    </button>
+                  ) : (
+                    <div className="relative flex items-center justify-center w-full py-3 rounded-xl border border-white/8 bg-white/2">
+                      <Lock className="w-4 h-4 text-muted-foreground/25 mr-2" />
+                      <span className="text-sm font-mono font-semibold tracking-[0.15em] text-muted-foreground/30 uppercase">
+                        Coming Soon
+                      </span>
+                    </div>
+                  )}
+                </div>
               </motion.div>
             )}
 

@@ -5,9 +5,10 @@ import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { fetchApps, type EcosystemApp, type AppStatus } from "@/services/appRegistryService";
+import { useLauncherStore } from "@/hooks/useLauncherStore";
 import { cn } from "@/lib/utils";
 import {
-  ExternalLink, AlertTriangle, RefreshCw, Rocket,
+  ExternalLink, AlertTriangle, RefreshCw, Rocket, Search, Star,
   Zap, Shield, Globe, Users, Brain, TrendingUp, Box, Layers,
 } from "lucide-react";
 
@@ -113,9 +114,11 @@ function AppIcon({ app }: { app: EcosystemApp }) {
 
 function AppCard({ app, index }: { app: EcosystemApp; index: number }) {
   const [, navigate] = useLocation();
+  const { isFavorite, toggleFavorite, recordLaunch } = useLauncherStore();
 
   const isActive   = app.status === "ACTIVE";
   const isExternal = isActive && !!app.url;
+  const fav        = isFavorite(app.slug);
 
   const motionProps = {
     initial:    { opacity: 0, y: 20 },
@@ -130,12 +133,15 @@ function AppCard({ app, index }: { app: EcosystemApp; index: number }) {
       : "border-white/5 cursor-not-allowed",
   );
 
+  const handleLaunch = () => {
+    recordLaunch({ slug: app.slug, name: app.name, icon: app.icon, category: app.category, openedAt: new Date().toISOString() });
+    if (app.url) window.open(app.url, "_blank", "noopener,noreferrer");
+  };
+
   const inner = (
     <>
-      {/* Hover glow */}
       <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/3 group-hover:to-cyan-500/3 transition-all duration-500 pointer-events-none" />
 
-      {/* Coming Soon overlay for inactive apps */}
       {!isActive && (
         <div className="absolute inset-0 rounded-xl flex items-center justify-center bg-background/40 backdrop-blur-[1px] z-10">
           <span className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground/40 uppercase border border-white/10 rounded px-2 py-1">
@@ -144,13 +150,25 @@ function AppCard({ app, index }: { app: EcosystemApp; index: number }) {
         </div>
       )}
 
-      {/* Header: icon + status */}
       <div className="relative flex items-start justify-between gap-3">
         <AppIcon app={app} />
-        <StatusBadge status={app.status} />
+        <div className="flex items-center gap-2">
+          <StatusBadge status={app.status} />
+          {isActive && (
+            <button
+              onClick={e => { e.stopPropagation(); e.preventDefault(); toggleFavorite(app.slug); }}
+              className={cn(
+                "transition-colors",
+                fav ? "text-amber-400" : "text-white/15 hover:text-amber-400/60",
+              )}
+              title={fav ? "Bỏ yêu thích" : "Yêu thích"}
+            >
+              <Star className={cn("w-3.5 h-3.5", fav && "fill-current")} />
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Name + description */}
       <div className="relative flex-1 min-w-0">
         <div className="flex items-center gap-1.5 mb-1">
           <h3 className={cn(
@@ -170,7 +188,6 @@ function AppCard({ app, index }: { app: EcosystemApp; index: number }) {
         )}
       </div>
 
-      {/* Footer: version + category */}
       <div className="relative flex items-center justify-between pt-2 border-t border-white/5">
         <span className="font-mono text-[10px] text-muted-foreground/35 tracking-wider">
           v{app.version}
@@ -182,22 +199,18 @@ function AppCard({ app, index }: { app: EcosystemApp; index: number }) {
     </>
   );
 
-  // ── External URL → native <a> anchor (always works in iframes, no popup-blocker issues)
   if (isExternal) {
     return (
-      <motion.a
+      <motion.div
         {...motionProps}
-        href={app.url}
-        target="_blank"
-        rel="noopener noreferrer"
+        onClick={handleLaunch}
         className={baseClass}
       >
         {inner}
-      </motion.a>
+      </motion.div>
     );
   }
 
-  // ── Active but no URL yet → SPA navigate to detail page
   if (isActive) {
     return (
       <motion.div
@@ -210,7 +223,6 @@ function AppCard({ app, index }: { app: EcosystemApp; index: number }) {
     );
   }
 
-  // ── Inactive → not clickable
   return (
     <motion.div {...motionProps} className={baseClass}>
       {inner}
@@ -226,7 +238,7 @@ const ALL_CATS = [
 ] as const;
 type FilterCat = typeof ALL_CATS[number];
 
-// ─── Error state ──────────────────────────────────────────────────────────────
+// ─── Error / Empty states ─────────────────────────────────────────────────────
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
@@ -249,15 +261,15 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
   );
 }
 
-// ─── Empty state ──────────────────────────────────────────────────────────────
-
-function EmptyState() {
+function EmptyState({ hasSearch }: { hasSearch: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center py-24 gap-4">
       <div className="w-16 h-16 rounded-full border border-white/10 bg-white/3 flex items-center justify-center">
         <Rocket className="w-7 h-7 text-muted-foreground/30" />
       </div>
-      <p className="text-sm text-muted-foreground/50">Chưa có ứng dụng nào được đăng ký</p>
+      <p className="text-sm text-muted-foreground/50">
+        {hasSearch ? "Không tìm thấy ứng dụng nào phù hợp" : "Chưa có ứng dụng nào được đăng ký"}
+      </p>
     </div>
   );
 }
@@ -266,6 +278,7 @@ function EmptyState() {
 
 export default function Launcher() {
   const [activeFilter, setActiveFilter] = useState<FilterCat>("TẤT CẢ");
+  const [searchQuery,  setSearchQuery]  = useState("");
 
   const {
     data: apps,
@@ -287,9 +300,19 @@ export default function Launcher() {
 
   const filtered = useMemo(() => {
     if (!apps) return [];
-    if (activeFilter === "TẤT CẢ") return apps;
-    return apps.filter(a => a.category === activeFilter);
-  }, [apps, activeFilter]);
+    const q = searchQuery.trim().toLowerCase();
+    return apps.filter(a => {
+      const matchesCat = activeFilter === "TẤT CẢ" || a.category === activeFilter;
+      if (!matchesCat) return false;
+      if (!q) return true;
+      return (
+        a.name.toLowerCase().includes(q) ||
+        a.slug.toLowerCase().includes(q) ||
+        (a.description?.toLowerCase().includes(q) ?? false) ||
+        a.category.toLowerCase().includes(q)
+      );
+    });
+  }, [apps, activeFilter, searchQuery]);
 
   const activeCount = apps?.filter(a => a.status === "ACTIVE").length ?? 0;
   const totalCount  = apps?.length ?? 0;
@@ -327,7 +350,6 @@ export default function Launcher() {
                 </p>
               </div>
 
-              {/* Live stats */}
               {!isLoading && !isError && (
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -344,6 +366,36 @@ export default function Launcher() {
                 </motion.div>
               )}
             </motion.div>
+
+            {/* ── Search bar ───────────────────────────────────────────────── */}
+            {!isLoading && !isError && (apps?.length ?? 0) > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.08 }}
+                className="relative"
+              >
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/35 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search apps..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className={cn(
+                    "w-full pl-10 pr-4 py-2.5 rounded-xl border bg-white/3 text-sm text-white placeholder:text-muted-foreground/35",
+                    "border-white/10 focus:border-primary/40 focus:bg-white/5 focus:outline-none transition-all duration-200",
+                  )}
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-white transition-colors text-xs font-mono"
+                  >
+                    ✕
+                  </button>
+                )}
+              </motion.div>
+            )}
 
             {/* ── Category filter ───────────────────────────────────────────── */}
             {!isLoading && !isError && (apps?.length ?? 0) > 0 && (
@@ -388,7 +440,7 @@ export default function Launcher() {
                 onRetry={() => void refetch()}
               />
             ) : filtered.length === 0 ? (
-              <EmptyState />
+              <EmptyState hasSearch={searchQuery.length > 0} />
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filtered.map((app, i) => (

@@ -15,10 +15,12 @@ import {
   handleRegisterApp,
   handleUpdateApp,
   handleDeleteApp,
+  handleGetStats,
 } from "../controllers/appRegistryController.js";
 
 const router: IRouter = Router();
 
+router.get("/apps/stats",     handleGetStats);
 router.get("/apps",           handleGetApps);
 router.post("/apps/register", handleRegisterApp);
 router.get("/apps/:id",       handleGetAppById);
