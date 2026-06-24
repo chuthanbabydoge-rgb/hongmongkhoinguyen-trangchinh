@@ -152,6 +152,11 @@ interface ApiNotification {
   createdAt: string;
 }
 
+interface NotifResponse {
+  data: ApiNotification[];
+  unreadCount: number;
+}
+
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 const INITIAL_STATE: AccountState = {
@@ -180,35 +185,25 @@ export function useAccount(): AccountState {
     async function load() {
       setState(prev => ({ ...prev, loading: true, error: null }));
       try {
-        const [me, notifEnvelope] = await Promise.all([
+        const EMPTY_NOTIF: NotifResponse = { data: [], unreadCount: 0 };
+
+        const [me, notifResult] = await Promise.all([
           apiFetch<HubMeResponse>("/hub/me"),
-          fetch("/api/notifications", {
-            headers: (() => {
-              const s = localStorage.getItem("universe_hub_session_v1");
-              const token = s ? (JSON.parse(s) as { accessToken: string }).accessToken : null;
-              return token ? { Authorization: `Bearer ${token}` } : {};
-            })(),
-          }).then(r => r.json()) as Promise<{
-            ok: boolean;
-            data: ApiNotification[];
-            unreadCount: number;
-          }>,
+          apiFetch<NotifResponse>("/notifications").catch(() => EMPTY_NOTIF),
         ]);
 
         if (cancelled) return;
 
         const { profile: p, avatar: a, reputation: r } = me;
 
-        const notifications: Notification[] = notifEnvelope.ok
-          ? notifEnvelope.data.map(n => ({
-              id:        n.id,
-              type:      n.type,
-              title:     n.title,
-              message:   n.message,
-              isRead:    n.isRead,
-              createdAt: n.createdAt,
-            })).sort((x, y) => Number(x.isRead) - Number(y.isRead))
-          : [];
+        const notifications: Notification[] = notifResult.data.map(n => ({
+          id:        n.id,
+          type:      n.type,
+          title:     n.title,
+          message:   n.message,
+          isRead:    n.isRead,
+          createdAt: n.createdAt,
+        })).sort((x, y) => Number(x.isRead) - Number(y.isRead));
 
         setState({
           profile:       mapProfile(p, r),
@@ -216,7 +211,7 @@ export function useAccount(): AccountState {
           level:         mapLevel(a, r),
           reputation:    mapReputation(r),
           notifications,
-          unreadCount:   notifEnvelope.unreadCount ?? notifications.filter(n => !n.isRead).length,
+          unreadCount:   notifResult.unreadCount ?? notifications.filter(n => !n.isRead).length,
           loading:       false,
           error:         null,
         });

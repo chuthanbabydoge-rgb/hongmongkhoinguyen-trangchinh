@@ -3,9 +3,13 @@
 //
 // Responsibility: user records only. Avatar lives in AvatarRepository.
 //
-// PostgreSQL migration path:
-//   Implement DrizzleUserRepository using db.query.users / db.insert(users).
-//   Swap the singleton at the bottom — nothing else changes.
+// HUB-5: MockUserRepository and user-001 seed data have been removed.
+// User identity is now sourced from the real Universe Account API via
+// accountBridgeService, not from a local mock store.
+//
+// InMemoryUserRepository is kept as an empty transient store for services
+// that depend on IUserRepository (e.g. ProfileService). A PostgreSQL
+// implementation can be swapped in at container.ts without touching anything else.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { User } from "../models/user";
@@ -20,30 +24,10 @@ export interface IUserRepository {
   delete(id: string): Promise<boolean>;
 }
 
-// ─── Seed data ────────────────────────────────────────────────────────────────
+// ─── In-memory implementation (no seed data) ─────────────────────────────────
 
-const SEED_USERS: User[] = [
-  {
-    id: "user-001",
-    username: "Commander Zara",
-    title: "Galactic Architect",
-    status: "online",
-    level: 47,
-    xp: 84320,
-    maxXp: 100000,
-    progressPercent: 84,
-    joinedAt: "2022-03-15T08:00:00Z",
-    createdAt: "2022-03-15T08:00:00Z",
-    updatedAt: "2024-12-01T10:00:00Z",
-  },
-];
-
-// ─── Mock implementation ──────────────────────────────────────────────────────
-
-export class MockUserRepository implements IUserRepository {
-  private store = new Map<string, User>(
-    SEED_USERS.map((u) => [u.id, { ...u }]),
-  );
+export class InMemoryUserRepository implements IUserRepository {
+  private store = new Map<string, User>();
 
   async getById(id: string): Promise<User | null> {
     return this.store.get(id) ?? null;
@@ -72,5 +56,5 @@ export class MockUserRepository implements IUserRepository {
   }
 }
 
-// ─── Singleton (swap here for Drizzle) ───────────────────────────────────────
-export const userRepository: IUserRepository = new MockUserRepository();
+// ─── Singleton (swap here for Drizzle / Supabase) ─────────────────────────────
+export const userRepository: IUserRepository = new InMemoryUserRepository();

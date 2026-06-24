@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { WalletProvider } from "@/context/WalletContext";
 import { InventoryProvider } from "@/context/InventoryContext";
 import { MarketplaceProvider } from "@/context/MarketplaceContext";
-import { SessionProvider, useSession } from "@/context/SessionContext";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 import LoginPage from "@/pages/LoginPage";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/Dashboard";
@@ -77,7 +77,7 @@ function Router() {
 }
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useSession();
+  const { isAuthenticated } = useAuth();
   if (!isAuthenticated) return <LoginPage />;
   return <>{children}</>;
 }
@@ -88,7 +88,7 @@ function App() {
   }, []);
 
   return (
-    <SessionProvider>
+    <AuthProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <WalletProvider>
@@ -105,7 +105,7 @@ function App() {
           </WalletProvider>
         </TooltipProvider>
       </QueryClientProvider>
-    </SessionProvider>
+    </AuthProvider>
   );
 }
 

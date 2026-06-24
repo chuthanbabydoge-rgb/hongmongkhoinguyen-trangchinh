@@ -38,7 +38,7 @@ import type {
 } from "./repositories/marketplaceRepository";
 import type { IInventoryItemsMutationRepository } from "./repositories/inventoryItemsMutationRepository";
 
-import { MockUserRepository }               from "./repositories/userRepository";
+import { InMemoryUserRepository }           from "./repositories/userRepository";
 import { MockAvatarRepository }             from "./repositories/avatarRepository";
 import { MockReputationRepository }         from "./repositories/reputationRepository";
 import { MockWalletRepository }             from "./repositories/walletRepository";
@@ -237,7 +237,7 @@ if (useSupabase) {
 
 if (useSupabase) {
   logger.info("Container: using Supabase repositories (mock fallback active for missing rows)");
-  userRepo              = new FallbackUserRepository(new SupabaseUserRepository(), new MockUserRepository());
+  userRepo              = new FallbackUserRepository(new SupabaseUserRepository(), new InMemoryUserRepository());
   avatarRepo            = new FallbackAvatarRepository(new SupabaseAvatarRepository(), new MockAvatarRepository());
   reputationRepo        = new FallbackReputationRepository(new SupabaseReputationRepository(), new MockReputationRepository());
   walletRepo            = new FallbackWalletRepository(new SupabaseWalletRepository(), new MockWalletRepository());
@@ -245,7 +245,7 @@ if (useSupabase) {
   inventoryRepo         = new SupabaseInventoryRepository();
 } else if (useDrizzle) {
   logger.info("Container: using Drizzle (PostgreSQL) repositories for wallet; Mock for others");
-  userRepo              = new MockUserRepository();
+  userRepo              = new InMemoryUserRepository();
   avatarRepo            = new MockAvatarRepository();
   reputationRepo        = new MockReputationRepository();
   walletRepo            = new DrizzleWalletRepository();
@@ -253,7 +253,7 @@ if (useSupabase) {
   inventoryRepo         = new MockInventoryRepository();
 } else {
   logger.info("Container: using Mock repositories (SUPABASE_URL / SUPABASE_ANON_KEY not set)");
-  userRepo              = new MockUserRepository();
+  userRepo              = new InMemoryUserRepository();
   avatarRepo            = new MockAvatarRepository();
   reputationRepo        = new MockReputationRepository();
   walletRepo            = new MockWalletRepository();

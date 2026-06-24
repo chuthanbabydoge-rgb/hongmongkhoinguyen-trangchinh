@@ -2,7 +2,7 @@
 // Repositories barrel export
 // ─────────────────────────────────────────────────────────────────────────────
 
-export { userRepository, MockUserRepository }       from "./userRepository";
+export { userRepository, InMemoryUserRepository }   from "./userRepository";
 export type { IUserRepository }                     from "./userRepository";
 
 export { avatarRepository, MockAvatarRepository }   from "./avatarRepository";

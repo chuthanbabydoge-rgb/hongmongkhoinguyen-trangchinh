@@ -93,7 +93,30 @@ export async function handleRefresh(req: Request, res: Response): Promise<void> 
 }
 
 // ─── POST /api/auth/logout ───────────────────────────────────────────────────
+// HUB-5 Logout Synchronization:
+// Forwards the logout to Universe Account API so the session is invalidated
+// server-side. Returns ok: true regardless — the client must clear its local
+// session even if the Account API call fails.
 
-export async function handleLogout(_req: Request, res: Response): Promise<void> {
+export async function handleLogout(req: Request, res: Response): Promise<void> {
+  if (ACCOUNT_URL) {
+    const auth = req.headers["authorization"];
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+    try {
+      await fetch(`${ACCOUNT_URL}/api/auth/logout`, {
+        method:  "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(typeof auth === "string" ? { Authorization: auth } : {}),
+        },
+        signal: ctrl.signal,
+      });
+    } catch {
+      // Non-fatal — always return ok so the client clears its local session
+    } finally {
+      clearTimeout(timer);
+    }
+  }
   res.json({ ok: true });
 }
