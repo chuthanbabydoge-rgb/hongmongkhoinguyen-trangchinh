@@ -1,10 +1,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // DTOs: Universe Account → Hub bridge
 //
-// These types represent data shapes returned by the Universe Account API.
+// Field names match the ACTUAL Account API response shapes (verified live).
 // Hub never stores this data — it proxies and aggregates on-the-fly.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Returned by GET /api/identity/me  (not currently used in hub/me or hub/dashboard)
 export interface IdentityDTO {
   id: string;
   username: string;
@@ -12,21 +13,34 @@ export interface IdentityDTO {
   createdAt: string;
 }
 
+// Returned by GET /api/profile/me  → envelope: { profile: ProfileDTO }
 export interface ProfileDTO {
+  id: string;
   userId: string;
-  displayName: string;
-  bio?: string;
-  level?: number;
-  xp?: number;
+  universeId: string;
+  username: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
+// Returned by GET /api/avatar/me  → envelope: { avatar: AvatarDTO }
 export interface AvatarDTO {
+  id: string;
   userId: string;
-  imageUrl: string;
-  frameId?: string;
-  badgeId?: string;
+  avatarName: string;
+  avatarUrl: string | null;
+  frame: string;
+  title: string;
+  background: string;
+  accessories: string[];
+  createdAt: string;
+  updatedAt: string;
 }
 
+// Returned by GET /api/achievements/me  → flat array
 export interface AchievementDTO {
   id: string;
   name: string;
@@ -34,20 +48,30 @@ export interface AchievementDTO {
   earnedAt: string;
 }
 
+// Returned by GET /api/reputation/me  → envelope: { reputation: ReputationDTO }
 export interface ReputationDTO {
-  userId: string;
   score: number;
-  badges: string[];
-  tier?: string;
+  level: string;
+  badge: string;
+  positiveEvents: number;
+  negativeEvents: number;
+  lastActivityAt: string | null;
 }
 
+// Returned by GET /api/activity/me  → envelope: { activities: ActivityDTO[] }
 export interface ActivityDTO {
   id: string;
+  userId: string;
   type: string;
+  sourceApp: string;
+  title: string;
   description: string;
+  metadata: unknown | null;
+  visibility: string;
   createdAt: string;
 }
 
+// Returned by GET /api/notifications  → flat array
 export interface NotificationDTO {
   id: string;
   type: string;
@@ -56,11 +80,28 @@ export interface NotificationDTO {
   createdAt: string;
 }
 
+// Returned by GET /api/settings/me  → envelope: { settings: SettingsDTO }
 export interface SettingsDTO {
+  id: string;
   userId: string;
-  language: string;
   theme: string;
-  notifications: boolean;
+  language: string;
+  timezone: string;
+  privacyProfile: string;
+  privacyActivity: string;
+  privacyReputation: string;
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+  marketplaceNotifications: boolean;
+  achievementNotifications: boolean;
+  reputationNotifications: boolean;
+  securityNotifications: boolean;
+  allowFriendRequests: boolean;
+  allowDirectMessages: boolean;
+  showOnlineStatus: boolean;
+  showLastSeen: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface HubUserOverview {

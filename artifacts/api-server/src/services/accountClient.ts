@@ -5,8 +5,11 @@
 // Every request forwards the caller's Authorization Bearer token.
 // Requests time out after TIMEOUT_MS (default 10 s).
 //
-// Throws AccountServiceUnavailableError when the remote is unreachable,
-// so callers can return 503 without crashing.
+// Error mapping:
+//   Network error / timeout  → AccountServiceUnavailableError  (→ 503)
+//   HTTP 5xx                 → AccountServiceUnavailableError  (→ 503)
+//   HTTP 401 / 403           → AccountUnauthorizedError        (→ 401)
+//   HTTP other 4xx           → AccountServiceUnavailableError  (→ 503)
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type {
@@ -32,6 +35,13 @@ export class AccountServiceUnavailableError extends Error {
           : "unknown error";
     super(`Universe Account service unavailable: ${detail}`);
     this.name = "AccountServiceUnavailableError";
+  }
+}
+
+export class AccountUnauthorizedError extends Error {
+  constructor(status: number) {
+    super(`Universe Account: unauthorized (HTTP ${status})`);
+    this.name = "AccountUnauthorizedError";
   }
 }
 
@@ -91,6 +101,9 @@ export class AccountClient implements IAccountClient {
         let body = "<empty>";
         try { body = await res.text(); } catch { /* ignore */ }
         console.error(`[AccountClient] ✗ ${fullUrl} → HTTP ${res.status} | body=${body.slice(0, 300)}`);
+        if (res.status === 401 || res.status === 403) {
+          throw new AccountUnauthorizedError(res.status);
+        }
         throw new AccountServiceUnavailableError(
           `HTTP ${res.status} from ${path}`,
         );
@@ -110,6 +123,7 @@ export class AccountClient implements IAccountClient {
       return parsed as T;
     } catch (err) {
       if (err instanceof AccountServiceUnavailableError) throw err;
+      if (err instanceof AccountUnauthorizedError) throw err;
       console.error(`[AccountClient] ✗ fetch failed for ${fullUrl}: ${err}`);
       throw new AccountServiceUnavailableError(err);
     } finally {
@@ -117,44 +131,54 @@ export class AccountClient implements IAccountClient {
     }
   }
 
-  getIdentity(token?: string): Promise<IdentityDTO> {
-    return this.request<IdentityDTO>("/api/identity/me", token);
+  async getIdentity(token?: string): Promise<IdentityDTO> {
+    const env = await this.request<{ identity?: IdentityDTO } | IdentityDTO>("/api/identity/me", token);
+    return ("identity" in env && env.identity) ? env.identity : env as IdentityDTO;
   }
 
-  getProfile(token?: string): Promise<ProfileDTO> {
-    return this.request<ProfileDTO>("/api/profile/me", token);
+  async getProfile(token?: string): Promise<ProfileDTO> {
+    const env = await this.request<{ profile: ProfileDTO }>("/api/profile/me", token);
+    return env.profile;
   }
 
-  getAvatar(token?: string): Promise<AvatarDTO> {
-    return this.request<AvatarDTO>("/api/avatar/me", token);
+  async getAvatar(token?: string): Promise<AvatarDTO> {
+    const env = await this.request<{ avatar: AvatarDTO }>("/api/avatar/me", token);
+    return env.avatar;
   }
 
-  getAchievements(token?: string): Promise<AchievementDTO[]> {
-    return this.request<AchievementDTO[]>("/api/achievements/me", token);
+  async getAchievements(token?: string): Promise<AchievementDTO[]> {
+    const env = await this.request<{ achievements?: AchievementDTO[] } | AchievementDTO[]>("/api/achievements/me", token);
+    return Array.isArray(env) ? env : (env.achievements ?? []);
   }
 
-  getAchievementCount(token?: string): Promise<number> {
-    return this.request<number>("/api/achievements/count", token);
+  async getAchievementCount(token?: string): Promise<number> {
+    const env = await this.request<{ count: number }>("/api/achievements/count", token);
+    return env.count;
   }
 
-  getReputation(token?: string): Promise<ReputationDTO> {
-    return this.request<ReputationDTO>("/api/reputation/me", token);
+  async getReputation(token?: string): Promise<ReputationDTO> {
+    const env = await this.request<{ reputation: ReputationDTO }>("/api/reputation/me", token);
+    return env.reputation;
   }
 
-  getActivities(token?: string): Promise<ActivityDTO[]> {
-    return this.request<ActivityDTO[]>("/api/activity/me", token);
+  async getActivities(token?: string): Promise<ActivityDTO[]> {
+    const env = await this.request<{ activities: ActivityDTO[] }>("/api/activity/me", token);
+    return env.activities;
   }
 
-  getNotifications(token?: string): Promise<NotificationDTO[]> {
-    return this.request<NotificationDTO[]>("/api/notifications", token);
+  async getNotifications(token?: string): Promise<NotificationDTO[]> {
+    const env = await this.request<{ notifications?: NotificationDTO[] } | NotificationDTO[]>("/api/notifications", token);
+    return Array.isArray(env) ? env : (env.notifications ?? []);
   }
 
-  getUnreadNotificationCount(token?: string): Promise<number> {
-    return this.request<number>("/api/notifications/unread-count", token);
+  async getUnreadNotificationCount(token?: string): Promise<number> {
+    const env = await this.request<{ unread: number }>("/api/notifications/unread-count", token);
+    return env.unread;
   }
 
-  getSettings(token?: string): Promise<SettingsDTO> {
-    return this.request<SettingsDTO>("/api/settings/me", token);
+  async getSettings(token?: string): Promise<SettingsDTO> {
+    const env = await this.request<{ settings: SettingsDTO }>("/api/settings/me", token);
+    return env.settings;
   }
 
   async markNotificationRead(id: string, token?: string): Promise<void> {

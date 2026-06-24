@@ -11,7 +11,7 @@
 
 import { type Request, type Response } from "express";
 import { accountBridgeService } from "../container.js";
-import { AccountServiceUnavailableError } from "../services/accountClient.js";
+import { AccountServiceUnavailableError, AccountUnauthorizedError } from "../services/accountClient.js";
 
 function extractToken(req: Request): string | undefined {
   const auth = req.headers["authorization"];
@@ -19,6 +19,11 @@ function extractToken(req: Request): string | undefined {
 }
 
 function handleServiceError(req: Request, res: Response, err: unknown): void {
+  if (err instanceof AccountUnauthorizedError) {
+    req.log.warn({ err }, "accountBridgeController: unauthorized");
+    res.status(401).json({ ok: false, code: "UNAUTHORIZED" });
+    return;
+  }
   if (err instanceof AccountServiceUnavailableError) {
     req.log.warn({ err }, "accountBridgeController: Account service unavailable");
     res.status(503).json({ ok: false, code: "ACCOUNT_SERVICE_UNAVAILABLE" });
