@@ -1,5 +1,6 @@
 import { type Request, type Response } from "express";
 import { walletService } from "../container";
+import type { EntryDirection, EntryStatus } from "../services/walletService";
 
 const REAL_USER_ID = "user-001";
 
@@ -63,6 +64,57 @@ export async function handleGetTransactions(req: Request, res: Response): Promis
     const msg = err instanceof Error ? err.message : String(err);
     req.log.error({ err }, `walletController error: ${msg}`);
     res.status(500).json({ ok: false, error: "Không thể tải lịch sử giao dịch.", detail: msg });
+  }
+}
+
+export async function handleCreateTransaction(req: Request, res: Response): Promise<void> {
+  try {
+    const userId = REAL_USER_ID;
+    const { walletType, direction, amount, description, status, reference } = req.body as {
+      walletType?: string;
+      direction?: string;
+      amount?: unknown;
+      description?: string;
+      status?: string;
+      reference?: string;
+    };
+
+    const VALID_TYPES = ["credits", "coins", "tokens", "rewardPoints"];
+    const VALID_DIRS  = ["credit", "debit"];
+    const VALID_STATS = ["completed", "pending", "failed"];
+
+    if (!walletType || !VALID_TYPES.includes(walletType)) {
+      res.status(400).json({ ok: false, error: `walletType phải là: ${VALID_TYPES.join(", ")}.` });
+      return;
+    }
+    if (!direction || !VALID_DIRS.includes(direction)) {
+      res.status(400).json({ ok: false, error: `direction phải là: credit | debit.` });
+      return;
+    }
+    if (!amount || typeof amount !== "number" || amount <= 0) {
+      res.status(400).json({ ok: false, error: "amount phải là số dương." });
+      return;
+    }
+    if (!description?.trim()) {
+      res.status(400).json({ ok: false, error: "description là bắt buộc." });
+      return;
+    }
+
+    const txStatus = (VALID_STATS.includes(status ?? "") ? status : "completed") as EntryStatus;
+    const result = await walletService.createEntry(
+      userId,
+      walletType,
+      direction as EntryDirection,
+      amount,
+      description.trim(),
+      txStatus,
+      reference,
+    );
+    res.json({ ok: true, data: result });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    req.log.error({ err }, `walletController.createTransaction error: ${msg}`);
+    res.status(500).json({ ok: false, error: msg });
   }
 }
 

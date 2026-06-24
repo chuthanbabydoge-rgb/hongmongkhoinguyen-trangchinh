@@ -2,6 +2,9 @@ import type { IWalletRepository } from "../repositories/walletRepository";
 import type { IWalletTransactionRepository } from "../repositories/walletTransactionRepository";
 import type { WalletData, Transaction, Currency } from "../data/walletData";
 
+export type EntryDirection = "credit" | "debit";
+export type EntryStatus    = "completed" | "pending" | "failed";
+
 export class WalletService {
   constructor(
     private readonly wallets: IWalletRepository,
@@ -82,5 +85,44 @@ export class WalletService {
 
     const updatedWallet = await this.getWallet(userId);
     return { debit: debitTx, credit: creditTx, wallet: updatedWallet };
+  }
+
+  async createEntry(
+    userId: string,
+    walletType: string,
+    direction: EntryDirection,
+    amount: number,
+    description: string,
+    status: EntryStatus,
+    reference?: string,
+  ): Promise<{ transaction: Transaction; wallet: WalletData }> {
+    const ref = await this.wallets.getByUserId(userId);
+    if (!ref) throw new Error("Ví không tồn tại.");
+
+    const tx: Transaction = {
+      id:          crypto.randomUUID(),
+      walletType:  walletType as Currency,
+      amount:      Math.abs(amount),
+      direction,
+      description,
+      status,
+      createdAt:   new Date().toISOString(),
+      reference:   reference ?? `ENTRY-${Date.now()}`,
+    };
+
+    await this.transactions.create(tx);
+
+    if (status === "completed") {
+      const currency = { ...ref.currency } as Record<string, number>;
+      const delta = direction === "credit" ? Math.abs(amount) : -Math.abs(amount);
+      currency[walletType] = (currency[walletType] ?? 0) + delta;
+      await this.wallets.update({
+        ...ref,
+        currency: currency as unknown as typeof ref.currency,
+      });
+    }
+
+    const wallet = await this.getWallet(userId);
+    return { transaction: tx, wallet };
   }
 }
