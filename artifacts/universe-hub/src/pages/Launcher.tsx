@@ -115,30 +115,43 @@ function AppCard({ app, index }: { app: EcosystemApp; index: number }) {
   const [, navigate] = useLocation();
 
   function handleClick() {
-    if (app.url) {
-      window.open(app.url, "_blank", "noopener,noreferrer");
-    } else {
+    if (!app.url) {
+      // No real app yet — show detail/coming soon page
       navigate(`/apps/${app.slug}`);
+      return;
     }
+    // account slug → Universe Account running on Replit (external tab)
+    // All other real URLs → external tab
+    window.open(app.url, "_blank", "noopener,noreferrer");
   }
 
-  const isClickable = app.status === "ACTIVE";
+  const isActive   = app.status === "ACTIVE";
+  const isExternal = isActive && !!app.url;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.05 }}
-      onClick={isClickable ? handleClick : undefined}
+      onClick={isActive ? handleClick : undefined}
       className={cn(
         "group relative rounded-xl border bg-white/3 p-5 flex flex-col gap-3 transition-all duration-300",
-        isClickable
+        isActive
           ? "border-white/8 hover:border-primary/30 hover:bg-white/5 hover:shadow-[0_0_30px_rgba(139,92,246,0.08)] cursor-pointer"
-          : "border-white/5 opacity-50 cursor-not-allowed",
+          : "border-white/5 cursor-not-allowed",
       )}
     >
       {/* Hover glow overlay */}
       <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/3 group-hover:to-cyan-500/3 transition-all duration-500 pointer-events-none" />
+
+      {/* Coming Soon overlay for inactive apps */}
+      {!isActive && (
+        <div className="absolute inset-0 rounded-xl flex items-center justify-center bg-background/40 backdrop-blur-[1px] z-10">
+          <span className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground/40 uppercase border border-white/10 rounded px-2 py-1">
+            Coming Soon
+          </span>
+        </div>
+      )}
 
       {/* Header: icon + status */}
       <div className="relative flex items-start justify-between gap-3">
@@ -151,11 +164,11 @@ function AppCard({ app, index }: { app: EcosystemApp; index: number }) {
         <div className="flex items-center gap-1.5 mb-1">
           <h3 className={cn(
             "font-semibold text-sm truncate transition-colors duration-200",
-            isClickable ? "text-white/90 group-hover:text-white" : "text-white/40",
+            isActive ? "text-white/90 group-hover:text-white" : "text-white/40",
           )}>
             {app.name}
           </h3>
-          {isClickable && app.url && (
+          {isExternal && (
             <ExternalLink className="w-3 h-3 text-muted-foreground/30 group-hover:text-primary/60 flex-shrink-0 transition-colors duration-200" />
           )}
         </div>

@@ -16,7 +16,7 @@ export interface EcosystemApp {
   name:         string;
   description?: string;
   icon?:        string;
-  url:          string;
+  url?:         string;
   category:     AppCategory;
   status:       AppStatus;
   version:      string;

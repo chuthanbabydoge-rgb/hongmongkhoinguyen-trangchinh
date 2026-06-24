@@ -103,13 +103,17 @@ function validateUpdateRequest(input: UpdateAppRequest): void {
 
 // ─── Seed data ────────────────────────────────────────────────────────────────
 
+const REPLIT_HUB_URL = process.env.REPLIT_DEV_DOMAIN
+  ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+  : "http://localhost:5000";
+
 const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
   {
     slug:        "account",
     name:        "Universe Account",
     description: "Quản lý danh tính, hồ sơ và xác thực trong toàn hệ sinh thái Universe",
     icon:        "https://cdn.universe.io/icons/account.png",
-    url:         "https://account.universe.io",
+    url:         process.env.UNIVERSE_ACCOUNT_API_URL ?? "https://e0a5bb76-7d5a-4d51-a6e5-949d1e03c9d9-00-1h8q91j3vx3h4.pike.replit.dev/",
     category:    "SECURITY",
     status:      "ACTIVE",
     version:     "1.0.0",
@@ -119,7 +123,7 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     name:        "Universe Marketplace",
     description: "Mua bán và giao dịch tài sản số giữa các ứng dụng trong hệ sinh thái",
     icon:        "https://cdn.universe.io/icons/marketplace.png",
-    url:         "https://marketplace.universe.io",
+    url:         `${REPLIT_HUB_URL}/marketplace`,
     category:    "FINANCE",
     status:      "ACTIVE",
     version:     "1.0.0",
@@ -129,7 +133,9 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     name:        "Universe Wallet",
     description: "Ví đa tiền tệ: Credits, XU và Token cho toàn hệ sinh thái",
     icon:        "https://cdn.universe.io/icons/wallet.png",
-    url:         "https://wallet.universe.io",
+    url:         process.env.REPLIT_DEV_DOMAIN
+                   ? `https://${process.env.REPLIT_DEV_DOMAIN.replace(/^([^.]+)/, "$1-3001")}`
+                   : "http://localhost:3001",
     category:    "FINANCE",
     status:      "ACTIVE",
     version:     "1.0.0",
@@ -139,30 +145,27 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     name:        "Universe Social",
     description: "Mạng xã hội nội bộ — kết nối người chơi, chia sẻ thành tích và hoạt động",
     icon:        "https://cdn.universe.io/icons/social.png",
-    url:         "https://social.universe.io",
     category:    "SOCIAL",
-    status:      "ACTIVE",
-    version:     "1.0.0",
+    status:      "INACTIVE",
+    version:     "0.1.0",
   },
   {
     slug:        "worlds",
     name:        "Universe Worlds",
     description: "Xây dựng và khám phá các thế giới ảo trong vũ trụ số",
     icon:        "https://cdn.universe.io/icons/worlds.png",
-    url:         "https://worlds.universe.io",
     category:    "WORLD",
-    status:      "ACTIVE",
-    version:     "1.0.0",
+    status:      "INACTIVE",
+    version:     "0.1.0",
   },
   {
     slug:        "ai-studio",
     name:        "Universe AI Studio",
     description: "Công cụ AI tạo sinh: tạo nhân vật, vật phẩm và nội dung cho hệ sinh thái",
     icon:        "https://cdn.universe.io/icons/ai-studio.png",
-    url:         "https://ai.universe.io",
     category:    "AI",
-    status:      "ACTIVE",
-    version:     "1.0.0",
+    status:      "INACTIVE",
+    version:     "0.1.0",
   },
 ];
 
