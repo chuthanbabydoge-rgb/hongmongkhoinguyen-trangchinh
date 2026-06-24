@@ -29,11 +29,13 @@ import {
   Heart,
   Radio,
   Rocket,
+  LogOut,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useMarketplaceFeed } from "@/hooks/useMarketplaceFeed";
+import { useAuth } from "@/context/AuthContext";
 
 const STATIC_NAV_TOP = [
   { icon: LayoutDashboard, label: "Bảng điều khiển", path: "/" },
@@ -51,6 +53,7 @@ export function Sidebar() {
   const [location] = useLocation();
   const { count: watchlistCount } = useWatchlist();
   const { allPosts, stats } = useMarketplaceFeed();
+  const { logout } = useAuth();
 
   const isActive = (path: string) =>
     path === "/"
@@ -190,8 +193,17 @@ export function Sidebar() {
         </div>
       </nav>
 
-      <div className="p-4 border-t border-white/5 text-xs text-muted-foreground/50 text-center font-mono">
-        SYSTEM v4.7.2 // ONLINE
+      <div className="px-4 pb-3 pt-2 border-t border-white/5 flex flex-col gap-1">
+        <button
+          onClick={() => void logout()}
+          className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg transition-all duration-200 text-rose-400/80 hover:text-rose-400 hover:bg-rose-400/10 group"
+        >
+          <LogOut className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+          <span className="text-sm font-medium tracking-wide">Đăng xuất</span>
+        </button>
+        <p className="text-[10px] text-muted-foreground/40 text-center font-mono pt-1">
+          SYSTEM v4.7.2 // ONLINE
+        </p>
       </div>
     </aside>
   );
