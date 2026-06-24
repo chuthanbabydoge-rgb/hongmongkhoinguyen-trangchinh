@@ -114,34 +114,25 @@ function AppIcon({ app }: { app: EcosystemApp }) {
 function AppCard({ app, index }: { app: EcosystemApp; index: number }) {
   const [, navigate] = useLocation();
 
-  function handleClick() {
-    if (!app.url) {
-      // No real app yet — show detail/coming soon page
-      navigate(`/apps/${app.slug}`);
-      return;
-    }
-    // account slug → Universe Account running on Replit (external tab)
-    // All other real URLs → external tab
-    window.open(app.url, "_blank", "noopener,noreferrer");
-  }
-
   const isActive   = app.status === "ACTIVE";
   const isExternal = isActive && !!app.url;
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: index * 0.05 }}
-      onClick={isActive ? handleClick : undefined}
-      className={cn(
-        "group relative rounded-xl border bg-white/3 p-5 flex flex-col gap-3 transition-all duration-300",
-        isActive
-          ? "border-white/8 hover:border-primary/30 hover:bg-white/5 hover:shadow-[0_0_30px_rgba(139,92,246,0.08)] cursor-pointer"
-          : "border-white/5 cursor-not-allowed",
-      )}
-    >
-      {/* Hover glow overlay */}
+  const motionProps = {
+    initial:    { opacity: 0, y: 20 },
+    animate:    { opacity: 1, y: 0 },
+    transition: { duration: 0.35, delay: index * 0.05 },
+  } as const;
+
+  const baseClass = cn(
+    "group relative rounded-xl border bg-white/3 p-5 flex flex-col gap-3 transition-all duration-300",
+    isActive
+      ? "border-white/8 hover:border-primary/30 hover:bg-white/5 hover:shadow-[0_0_30px_rgba(139,92,246,0.08)] cursor-pointer"
+      : "border-white/5 cursor-not-allowed",
+  );
+
+  const inner = (
+    <>
+      {/* Hover glow */}
       <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/3 group-hover:to-cyan-500/3 transition-all duration-500 pointer-events-none" />
 
       {/* Coming Soon overlay for inactive apps */}
@@ -188,6 +179,41 @@ function AppCard({ app, index }: { app: EcosystemApp; index: number }) {
           {app.category}
         </span>
       </div>
+    </>
+  );
+
+  // ── External URL → native <a> anchor (always works in iframes, no popup-blocker issues)
+  if (isExternal) {
+    return (
+      <motion.a
+        {...motionProps}
+        href={app.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={baseClass}
+      >
+        {inner}
+      </motion.a>
+    );
+  }
+
+  // ── Active but no URL yet → SPA navigate to detail page
+  if (isActive) {
+    return (
+      <motion.div
+        {...motionProps}
+        onClick={() => navigate(`/apps/${app.slug}`)}
+        className={baseClass}
+      >
+        {inner}
+      </motion.div>
+    );
+  }
+
+  // ── Inactive → not clickable
+  return (
+    <motion.div {...motionProps} className={baseClass}>
+      {inner}
     </motion.div>
   );
 }
