@@ -1,34 +1,18 @@
-import { useEffect, useState } from "react";
 import { CreditCard, Coins, Gem, TrendingUp, Loader2 } from "lucide-react";
-import { apiFetch } from "@/lib/apiClient";
+import type { WalletSnapshot } from "@/services/accountBridgeTypes";
 
-interface WalletBalance {
-  userId: string;
-  credits: number;
-  coins: number;
-  tokens: number;
-  rewardPoints: number;
-  weeklyChangePercent: number;
+interface Props {
+  wallet:  WalletSnapshot | null;
+  loading: boolean;
 }
 
-export function WalletOverview() {
-  const [data, setData]       = useState<WalletBalance | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    apiFetch<WalletBalance>("/wallet/me")
-      .then(d => { if (!cancelled) { setData(d); setLoading(false); } })
-      .catch(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, []);
-
-  const trend = data ? `+${data.weeklyChangePercent.toFixed(1)}%` : "+0%";
+export function WalletOverview({ wallet, loading }: Props) {
+  const trend = wallet ? `+${wallet.weeklyChangePercent.toFixed(1)}%` : "+0%";
 
   const cards = [
     {
       label:  "Tín dụng",
-      value:  data?.credits ?? 0,
+      value:  wallet?.credits ?? 0,
       icon:   CreditCard,
       color:  "text-blue-400",
       glow:   "shadow-[0_0_20px_rgba(96,165,250,0.15)]",
@@ -37,7 +21,7 @@ export function WalletOverview() {
     },
     {
       label:  "Xu",
-      value:  data?.coins ?? 0,
+      value:  wallet?.coins ?? 0,
       icon:   Coins,
       color:  "text-cyan-400",
       glow:   "shadow-[0_0_20px_rgba(34,211,238,0.15)]",
@@ -46,7 +30,7 @@ export function WalletOverview() {
     },
     {
       label:  "Token",
-      value:  data?.tokens ?? 0,
+      value:  wallet?.tokens ?? 0,
       icon:   Gem,
       color:  "text-purple-400",
       glow:   "shadow-[0_0_20px_rgba(192,132,252,0.15)]",

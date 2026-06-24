@@ -120,6 +120,23 @@ export interface HubMeResponse {
   settings: SettingsDTO;
 }
 
+export interface WalletSnapshot {
+  credits: number;
+  coins: number;
+  tokens: number;
+  rewardPoints: number;
+  weeklyChangePercent: number;
+}
+
+export interface InventorySnapshot {
+  pets: number;
+  footballPlayers: number;
+  tickets: number;
+  worldAssets: number;
+  items: number;
+  total: number;
+}
+
 export interface HubDashboardResponse {
   profile: ProfileDTO;
   avatar: AvatarDTO;
@@ -127,4 +144,6 @@ export interface HubDashboardResponse {
   achievementCount: number;
   unreadNotifications: number;
   latestActivities: ActivityDTO[];
+  wallet: WalletSnapshot;
+  inventory: InventorySnapshot;
 }

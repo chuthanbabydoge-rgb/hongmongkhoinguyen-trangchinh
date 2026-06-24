@@ -22,8 +22,7 @@ import {
   removeWatchlistEntry,
   checkWatchlistPrice,
 } from "@/services/watchlistService";
-
-const MOCK_USER_ID = "user-001";
+import { useSession } from "@/context/SessionContext";
 
 export interface WatchlistSnapshot {
   itemName?: string;
@@ -33,13 +32,21 @@ export interface WatchlistSnapshot {
 }
 
 export function useWatchlist() {
+  const { session } = useSession();
+  const userId = session?.user?.id ?? null;
+
   const [entries,   setEntries]   = useState<WatchlistEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error,     setError]     = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
+    if (!userId) {
+      setEntries([]);
+      setIsLoading(false);
+      return;
+    }
     try {
-      const { data } = await fetchWatchlist(MOCK_USER_ID);
+      const { data } = await fetchWatchlist(userId);
       setEntries(data);
       setError(null);
     } catch (err) {
@@ -47,7 +54,7 @@ export function useWatchlist() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [userId]);
 
   useEffect(() => { void refresh(); }, [refresh]);
 
@@ -74,6 +81,8 @@ export function useWatchlist() {
     targetId: string,
     snapshot: WatchlistSnapshot = {},
   ) => {
+    if (!userId) return;
+
     const existingId = keyMap.get(watchKey(type, targetId));
 
     if (existingId) {
@@ -86,7 +95,7 @@ export function useWatchlist() {
     } else {
       const tempEntry: WatchlistEntry = {
         id:                `temp-${Date.now()}`,
-        userId:            MOCK_USER_ID,
+        userId,
         targetType:        type,
         targetId,
         itemName:          snapshot.itemName ?? null,
@@ -102,7 +111,7 @@ export function useWatchlist() {
       setEntries(prev => [tempEntry, ...prev]);
 
       const payload: AddWatchlistPayload = {
-        userId:     MOCK_USER_ID,
+        userId,
         targetType: type,
         targetId,
         ...snapshot,
@@ -114,7 +123,7 @@ export function useWatchlist() {
         await refresh();
       }
     }
-  }, [keyMap, refresh]);
+  }, [userId, keyMap, refresh]);
 
   const checkPrice = useCallback(async (
     id:           string,
@@ -122,7 +131,6 @@ export function useWatchlist() {
   ): Promise<PriceCheckResult | null> => {
     try {
       const result = await checkWatchlistPrice(id, currentPrice);
-      // Sync updated entry into local state
       setEntries(prev => prev.map(e => e.id === result.entry.id ? result.entry : e));
       return result;
     } catch (err) {

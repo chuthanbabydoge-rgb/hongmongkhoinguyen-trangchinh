@@ -6,8 +6,11 @@ import { InventorySummary } from "@/components/dashboard/InventorySummary";
 import { UniverseModules } from "@/components/dashboard/UniverseModules";
 import { RecentApps } from "@/components/dashboard/RecentApps";
 import { FavoriteApps } from "@/components/dashboard/FavoriteApps";
+import { useDashboard } from "@/hooks/useDashboard";
 
 export default function Dashboard() {
+  const { wallet, inventory, loading } = useDashboard();
+
   return (
     <div className="flex min-h-screen bg-background text-foreground scanline">
       <div className="fixed inset-0 pointer-events-none z-0">
@@ -30,8 +33,8 @@ export default function Dashboard() {
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
           <div className="max-w-6xl mx-auto space-y-8">
             <UserProfile />
-            <WalletOverview />
-            <InventorySummary />
+            <WalletOverview wallet={wallet} loading={loading} />
+            <InventorySummary inventory={inventory} loading={loading} />
             <RecentApps />
             <FavoriteApps />
             <div className="pt-4">

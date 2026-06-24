@@ -42,3 +42,30 @@ export interface SettingsDTO {
   language: string;
   timezone: string;
 }
+
+export interface WalletSnapshot {
+  credits: number;
+  coins: number;
+  tokens: number;
+  rewardPoints: number;
+  weeklyChangePercent: number;
+}
+
+export interface InventorySnapshot {
+  pets: number;
+  footballPlayers: number;
+  tickets: number;
+  worldAssets: number;
+  items: number;
+  total: number;
+}
+
+export interface HubDashboardResponse {
+  profile: ProfileDTO;
+  avatar: AvatarDTO;
+  reputation: ReputationDTO;
+  achievementCount: number;
+  unreadNotifications: number;
+  wallet: WalletSnapshot;
+  inventory: InventorySnapshot;
+}

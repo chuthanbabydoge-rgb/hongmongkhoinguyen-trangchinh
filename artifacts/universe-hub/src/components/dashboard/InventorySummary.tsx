@@ -1,39 +1,18 @@
-import { useEffect, useState } from "react";
 import { Package, Users, Ticket, Globe, Box, Loader2 } from "lucide-react";
-import { apiFetch } from "@/lib/apiClient";
+import type { InventorySnapshot } from "@/services/accountBridgeTypes";
 
-interface InventorySummary {
-  pets: number;
-  footballPlayers: number;
-  tickets: number;
-  worldAssets: number;
-  items: number;
-  total: number;
+interface Props {
+  inventory: InventorySnapshot | null;
+  loading:   boolean;
 }
 
-interface InventoryResponse {
-  userId: string;
-  summary: InventorySummary;
-}
-
-export function InventorySummary() {
-  const [summary, setSummary] = useState<InventorySummary | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    apiFetch<InventoryResponse>("/inventory")
-      .then(d => { if (!cancelled) { setSummary(d.summary); setLoading(false); } })
-      .catch(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, []);
-
+export function InventorySummary({ inventory, loading }: Props) {
   const items = [
-    { label: "Thú cưng",   value: summary?.pets ?? 0,            icon: Package },
-    { label: "Cầu thủ",    value: summary?.footballPlayers ?? 0, icon: Users   },
-    { label: "Vé",         value: summary?.tickets ?? 0,         icon: Ticket  },
-    { label: "Tài sản TG", value: summary?.worldAssets ?? 0,     icon: Globe   },
-    { label: "Vật phẩm",   value: summary?.items ?? 0,           icon: Box     },
+    { label: "Thú cưng",   value: inventory?.pets            ?? 0, icon: Package },
+    { label: "Cầu thủ",    value: inventory?.footballPlayers ?? 0, icon: Users   },
+    { label: "Vé",         value: inventory?.tickets         ?? 0, icon: Ticket  },
+    { label: "Tài sản TG", value: inventory?.worldAssets     ?? 0, icon: Globe   },
+    { label: "Vật phẩm",   value: inventory?.items           ?? 0, icon: Box     },
   ];
 
   return (
@@ -49,7 +28,7 @@ export function InventorySummary() {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-          {items.map((item, i) => (
+          {items.map((item) => (
             <div
               key={item.label}
               className="flex flex-col items-center justify-center p-4 rounded-lg bg-black/40 border border-white/5 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 group"
