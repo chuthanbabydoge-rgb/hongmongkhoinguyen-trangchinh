@@ -1,0 +1,369 @@
+Mục tiêu:
+
+Kết nối Universe Hub với Universe Account thông qua các API đã hoàn thành ở Sprint 1 → Sprint 10.
+
+Không tạo hệ thống Account mới trong Hub.
+
+Hub chỉ đóng vai trò consumer.
+
+Toàn bộ dữ liệu danh tính phải lấy từ Universe Account.
+
+---
+
+Kiến trúc hiện tại phải giữ nguyên.
+
+Không phá Dashboard, Wallet, Inventory, Marketplace, Analytics, Registry.
+
+---
+
+Tạo module mới:
+
+src/services/accountClient.ts
+
+Mục tiêu:
+
+Client gọi Universe Account API.
+
+Config:
+
+UNIVERSE_ACCOUNT_API_URL
+
+Ví dụ:
+
+http://localhost:3001
+
+hoặc
+
+https://account.universe.io
+
+---
+
+Tạo methods:
+
+getIdentity()
+
+GET /api/identity/me
+
+---
+
+getProfile()
+
+GET /api/profile/me
+
+---
+
+getAvatar()
+
+GET /api/avatar/me
+
+---
+
+getAchievements()
+
+GET /api/achievements/me
+
+---
+
+getAchievementCount()
+
+GET /api/achievements/count
+
+---
+
+getReputation()
+
+GET /api/reputation/me
+
+---
+
+getActivities()
+
+GET /api/activity/me
+
+---
+
+getNotifications()
+
+GET /api/notifications
+
+---
+
+getUnreadNotificationCount()
+
+GET /api/notifications/unread-count
+
+---
+
+getSettings()
+
+GET /api/settings/me
+
+---
+
+Mọi request phải forward:
+
+Authorization Bearer token
+
+từ Hub sang Account.
+
+---
+
+Tạo DTOs:
+
+src/models/accountBridge.ts
+
+IdentityDTO
+
+ProfileDTO
+
+AvatarDTO
+
+AchievementDTO
+
+ReputationDTO
+
+ActivityDTO
+
+NotificationDTO
+
+SettingsDTO
+
+---
+
+Tạo service:
+
+src/services/accountBridgeService.ts
+
+Method:
+
+getHubUserOverview()
+
+---
+
+Method này aggregate dữ liệu từ:
+
+identity
+
+profile
+
+avatar
+
+reputation
+
+achievement count
+
+unread notification count
+
+---
+
+Response:
+
+{
+identity,
+profile,
+avatar,
+reputation,
+achievementCount,
+unreadNotifications
+}
+
+---
+
+Tạo controller:
+
+src/controllers/accountBridgeController.ts
+
+---
+
+Endpoints:
+
+GET /api/hub/me
+
+GET /api/hub/dashboard
+
+---
+
+GET /api/hub/me
+
+trả:
+
+{
+profile,
+avatar,
+reputation,
+settings
+}
+
+---
+
+GET /api/hub/dashboard
+
+trả:
+
+{
+profile,
+avatar,
+reputation,
+achievementCount,
+unreadNotifications,
+latestActivities
+}
+
+---
+
+Tạo Health Check:
+
+GET /api/hub/account-health
+
+---
+
+Logic:
+
+gọi:
+
+GET /api/identity/me
+
+---
+
+Nếu thành công:
+
+{
+connected: true
+}
+
+---
+
+Nếu lỗi:
+
+{
+connected: false,
+error: ...
+}
+
+---
+
+Caching:
+
+cache 60 giây:
+
+identity
+
+profile
+
+avatar
+
+settings
+
+để tránh spam Account API.
+
+---
+
+Error Handling:
+
+Nếu Account API down:
+
+không crash Hub.
+
+Trả:
+
+503
+
+{
+code: "ACCOUNT_SERVICE_UNAVAILABLE"
+}
+
+---
+
+Tests:
+
+Tạo:
+
+src/services/**tests**/accountBridgeService.test.ts
+
+Ít nhất 40 tests.
+
+Bao phủ:
+
+identity fetch
+
+profile fetch
+
+avatar fetch
+
+reputation fetch
+
+settings fetch
+
+dashboard aggregation
+
+notification count
+
+activity fetch
+
+caching
+
+timeout
+
+service unavailable
+
+multi-user isolation
+
+token forwarding
+
+error handling
+
+health check
+
+---
+
+Container wiring:
+
+AccountClient
+
+↓
+
+AccountBridgeService
+
+↓
+
+AccountBridgeController
+
+---
+
+Routes:
+
+/api/hub/me
+
+/api/hub/dashboard
+
+/api/hub/account-health
+
+---
+
+Acceptance Criteria:
+
+✓ 40+ tests
+
+✓ typecheck PASS
+
+✓ Hub không lưu user data riêng
+
+✓ Mọi identity data lấy từ Universe Account
+
+✓ Authorization token được forward
+
+✓ Dashboard aggregate hoạt động
+
+✓ Health check hoạt động
+
+✓ Account service down không làm Hub crash
+
+Sau khi hoàn thành trả về:
+
+1. Files tạo mới
+2. Files sửa đổi
+3. API endpoints
+4. Test results
+5. Typecheck results
+6. Ví dụ response
+7. Báo cáo HUB-1 hoàn chỉnh
