@@ -15,7 +15,7 @@ import type {
   Balance,
   RewardProgram,
 } from "../types/wallet";
-import { MOCK_REWARD_PROGRAM } from "../data/mockWallet";
+import { MOCK_REWARDS } from "../data/mockWallet";
 
 const API_BASE = "/api/wallet";
 
@@ -32,6 +32,28 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   return json.data;
 }
 
+function buildInitialRewards(currentPoints = 0): RewardProgram {
+  const tier =
+    currentPoints >= 15000 ? "gold"
+    : currentPoints >= 5000 ? "silver"
+    : "bronze";
+  const nextTier =
+    tier === "gold" ? "platinum" : tier === "silver" ? "gold" : "silver";
+  const pointsToNextTier =
+    tier === "gold" ? 35000 - currentPoints
+    : tier === "silver" ? 15000 - currentPoints
+    : 5000 - currentPoints;
+
+  return {
+    tier,
+    currentPoints,
+    pointsToNextTier: Math.max(0, pointsToNextTier),
+    nextTier,
+    lifetimePoints: currentPoints,
+    rewards: MOCK_REWARDS,
+  };
+}
+
 const WalletContext = createContext<WalletContextValue | null>(null);
 WalletContext.displayName = "WalletContext";
 
@@ -40,11 +62,11 @@ interface WalletProviderProps {
 }
 
 export function WalletProvider({ children }: WalletProviderProps) {
-  const [balances, setBalances] = useState<Balance[]>([]);
+  const [balances,     setBalances]     = useState<Balance[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [rewards, setRewards] = useState<RewardProgram>(MOCK_REWARD_PROGRAM);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [rewards,      setRewards]      = useState<RewardProgram>(buildInitialRewards(0));
+  const [isLoading,    setIsLoading]    = useState(true);
+  const [error,        setError]        = useState<string | null>(null);
 
   const fetchWallet = useCallback(async () => {
     setIsLoading(true);
@@ -56,6 +78,11 @@ export function WalletProvider({ children }: WalletProviderProps) {
       ]);
       setBalances(balanceData);
       setTransactions(txData);
+
+      const rpBalance = balanceData.find((b) => b.type === "rewardPoints");
+      if (rpBalance) {
+        setRewards(buildInitialRewards(rpBalance.amount));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load wallet");
     } finally {
@@ -69,7 +96,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
   const getBalance = useCallback(
     (type: WalletType): Balance | undefined => balances.find((b) => b.type === type),
-    [balances]
+    [balances],
   );
 
   const getTransactions = useCallback(
@@ -77,14 +104,14 @@ export function WalletProvider({ children }: WalletProviderProps) {
       if (!type) return transactions;
       return transactions.filter((t) => t.walletType === type);
     },
-    [transactions]
+    [transactions],
   );
 
   const addTransaction = useCallback(
     (transaction: Omit<Transaction, "id" | "createdAt">) => {
       const newTransaction: Transaction = {
         ...transaction,
-        id: `txn_${Date.now()}`,
+        id:        `txn_${Date.now()}`,
         createdAt: new Date().toISOString(),
       };
       setTransactions((prev) => [newTransaction, ...prev]);
@@ -98,11 +125,11 @@ export function WalletProvider({ children }: WalletProviderProps) {
                 ? newTransaction.amount
                 : -newTransaction.amount;
             return { ...balance, amount: balance.amount + delta };
-          })
+          }),
         );
       }
     },
-    []
+    [],
   );
 
   const transfer = useCallback(
@@ -112,7 +139,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
       try {
         await apiFetch("/transfer", {
           method: "POST",
-          body: JSON.stringify({ from, to, amount, description }),
+          body:   JSON.stringify({ from, to, amount, description }),
         });
         await fetchWallet();
       } catch (err) {
@@ -123,7 +150,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
         setIsLoading(false);
       }
     },
-    [fetchWallet]
+    [fetchWallet],
   );
 
   const redeemReward = useCallback(
@@ -132,26 +159,27 @@ export function WalletProvider({ children }: WalletProviderProps) {
       if (!reward || !reward.available) return false;
       if (rewards.currentPoints < reward.pointsCost) return false;
 
+      const newPoints = rewards.currentPoints - reward.pointsCost;
+      setRewards(buildInitialRewards(newPoints));
       setRewards((prev) => ({
         ...prev,
-        currentPoints: prev.currentPoints - reward.pointsCost,
         rewards: prev.rewards.map((r) =>
-          r.id === rewardId ? { ...r, available: false } : r
+          r.id === rewardId ? { ...r, available: false } : r,
         ),
       }));
 
       addTransaction({
-        walletType: "rewardPoints",
-        amount: reward.pointsCost,
-        direction: "debit",
+        walletType:  "rewardPoints",
+        amount:      reward.pointsCost,
+        direction:   "debit",
         description: `Reward redeemed: ${reward.title}`,
-        status: "completed",
-        reference: `REDEEM-${rewardId.toUpperCase()}`,
+        status:      "completed",
+        reference:   `REDEEM-${rewardId.toUpperCase()}`,
       });
 
       return true;
     },
-    [rewards, addTransaction]
+    [rewards, addTransaction],
   );
 
   const refreshWallet = useCallback(async (): Promise<void> => {
@@ -160,7 +188,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
   const state: WalletState = useMemo(
     () => ({ balances, transactions, rewards, isLoading, error }),
-    [balances, transactions, rewards, isLoading, error]
+    [balances, transactions, rewards, isLoading, error],
   );
 
   const value: WalletContextValue = useMemo(
@@ -173,7 +201,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
       redeemReward,
       refreshWallet,
     }),
-    [state, getBalance, getTransactions, addTransaction, transfer, redeemReward, refreshWallet]
+    [state, getBalance, getTransactions, addTransaction, transfer, redeemReward, refreshWallet],
   );
 
   return (
