@@ -409,3 +409,11 @@ export const moderationService = new MarketplaceModerationService(
   null,
   marketplaceRealtimeService,
 );
+
+// ─── Account Bridge (HUB-1) ───────────────────────────────────────────────────
+
+import { createAccountClient } from "./services/accountClient.js";
+import { AccountBridgeService } from "./services/accountBridgeService.js";
+
+export const accountClient       = createAccountClient();
+export const accountBridgeService = new AccountBridgeService(accountClient);

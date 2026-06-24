@@ -5,6 +5,7 @@ import walletRouter from "./wallet";
 import inventoryRouter from "./inventory";
 import marketplaceRouter from "./marketplace";
 import notificationsRouter from "./notifications";
+import accountBridgeRouter from "./accountBridge";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(walletRouter);
 router.use(inventoryRouter);
 router.use(marketplaceRouter);
 router.use(notificationsRouter);
+router.use(accountBridgeRouter);
 
 export default router;
