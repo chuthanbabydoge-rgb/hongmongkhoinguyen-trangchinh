@@ -12,17 +12,22 @@ export class WalletService {
   ) {}
 
   async getWallet(userId: string): Promise<WalletData> {
-    const ref = await this.wallets.getByUserId(userId);
+    let ref = await this.wallets.getByUserId(userId);
     if (!ref) {
-      return { userId, credits: 0, coins: 0, tokens: 0, rewardPoints: 0, weeklyChangePercent: 0 };
+      ref = await this.wallets.create({
+        userId,
+        walletId:     `wallet-${userId}`,
+        currency:     { credits: 0, coins: 0, tokens: 0, rewardPoints: 0 },
+        lastSyncedAt: new Date().toISOString(),
+      });
     }
     return {
       userId:              ref.userId,
       credits:             ref.currency.credits,
       coins:               ref.currency.coins,
       tokens:              ref.currency.tokens,
-      rewardPoints:        ref.currency.rewardPoints ?? 15600,
-      weeklyChangePercent: 12.4,
+      rewardPoints:        ref.currency.rewardPoints ?? 0,
+      weeklyChangePercent: 0,
     };
   }
 
