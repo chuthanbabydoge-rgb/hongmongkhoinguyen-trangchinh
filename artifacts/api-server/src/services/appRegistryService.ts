@@ -134,7 +134,7 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     description: "Ví đa tiền tệ: Credits, XU và Token cho toàn hệ sinh thái",
     icon:        "https://cdn.universe.io/icons/wallet.png",
     url:         process.env.REPLIT_DEV_DOMAIN
-                   ? `https://${process.env.REPLIT_DEV_DOMAIN.replace(/-00-/, "-3001-")}`
+                   ? `https://${process.env.REPLIT_DEV_DOMAIN.replace(/^([^.]+)/, "$1-3001")}`
                    : "http://localhost:3001",
     category:    "FINANCE",
     status:      "ACTIVE",
