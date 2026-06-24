@@ -434,3 +434,16 @@ export const appRegistryService = new AppRegistryService(appRegistryRepo);
 appRegistryService.initialize().catch((err: unknown) =>
   logger.error({ err }, "AppRegistry: seed failed"),
 );
+
+// ─── App Launcher (HUB-3) ─────────────────────────────────────────────────────
+
+import { InMemoryAppLauncherRepository }  from "./repositories/appLauncherRepository.js";
+import { SupabaseAppLauncherRepository }  from "./repositories/supabase/SupabaseAppLauncherRepository.js";
+import { AppLauncherService }             from "./services/appLauncherService.js";
+
+const appLauncherRepo = useSupabase
+  ? new SupabaseAppLauncherRepository()
+  : new InMemoryAppLauncherRepository();
+logger.info(`Container: app launcher → ${useSupabase ? "Supabase" : "InMemory"}`);
+
+export const appLauncherService = new AppLauncherService(appLauncherRepo, appRegistryService);

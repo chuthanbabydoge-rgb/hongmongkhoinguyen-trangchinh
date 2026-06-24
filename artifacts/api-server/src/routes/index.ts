@@ -7,6 +7,7 @@ import marketplaceRouter from "./marketplace";
 import notificationsRouter from "./notifications";
 import accountBridgeRouter from "./accountBridge";
 import ecosystemRouter from "./ecosystem";
+import launcherRouter from "./launcher";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(marketplaceRouter);
 router.use(notificationsRouter);
 router.use(accountBridgeRouter);
 router.use(ecosystemRouter);
+router.use(launcherRouter);
 
 export default router;
