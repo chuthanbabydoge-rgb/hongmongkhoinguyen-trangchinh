@@ -28,6 +28,7 @@ import {
   Repeat2,
   Heart,
   Radio,
+  Rocket,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
