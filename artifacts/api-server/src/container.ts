@@ -415,5 +415,22 @@ export const moderationService = new MarketplaceModerationService(
 import { createAccountClient } from "./services/accountClient.js";
 import { AccountBridgeService } from "./services/accountBridgeService.js";
 
-export const accountClient       = createAccountClient();
+export const accountClient        = createAccountClient();
 export const accountBridgeService = new AccountBridgeService(accountClient);
+
+// ─── Ecosystem Registry (HUB-2) ───────────────────────────────────────────────
+
+import { InMemoryAppRegistryRepository } from "./repositories/appRegistryRepository.js";
+import { SupabaseAppRegistryRepository } from "./repositories/supabase/SupabaseAppRegistryRepository.js";
+import { AppRegistryService }            from "./services/appRegistryService.js";
+
+const appRegistryRepo = useSupabase
+  ? new SupabaseAppRegistryRepository()
+  : new InMemoryAppRegistryRepository();
+logger.info(`Container: ecosystem registry → ${useSupabase ? "Supabase" : "InMemory"}`);
+
+export const appRegistryService = new AppRegistryService(appRegistryRepo);
+
+appRegistryService.initialize().catch((err: unknown) =>
+  logger.error({ err }, "AppRegistry: seed failed"),
+);

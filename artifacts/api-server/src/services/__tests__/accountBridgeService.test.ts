@@ -246,7 +246,7 @@ describe("AccountBridgeService — getHubMe", () => {
 
   test("✔ getHubMe không trả identity hay activities", async () => {
     const { service } = makeService();
-    const me = await service.getHubMe("Bearer token-001") as Record<string, unknown>;
+    const me = await service.getHubMe("Bearer token-001") as unknown as Record<string, unknown>;
     assert.ok(!("identity"   in me));
     assert.ok(!("activities" in me));
   });

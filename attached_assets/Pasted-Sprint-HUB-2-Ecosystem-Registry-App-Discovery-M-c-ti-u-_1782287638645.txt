@@ -1,0 +1,335 @@
+Sprint HUB-2 — Ecosystem Registry & App Discovery
+
+Mục tiêu:
+
+Xây dựng hệ thống App Registry cho Universe Hub.
+
+Universe Hub phải trở thành trung tâm quản lý toàn bộ ứng dụng trong ecosystem.
+
+Football Universe, Animal Evolution, World Creator, SafePass, Exchange Hub và các app tương lai phải có thể tự đăng ký vào Hub.
+
+KHÔNG sử dụng mock endpoint.
+
+Phải tuân thủ kiến trúc hiện có:
+
+Model
+Repository
+Service
+Controller
+Routes
+Container DI
+Unit Tests
+
+====================================================
+YÊU CẦU CHỨC NĂNG
+====================================================
+
+Tạo module Ecosystem Registry.
+
+Mỗi ứng dụng có:
+
+id
+slug
+name
+description
+iconUrl
+baseUrl
+category
+status
+version
+createdAt
+updatedAt
+
+Category enum:
+
+SPORT
+ANIMAL
+WORLD
+FINANCE
+SECURITY
+SOCIAL
+AI
+UTILITY
+OTHER
+
+Status enum:
+
+ACTIVE
+INACTIVE
+MAINTENANCE
+
+====================================================
+DATABASE
+====================================================
+
+Tạo schema:
+
+ecosystem_apps
+
+columns:
+
+id uuid pk
+slug text unique not null
+name text not null
+description text
+icon_url text
+base_url text not null
+category text not null
+status text not null default ACTIVE
+version text not null
+created_at timestamp
+updated_at timestamp
+
+====================================================
+MODEL
+====================================================
+
+Tạo:
+
+EcosystemApp
+
+RegisterAppRequest
+
+UpdateAppRequest
+
+AppCategory enum
+
+AppStatus enum
+
+Zod validation đầy đủ.
+
+====================================================
+REPOSITORY
+====================================================
+
+IAppRegistryRepository
+
+Methods:
+
+create()
+
+update()
+
+delete()
+
+findById()
+
+findBySlug()
+
+findAll()
+
+findByCategory()
+
+existsBySlug()
+
+count()
+
+Tạo:
+
+InMemoryAppRegistryRepository
+
+SupabaseAppRegistryRepository
+
+====================================================
+SERVICE
+====================================================
+
+AppRegistryService
+
+Methods:
+
+registerApp()
+
+updateApp()
+
+deleteApp()
+
+getApp()
+
+getBySlug()
+
+getAllApps()
+
+getAppsByCategory()
+
+countApps()
+
+searchApps()
+
+Validation:
+
+slug unique
+
+baseUrl bắt buộc hợp lệ
+
+name tối đa 100 ký tự
+
+description tối đa 1000 ký tự
+
+====================================================
+CONTROLLER
+====================================================
+
+GET    /api/ecosystem/apps
+
+GET    /api/ecosystem/apps/:slug
+
+GET    /api/ecosystem/categories/:category
+
+POST   /api/ecosystem/apps
+
+PATCH  /api/ecosystem/apps/:id
+
+DELETE /api/ecosystem/apps/:id
+
+GET    /api/ecosystem/stats
+
+====================================================
+SEARCH
+====================================================
+
+GET /api/ecosystem/apps?q=
+
+Tìm theo:
+
+name
+
+slug
+
+description
+
+Không phân biệt hoa thường.
+
+====================================================
+STATS
+====================================================
+
+GET /api/ecosystem/stats
+
+Response:
+
+{
+  "totalApps": 12,
+  "activeApps": 10,
+  "maintenanceApps": 1,
+  "inactiveApps": 1,
+  "categories": {
+    "SPORT": 3,
+    "WORLD": 2
+  }
+}
+
+====================================================
+DEFAULT SEED
+====================================================
+
+Khi service khởi tạo lần đầu.
+
+Seed:
+
+football-universe
+
+animal-evolution
+
+world-creator
+
+safepass
+
+exchange-hub
+
+Không tạo duplicate khi khởi động nhiều lần.
+
+====================================================
+ACTIVITY FEED INTEGRATION
+====================================================
+
+Khi app mới được register:
+
+Activity Type:
+
+SYSTEM
+
+Title:
+
+New Ecosystem App
+
+Description:
+
+<app-name> joined the Universe ecosystem
+
+visibility:
+
+PUBLIC
+
+sourceApp:
+
+universe-hub
+
+====================================================
+TESTS
+====================================================
+
+Tạo tối thiểu 60 unit tests.
+
+Bao gồm:
+
+register app
+
+duplicate slug
+
+update
+
+delete
+
+find by id
+
+find by slug
+
+find all
+
+search
+
+category filter
+
+stats
+
+seed idempotent
+
+activity integration
+
+validation errors
+
+multi-app scenarios
+
+repository persistence
+
+user isolation
+
+edge cases
+
+====================================================
+ACCEPTANCE CRITERIA
+====================================================
+
+60+ tests pass
+
+Typecheck PASS
+
+Repository pattern đúng chuẩn project
+
+Không phá vỡ HUB-1
+
+Activity integration hoạt động
+
+Seed 5 ecosystem apps
+
+API server chạy sạch
+
+Báo cáo cuối cùng phải gồm:
+
+Files created
+Files modified
+Endpoints
+Test count
+Typecheck result
+Sample responses
