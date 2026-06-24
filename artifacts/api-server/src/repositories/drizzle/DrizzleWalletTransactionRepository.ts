@@ -35,12 +35,12 @@ export class DrizzleWalletTransactionRepository implements IWalletTransactionRep
     return rows.map(rowToTx);
   }
 
-  async create(tx: Transaction): Promise<Transaction> {
+  async create(tx: Transaction, userId: string): Promise<Transaction> {
     const [inserted] = await db
       .insert(walletTransactionsTable)
       .values({
         id:          tx.id,
-        userId:      "user-001",
+        userId,
         walletType:  tx.walletType,
         amount:      tx.amount,
         direction:   tx.direction,

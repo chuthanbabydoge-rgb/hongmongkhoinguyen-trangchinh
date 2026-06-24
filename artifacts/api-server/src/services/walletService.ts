@@ -85,8 +85,8 @@ export class WalletService {
       reference:   ref_,
     };
 
-    await this.transactions.create(debitTx);
-    await this.transactions.create(creditTx);
+    await this.transactions.create(debitTx, userId);
+    await this.transactions.create(creditTx, userId);
 
     const updatedWallet = await this.getWallet(userId);
     return { debit: debitTx, credit: creditTx, wallet: updatedWallet };
@@ -115,7 +115,7 @@ export class WalletService {
       reference:   reference ?? `ENTRY-${Date.now()}`,
     };
 
-    await this.transactions.create(tx);
+    await this.transactions.create(tx, userId);
 
     if (status === "completed") {
       const currency = { ...ref.currency } as Record<string, number>;

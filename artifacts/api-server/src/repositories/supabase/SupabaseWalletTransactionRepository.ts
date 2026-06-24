@@ -40,7 +40,7 @@ export class SupabaseWalletTransactionRepository implements IWalletTransactionRe
     return (data ?? []).map(toTransaction);
   }
 
-  async create(tx: Transaction): Promise<Transaction> {
+  async create(tx: Transaction, _userId: string): Promise<Transaction> {
     return tx;
   }
 }
