@@ -22,3 +22,5 @@ export * from "./appLaunches";
 export * from "./notificationSync";
 export * from "./applicationsRegistry";
 export * from "./userApps";
+export * from "./walletReferences";
+export * from "./walletTransactions";

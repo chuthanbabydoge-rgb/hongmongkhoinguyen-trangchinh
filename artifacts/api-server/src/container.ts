@@ -43,6 +43,8 @@ import { MockAvatarRepository }             from "./repositories/avatarRepositor
 import { MockReputationRepository }         from "./repositories/reputationRepository";
 import { MockWalletRepository }             from "./repositories/walletRepository";
 import { MockWalletTransactionRepository }  from "./repositories/walletTransactionRepository";
+import { DrizzleWalletRepository }          from "./repositories/drizzle/DrizzleWalletRepository";
+import { DrizzleWalletTransactionRepository } from "./repositories/drizzle/DrizzleWalletTransactionRepository";
 import { MockInventoryRepository }          from "./repositories/inventoryRepository";
 import { MockInventoryItemsRepository }     from "./repositories/inventoryItemsRepository";
 import { SupabaseInventoryItemsRepository } from "./repositories/supabase/SupabaseInventoryItemsRepository";
@@ -193,6 +195,7 @@ class FallbackWalletTransactionRepository implements IWalletTransactionRepositor
 // ─── Repository selection ─────────────────────────────────────────────────────
 
 const useSupabase = isSupabaseConfigured();
+const useDrizzle  = Boolean(process.env["DATABASE_URL"]);
 
 let userRepo:               IUserRepository;
 let avatarRepo:             IAvatarRepository;
@@ -240,6 +243,14 @@ if (useSupabase) {
   walletRepo            = new FallbackWalletRepository(new SupabaseWalletRepository(), new MockWalletRepository());
   walletTransactionRepo = new FallbackWalletTransactionRepository(new SupabaseWalletTransactionRepository(), new MockWalletTransactionRepository());
   inventoryRepo         = new SupabaseInventoryRepository();
+} else if (useDrizzle) {
+  logger.info("Container: using Drizzle (PostgreSQL) repositories for wallet; Mock for others");
+  userRepo              = new MockUserRepository();
+  avatarRepo            = new MockAvatarRepository();
+  reputationRepo        = new MockReputationRepository();
+  walletRepo            = new DrizzleWalletRepository();
+  walletTransactionRepo = new DrizzleWalletTransactionRepository();
+  inventoryRepo         = new MockInventoryRepository();
 } else {
   logger.info("Container: using Mock repositories (SUPABASE_URL / SUPABASE_ANON_KEY not set)");
   userRepo              = new MockUserRepository();
