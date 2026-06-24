@@ -1,0 +1,434 @@
+HUB-4 — Real-time Notification Sync Center
+
+Mục tiêu:
+
+Biến Universe Hub thành Notification Center tập trung cho toàn bộ Universe Ecosystem.
+
+Sau HUB-1 (Account Bridge),
+HUB-2 (Ecosystem Registry),
+HUB-3 (Launcher),
+
+Hub phải có khả năng đồng bộ notification từ Universe Account và hiển thị realtime cho người dùng.
+
+======================================================
+KIẾN TRÚC
+=========
+
+Tuân thủ kiến trúc hiện có:
+
+Repository
+→ Service
+→ Controller
+→ Route
+
+Dependency Injection qua container.
+
+Tạo đầy đủ:
+
+* Model
+* Repository Interface
+* InMemory Repository
+* Supabase Repository
+* Service
+* Controller
+* Route
+* Tests
+
+Không dùng shortcut.
+
+Không phá HUB-1, HUB-2, HUB-3.
+
+======================================================
+TÍCH HỢP HỆ THỐNG
+=================
+
+Universe Hub phải kết nối:
+
+Universe Account:
+
+* Notification System (Sprint 5)
+* Activity Feed (Sprint 7)
+* Identity Bridge (Sprint 3)
+
+Hub không được lưu notification riêng vĩnh viễn.
+
+Hub là lớp sync/cache.
+
+Notification gốc luôn nằm trong Universe Account.
+
+======================================================
+DATABASE
+========
+
+Tạo schema:
+
+lib/db/src/schema/notificationSync.ts
+
+Table:
+
+notification_sync_state
+
+columns:
+
+id uuid primary key
+
+user_id text not null
+
+last_sync_at timestamp
+
+last_notification_id text
+
+unread_count integer default 0
+
+created_at timestamp default now()
+
+updated_at timestamp default now()
+
+======================================================
+MODELS
+======
+
+Tạo:
+
+src/models/notificationSync.ts
+
+Bao gồm:
+
+NotificationSyncState
+
+HubNotification
+
+NotificationFeed
+
+NotificationSummary
+
+NotificationSyncResult
+
+NotificationCenterDashboard
+
+======================================================
+REPOSITORY
+==========
+
+Tạo:
+
+src/repositories/INotificationSyncRepository.ts
+
+Methods:
+
+findByUserId()
+
+save()
+
+update()
+
+delete()
+
+======================================================
+INMEMORY REPOSITORY
+===================
+
+Tạo:
+
+src/repositories/InMemoryNotificationSyncRepository.ts
+
+======================================================
+SUPABASE REPOSITORY
+===================
+
+Tạo:
+
+src/repositories/SupabaseNotificationSyncRepository.ts
+
+======================================================
+ACCOUNT CLIENT
+==============
+
+Mở rộng AccountClient hiện có.
+
+Thêm methods:
+
+getNotifications()
+
+getUnreadCount()
+
+markNotificationRead()
+
+markAllNotificationsRead()
+
+======================================================
+SERVICE
+=======
+
+Tạo:
+
+src/services/notificationSyncService.ts
+
+Business Logic:
+
+1.
+
+syncNotifications()
+
+Flow:
+
+* gọi Universe Account
+* lấy notifications
+* cập nhật sync state
+* tính unread count
+* trả kết quả
+
+2.
+
+getNotificationCenter()
+
+Trả:
+
+{
+unreadCount,
+latestNotifications,
+recentActivities
+}
+
+3.
+
+getNotifications()
+
+4.
+
+markRead()
+
+5.
+
+markAllRead()
+
+6.
+
+getSyncState()
+
+======================================================
+DASHBOARD AGGREGATION
+=====================
+
+Notification Center phải trả:
+
+{
+unreadCount,
+highPriorityCount,
+urgentCount,
+latestNotifications,
+latestActivities
+}
+
+latestActivities lấy từ Activity Feed.
+
+======================================================
+REALTIME SIMULATION
+===================
+
+Chưa cần websocket thật.
+
+Tạo endpoint:
+
+POST /api/notifications/sync
+
+để force sync.
+
+Hub chỉ pull Account.
+
+Không push.
+
+======================================================
+CONTROLLER
+==========
+
+Tạo:
+
+src/controllers/notificationSyncController.ts
+
+Handlers:
+
+sync()
+
+getCenter()
+
+getNotifications()
+
+markRead()
+
+markAllRead()
+
+getState()
+
+======================================================
+ROUTES
+======
+
+Tạo:
+
+src/routes/notificationSync.ts
+
+Endpoints:
+
+POST /api/notifications/sync
+
+GET /api/notifications/center
+
+GET /api/notifications/feed
+
+GET /api/notifications/state
+
+PATCH /api/notifications/:id/read
+
+PATCH /api/notifications/read-all
+
+======================================================
+RESPONSES
+=========
+
+GET /api/notifications/center
+
+{
+"ok": true,
+"data": {
+"unreadCount": 12,
+"highPriorityCount": 2,
+"urgentCount": 1,
+"latestNotifications": [...],
+"latestActivities": [...]
+}
+}
+
+---
+
+POST /api/notifications/sync
+
+{
+"ok": true,
+"data": {
+"synced": 18,
+"unread": 12,
+"lastSyncAt": "..."
+}
+}
+
+---
+
+PATCH /api/notifications/read-all
+
+{
+"ok": true,
+"data": {
+"updated": 12
+}
+}
+
+======================================================
+ACTIVITY INTEGRATION
+====================
+
+Mỗi lần sync thành công:
+
+tạo activity:
+
+type:
+
+SYSTEM
+
+title:
+
+Notifications Synced
+
+visibility:
+
+PRIVATE
+
+======================================================
+TESTS
+=====
+
+Tạo:
+
+src/services/**tests**/notificationSyncService.test.ts
+
+Tối thiểu:
+
+90+ tests
+
+Bao gồm:
+
+sync success
+
+empty notifications
+
+large notifications
+
+unread count
+
+priority count
+
+mark read
+
+mark all read
+
+dashboard aggregation
+
+activity integration
+
+account client integration
+
+sync state
+
+user isolation
+
+multi-user
+
+pagination
+
+ordering
+
+error handling
+
+service unavailable
+
+retry scenarios
+
+edge cases
+
+======================================================
+ACCEPTANCE CRITERIA
+===================
+
+✔ 90+ tests pass
+
+✔ Typecheck pass
+
+✔ Repository pattern đúng chuẩn
+
+✔ Tích hợp Universe Account Notification System
+
+✔ Tích hợp Activity Feed
+
+✔ Notification Center hoạt động
+
+✔ Dashboard aggregation hoạt động
+
+✔ Mark read hoạt động
+
+✔ Mark all read hoạt động
+
+✔ Sync state hoạt động
+
+✔ Không phá HUB-1 HUB-2 HUB-3
+
+✔ API server chạy sạch
+
+Khi hoàn thành xuất báo cáo:
+
+* Files tạo mới
+* Files sửa đổi
+* API endpoints
+* Test results
+* Typecheck
+* Sample responses
+* Acceptance criteria

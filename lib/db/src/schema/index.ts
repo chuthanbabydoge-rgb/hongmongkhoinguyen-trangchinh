@@ -19,3 +19,4 @@
 
 export * from "./ecosystemApps";
 export * from "./appLaunches";
+export * from "./notificationSync";

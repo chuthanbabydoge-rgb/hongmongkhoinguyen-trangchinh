@@ -48,6 +48,8 @@ export interface IAccountClient {
   getNotifications(token?: string): Promise<NotificationDTO[]>;
   getUnreadNotificationCount(token?: string): Promise<number>;
   getSettings(token?: string): Promise<SettingsDTO>;
+  markNotificationRead(id: string, token?: string): Promise<void>;
+  markAllNotificationsRead(token?: string): Promise<number>;
 }
 
 // ─── Implementation ───────────────────────────────────────────────────────────
@@ -132,6 +134,40 @@ export class AccountClient implements IAccountClient {
 
   getSettings(token?: string): Promise<SettingsDTO> {
     return this.request<SettingsDTO>("/api/settings/me", token);
+  }
+
+  async markNotificationRead(id: string, token?: string): Promise<void> {
+    await this.requestMutation<void>(`/api/notifications/${id}/read`, "PATCH", token);
+  }
+
+  async markAllNotificationsRead(token?: string): Promise<number> {
+    return this.requestMutation<number>("/api/notifications/read-all", "PATCH", token);
+  }
+
+  private async requestMutation<T>(path: string, method: "PATCH" | "POST", token?: string): Promise<T> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = token;
+
+    try {
+      const res = await fetch(`${this.baseUrl}${path}`, {
+        method,
+        headers,
+        signal: controller.signal,
+      });
+      if (!res.ok) {
+        throw new AccountServiceUnavailableError(`HTTP ${res.status} from ${path}`);
+      }
+      const text = await res.text();
+      return (text ? JSON.parse(text) : undefined) as T;
+    } catch (err) {
+      if (err instanceof AccountServiceUnavailableError) throw err;
+      throw new AccountServiceUnavailableError(err);
+    } finally {
+      clearTimeout(timer);
+    }
   }
 }
 

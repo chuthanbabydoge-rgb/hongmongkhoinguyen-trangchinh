@@ -447,3 +447,16 @@ const appLauncherRepo = useSupabase
 logger.info(`Container: app launcher → ${useSupabase ? "Supabase" : "InMemory"}`);
 
 export const appLauncherService = new AppLauncherService(appLauncherRepo, appRegistryService);
+
+// ─── Notification Sync Center (HUB-4) ─────────────────────────────────────────
+
+import { InMemoryNotificationSyncRepository }  from "./repositories/notificationSyncRepository.js";
+import { SupabaseNotificationSyncRepository }  from "./repositories/supabase/SupabaseNotificationSyncRepository.js";
+import { NotificationSyncService }             from "./services/notificationSyncService.js";
+
+const notificationSyncRepo = useSupabase
+  ? new SupabaseNotificationSyncRepository()
+  : new InMemoryNotificationSyncRepository();
+logger.info(`Container: notification sync → ${useSupabase ? "Supabase" : "InMemory"}`);
+
+export const notificationSyncService = new NotificationSyncService(notificationSyncRepo, accountClient);
