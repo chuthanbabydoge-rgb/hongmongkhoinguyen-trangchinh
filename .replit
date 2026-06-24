@@ -24,6 +24,10 @@ args = "Start application"
 task = "workflow.run"
 args = "Start API Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start ecosystem-analytics"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -48,6 +52,18 @@ task = "shell.exec"
 args = "pnpm --filter @workspace/api-server run build && PORT=8080 pnpm --filter @workspace/api-server run start"
 waitForPort = 8080
 
+[[workflows.workflow]]
+name = "Start ecosystem-analytics"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=3002 BASE_PATH=/ pnpm --filter @workspace/ecosystem-analytics run dev"
+waitForPort = 3002
+
+[workflows.workflow.metadata]
+outputType = "console"
+
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
 expertMode = true
@@ -63,6 +79,10 @@ externalPort = 80
 [[ports]]
 localPort = 8080
 externalPort = 8080
+
+[[ports]]
+localPort = 3002
+externalPort = 3002
 
 [nix]
 channel = "stable-25_05"

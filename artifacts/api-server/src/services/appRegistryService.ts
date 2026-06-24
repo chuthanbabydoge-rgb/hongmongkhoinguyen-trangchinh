@@ -167,6 +167,18 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     status:      "INACTIVE",
     version:     "0.1.0",
   },
+  {
+    slug:        "analytics",
+    name:        "Universe Analytics",
+    description: "Bảng điều khiển phân tích thời gian thực: đo lường sức khoẻ và tăng trưởng của toàn hệ sinh thái",
+    icon:        "https://cdn.universe.io/icons/analytics.png",
+    url:         process.env.REPLIT_DEV_DOMAIN
+                   ? `https://${process.env.REPLIT_DEV_DOMAIN.replace(/^([^.]+)/, "$1-3002")}`
+                   : "http://localhost:3002",
+    category:    "UTILITY",
+    status:      "ACTIVE",
+    version:     "1.0.0",
+  },
 ];
 
 // ─── Service ──────────────────────────────────────────────────────────────────
