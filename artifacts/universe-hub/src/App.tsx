@@ -37,7 +37,7 @@ import WatchlistPage from "@/pages/marketplace/Watchlist";
 import ActivityFeed from "@/pages/marketplace/ActivityFeed";
 import Launcher from "@/pages/Launcher";
 import AppDetail from "@/pages/AppDetail";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const queryClient = new QueryClient();
 
@@ -79,9 +79,19 @@ function Router() {
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
-  const [path] = useLocation();
+  const [path, navigate] = useLocation();
+  const didRedirect = useRef(false);
+
+  useEffect(() => {
+    if (isAuthenticated && (path === "/register" || path === "/login") && !didRedirect.current) {
+      didRedirect.current = true;
+      navigate("/");
+    }
+  }, [isAuthenticated, path, navigate]);
+
   if (!isAuthenticated && path === "/register") return <RegisterPage />;
   if (!isAuthenticated) return <LoginPage />;
+  if (isAuthenticated && (path === "/register" || path === "/login")) return null;
   return <>{children}</>;
 }
 
