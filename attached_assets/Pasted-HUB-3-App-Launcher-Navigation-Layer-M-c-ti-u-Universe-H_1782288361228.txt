@@ -1,0 +1,490 @@
+HUB-3 — App Launcher & Navigation Layer
+
+Mục tiêu:
+
+Universe Hub phải trở thành cổng vào chính của toàn bộ Universe Ecosystem.
+
+Hiện tại:
+
+* HUB-1 đã kết nối Universe Hub ↔ Universe Account.
+* HUB-2 đã có Ecosystem Registry và App Discovery.
+* Hub đã biết các app nào tồn tại.
+
+Sprint này xây dựng tầng Launch & Navigation để người dùng có thể mở mọi ứng dụng trong ecosystem từ Hub mà không cần đăng nhập lại.
+
+======================================================
+YÊU CẦU KIẾN TRÚC
+=================
+
+Tuân thủ kiến trúc hiện có của project:
+
+Repository
+→ Service
+→ Controller
+→ Route
+
+Dependency Injection thông qua container.
+
+Không dùng mock shortcut.
+
+Viết đầy đủ:
+
+* Model
+* Repository Interface
+* InMemory Repository
+* Supabase Repository
+* Service
+* Controller
+* Routes
+* Tests
+
+Mọi test phải pass.
+
+Typecheck phải sạch.
+
+======================================================
+TÍCH HỢP HỆ THỐNG HIỆN CÓ
+=========================
+
+Universe Hub phải sử dụng:
+
+HUB-1:
+
+* Account Bridge
+
+HUB-2:
+
+* Ecosystem Registry
+
+Universe Account:
+
+* Sprint 8 Cross-App SSO
+
+KHÔNG lưu user riêng trong Hub.
+
+KHÔNG lưu password.
+
+KHÔNG tạo auth mới.
+
+Mọi identity lấy từ Universe Account.
+
+======================================================
+DATABASE
+========
+
+Tạo schema mới:
+
+lib/db/src/schema/appLaunches.ts
+
+Table:
+
+app_launches
+
+columns:
+
+id uuid primary key
+
+user_id text not null
+
+app_slug text not null
+
+launched_at timestamp not null
+
+launch_source text not null
+
+session_id text nullable
+
+metadata jsonb nullable
+
+created_at timestamp default now()
+
+======================================================
+MODELS
+======
+
+Tạo:
+
+src/models/appLauncher.ts
+
+Bao gồm:
+
+LaunchAppRequest
+
+LaunchRecord
+
+AppLaunchResponse
+
+RecentApp
+
+NavigationItem
+
+LauncherDashboard
+
+======================================================
+REPOSITORY
+==========
+
+Tạo:
+
+src/repositories/IAppLauncherRepository.ts
+
+Methods:
+
+recordLaunch()
+
+getRecentLaunches()
+
+countLaunches()
+
+getMostUsedApps()
+
+deleteLaunchHistory()
+
+======================================================
+INMEMORY REPOSITORY
+===================
+
+Tạo:
+
+src/repositories/InMemoryAppLauncherRepository.ts
+
+Dùng cho test.
+
+======================================================
+SUPABASE REPOSITORY
+===================
+
+Tạo:
+
+src/repositories/SupabaseAppLauncherRepository.ts
+
+Drizzle/Postgres implementation.
+
+======================================================
+SERVICE
+=======
+
+Tạo:
+
+src/services/AppLauncherService.ts
+
+Business logic:
+
+1.
+
+launchApp()
+
+Input:
+
+userId
+appSlug
+
+Flow:
+
+* validate app tồn tại trong Ecosystem Registry
+* lấy app từ HUB-2 registry
+* gọi SSO token generator
+* tạo launch record
+* trả về:
+
+{
+app,
+launchUrl,
+accessToken,
+expiresAt
+}
+
+2.
+
+getMyRecentApps()
+
+3.
+
+getMyMostUsedApps()
+
+4.
+
+getLauncherDashboard()
+
+Trả về:
+
+{
+recentApps,
+favoriteApps,
+installedApps,
+totalLaunches
+}
+
+5.
+
+clearLaunchHistory()
+
+======================================================
+LAUNCH URL
+==========
+
+Không cần redirect thật.
+
+Generate:
+
+football-universe:
+
+https://football.universe/app?token=xxx
+
+world-creator:
+
+https://world.universe/app?token=xxx
+
+safepass:
+
+https://safepass.universe/app?token=xxx
+
+exchange:
+
+https://exchange.universe/app?token=xxx
+
+Nếu app có launchUrl trong registry:
+
+ưu tiên launchUrl từ registry.
+
+======================================================
+ACTIVITY INTEGRATION
+====================
+
+Tích hợp HUB Activity System.
+
+Mỗi lần launch app:
+
+tự động tạo activity:
+
+type:
+
+SYSTEM
+
+title:
+
+App Launched
+
+description:
+
+Opened Football Universe
+
+visibility:
+
+PRIVATE
+
+======================================================
+NOTIFICATION INTEGRATION
+========================
+
+Nếu launch lần đầu:
+
+gửi notification:
+
+Welcome to Football Universe
+
+priority:
+
+NORMAL
+
+source:
+
+universe-hub
+
+======================================================
+CONTROLLER
+==========
+
+Tạo:
+
+src/controllers/AppLauncherController.ts
+
+Handlers:
+
+launchApp()
+
+getRecentApps()
+
+getMostUsedApps()
+
+getDashboard()
+
+clearHistory()
+
+======================================================
+ROUTES
+======
+
+Tạo:
+
+src/routes/launcher.ts
+
+Endpoints:
+
+POST /api/launcher/launch
+
+GET /api/launcher/recent
+
+GET /api/launcher/favorites
+
+GET /api/launcher/dashboard
+
+DELETE /api/launcher/history
+
+======================================================
+RESPONSE EXAMPLES
+=================
+
+POST /api/launcher/launch
+
+Body:
+
+{
+"appSlug": "football-universe"
+}
+
+Response:
+
+{
+"ok": true,
+"data": {
+"app": {
+"slug": "football-universe",
+"name": "Football Universe"
+},
+"launchUrl":
+"https://football.universe/app?token=abc123",
+"accessToken": "abc123",
+"expiresAt": "2026-07-24T00:00:00Z"
+}
+}
+
+---
+
+GET /api/launcher/recent
+
+{
+"ok": true,
+"data": [
+{
+"appSlug": "football-universe",
+"launchedAt": "..."
+},
+{
+"appSlug": "world-creator",
+"launchedAt": "..."
+}
+]
+}
+
+---
+
+GET /api/launcher/dashboard
+
+{
+"ok": true,
+"data": {
+"recentApps": [...],
+"favoriteApps": [...],
+"installedApps": 5,
+"totalLaunches": 24
+}
+}
+
+======================================================
+TESTS
+=====
+
+Tạo:
+
+src/services/**tests**/appLauncherService.test.ts
+
+Yêu cầu tối thiểu:
+
+80+ unit tests
+
+Bao gồm:
+
+launch success
+
+launch unknown app
+
+launch generates token
+
+launch records history
+
+launch first-time notification
+
+launch activity integration
+
+multiple launches
+
+recent apps
+
+favorites
+
+dashboard
+
+clear history
+
+user isolation
+
+repository persistence
+
+launch ordering
+
+duplicate launches
+
+token forwarding
+
+launch URL generation
+
+registry integration
+
+SSO integration
+
+activity integration
+
+notification integration
+
+multi-user
+
+edge cases
+
+large launch history
+
+======================================================
+ACCEPTANCE CRITERIA
+===================
+
+✔ 80+ tests pass
+
+✔ Typecheck pass
+
+✔ Repository pattern đúng chuẩn
+
+✔ Tích hợp HUB-2 Registry
+
+✔ Tích hợp Universe Account SSO
+
+✔ Launch history hoạt động
+
+✔ Dashboard hoạt động
+
+✔ Activity integration hoạt động
+
+✔ Notification integration hoạt động
+
+✔ Không phá vỡ HUB-1 và HUB-2
+
+✔ API server chạy sạch
+
+Khi hoàn thành hãy xuất báo cáo giống các sprint trước:
+
+* Files tạo mới
+* Files sửa đổi
+* API endpoints
+* Test results
+* Typecheck
+* Sample responses
+* Acceptance criteria
