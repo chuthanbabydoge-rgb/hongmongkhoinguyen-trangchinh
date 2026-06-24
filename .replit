@@ -28,6 +28,10 @@ args = "Start API Server"
 task = "workflow.run"
 args = "Start ecosystem-analytics"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start wallet-app"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -64,6 +68,18 @@ waitForPort = 3002
 [workflows.workflow.metadata]
 outputType = "console"
 
+[[workflows.workflow]]
+name = "Start wallet-app"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=3001 BASE_PATH=/ pnpm --filter @workspace/wallet-app run dev"
+waitForPort = 3001
+
+[workflows.workflow.metadata]
+outputType = "console"
+
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
 expertMode = true
@@ -83,6 +99,10 @@ externalPort = 80
 [[ports]]
 localPort = 8080
 externalPort = 8080
+
+[[ports]]
+localPort = 3001
+externalPort = 3001
 
 [nix]
 channel = "stable-25_05"

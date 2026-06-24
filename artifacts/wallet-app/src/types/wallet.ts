@@ -54,9 +54,8 @@ export interface WalletState {
 export interface WalletActions {
   getBalance: (type: WalletType) => Balance | undefined;
   getTransactions: (type?: WalletType) => Transaction[];
-  addTransaction: (
-    transaction: Omit<Transaction, "id" | "createdAt">
-  ) => void;
+  addTransaction: (transaction: Omit<Transaction, "id" | "createdAt">) => void;
+  transfer: (from: WalletType, to: WalletType, amount: number, description?: string) => Promise<void>;
   redeemReward: (rewardId: string) => boolean;
   refreshWallet: () => Promise<void>;
 }

@@ -1,16 +1,26 @@
 import type { Transaction } from "../data/walletData";
-import { WALLET } from "../data/walletData";
+import { SEED_TRANSACTIONS } from "../data/walletData";
 
 export interface IWalletTransactionRepository {
-  getByUserId(userId: string, limit?: number): Promise<Transaction[]>;
+  getByUserId(userId: string, limit?: number, walletType?: string): Promise<Transaction[]>;
   create(tx: Transaction): Promise<Transaction>;
 }
 
 export class MockWalletTransactionRepository implements IWalletTransactionRepository {
-  async getByUserId(_userId: string, limit = 20): Promise<Transaction[]> {
-    return WALLET.transactions.slice(0, limit);
+  private store: Transaction[] = SEED_TRANSACTIONS.map(t => ({ ...t }));
+
+  async getByUserId(_userId: string, limit = 50, walletType?: string): Promise<Transaction[]> {
+    let results = [...this.store].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+    if (walletType) {
+      results = results.filter(t => t.walletType === walletType);
+    }
+    return results.slice(0, limit);
   }
+
   async create(tx: Transaction): Promise<Transaction> {
+    this.store.unshift(tx);
     return tx;
   }
 }

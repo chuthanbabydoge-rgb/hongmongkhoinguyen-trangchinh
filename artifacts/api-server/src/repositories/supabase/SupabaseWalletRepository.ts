@@ -15,9 +15,10 @@ function toWalletRef(row: Record<string, unknown>): WalletReference {
     userId:       String(row["user_id"] ?? ""),
     walletId:     String(row["id"] ?? ""),
     currency: {
-      credits: Number(row["credits"] ?? 0),
-      coins:   Number(row["coins"]   ?? 0),
-      tokens:  Number(row["tokens"]  ?? 0),
+      credits:      Number(row["credits"]       ?? 0),
+      coins:        Number(row["coins"]         ?? 0),
+      tokens:       Number(row["tokens"]        ?? 0),
+      rewardPoints: Number(row["reward_points"] ?? 0),
     },
     lastSyncedAt: String(row["updated_at"] ?? row["created_at"] ?? ""),
   };

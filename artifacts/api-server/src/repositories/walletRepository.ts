@@ -29,7 +29,7 @@ const SEED_WALLETS: WalletReference[] = [
   {
     userId: "user-001",
     walletId: "wallet-001",
-    currency: { credits: 125840, coins: 48290, tokens: 3750 },
+    currency: { credits: 125840, coins: 48290, tokens: 3750, rewardPoints: 15600 },
     lastSyncedAt: "2024-12-01T10:00:00Z",
   },
 ];

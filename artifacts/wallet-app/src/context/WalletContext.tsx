@@ -3,6 +3,7 @@ import {
   useContext,
   useState,
   useCallback,
+  useEffect,
   useMemo,
   type ReactNode,
 } from "react";
@@ -14,14 +15,24 @@ import type {
   Balance,
   RewardProgram,
 } from "../types/wallet";
-import {
-  MOCK_BALANCES,
-  MOCK_TRANSACTIONS,
-  MOCK_REWARD_PROGRAM,
-} from "../data/mockWallet";
+import { MOCK_REWARD_PROGRAM } from "../data/mockWallet";
+
+const API_BASE = "/api/wallet";
+
+async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { "Content-Type": "application/json" },
+    ...options,
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as { error?: string };
+    throw new Error(body.error ?? `HTTP ${res.status}`);
+  }
+  const json = await res.json() as { ok: boolean; data: T };
+  return json.data;
+}
 
 const WalletContext = createContext<WalletContextValue | null>(null);
-
 WalletContext.displayName = "WalletContext";
 
 interface WalletProviderProps {
@@ -29,16 +40,35 @@ interface WalletProviderProps {
 }
 
 export function WalletProvider({ children }: WalletProviderProps) {
-  const [balances, setBalances] = useState<Balance[]>(MOCK_BALANCES);
-  const [transactions, setTransactions] =
-    useState<Transaction[]>(MOCK_TRANSACTIONS);
+  const [balances, setBalances] = useState<Balance[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [rewards, setRewards] = useState<RewardProgram>(MOCK_REWARD_PROGRAM);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchWallet = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const [balanceData, txData] = await Promise.all([
+        apiFetch<Balance[]>("/balance"),
+        apiFetch<Transaction[]>("/transactions"),
+      ]);
+      setBalances(balanceData);
+      setTransactions(txData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load wallet");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void fetchWallet();
+  }, [fetchWallet]);
+
   const getBalance = useCallback(
-    (type: WalletType): Balance | undefined =>
-      balances.find((b) => b.type === type),
+    (type: WalletType): Balance | undefined => balances.find((b) => b.type === type),
     [balances]
   );
 
@@ -57,7 +87,6 @@ export function WalletProvider({ children }: WalletProviderProps) {
         id: `txn_${Date.now()}`,
         createdAt: new Date().toISOString(),
       };
-
       setTransactions((prev) => [newTransaction, ...prev]);
 
       if (newTransaction.status === "completed") {
@@ -76,10 +105,30 @@ export function WalletProvider({ children }: WalletProviderProps) {
     []
   );
 
+  const transfer = useCallback(
+    async (from: WalletType, to: WalletType, amount: number, description?: string): Promise<void> => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        await apiFetch("/transfer", {
+          method: "POST",
+          body: JSON.stringify({ from, to, amount, description }),
+        });
+        await fetchWallet();
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Transfer failed";
+        setError(msg);
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [fetchWallet]
+  );
+
   const redeemReward = useCallback(
     (rewardId: string): boolean => {
       const reward = rewards.rewards.find((r) => r.id === rewardId);
-
       if (!reward || !reward.available) return false;
       if (rewards.currentPoints < reward.pointsCost) return false;
 
@@ -106,23 +155,8 @@ export function WalletProvider({ children }: WalletProviderProps) {
   );
 
   const refreshWallet = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      setBalances(MOCK_BALANCES);
-      setTransactions(MOCK_TRANSACTIONS);
-      setRewards(MOCK_REWARD_PROGRAM);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to refresh wallet"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    await fetchWallet();
+  }, [fetchWallet]);
 
   const state: WalletState = useMemo(
     () => ({ balances, transactions, rewards, isLoading, error }),
@@ -135,10 +169,11 @@ export function WalletProvider({ children }: WalletProviderProps) {
       getBalance,
       getTransactions,
       addTransaction,
+      transfer,
       redeemReward,
       refreshWallet,
     }),
-    [state, getBalance, getTransactions, addTransaction, redeemReward, refreshWallet]
+    [state, getBalance, getTransactions, addTransaction, transfer, redeemReward, refreshWallet]
   );
 
   return (

@@ -109,7 +109,7 @@ export class MarketplacePaymentService implements IMarketplacePaymentService {
     return this.wallets.create({
       userId:       TREASURY_USER_ID,
       walletId:     TREASURY_WALLET_ID,
-      currency:     { credits: 0, coins: 0, tokens: 0 },
+      currency:     { credits: 0, coins: 0, tokens: 0, rewardPoints: 0 },
       lastSyncedAt: new Date().toISOString(),
     });
   }

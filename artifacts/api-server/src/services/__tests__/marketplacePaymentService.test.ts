@@ -33,7 +33,7 @@ function makeWalletRef(
   return {
     userId,
     walletId:     `wallet-${userId}`,
-    currency:     { credits, coins, tokens },
+    currency:     { credits, coins, tokens, rewardPoints: 0 },
     lastSyncedAt: new Date().toISOString(),
   };
 }

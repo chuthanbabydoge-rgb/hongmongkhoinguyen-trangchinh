@@ -17,6 +17,7 @@ export interface WalletCurrency {
   credits: number;
   coins: number;
   tokens: number;
+  rewardPoints: number;
 }
 
 export interface WalletReference {
