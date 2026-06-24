@@ -1,0 +1,280 @@
+Xây dựng HUB-5 — Universe App Registry & Launcher.
+
+MỤC TIÊU
+
+Universe Hub phải là trung tâm quản lý toàn bộ ứng dụng trong hệ sinh thái.
+
+Cho phép:
+
+- Đăng ký app
+- Kích hoạt app
+- Vô hiệu hóa app
+- Danh sách app
+- Chi tiết app
+- My Apps
+- Launch URL
+- Featured Apps
+- Recently Added Apps
+
+PHẢI TUÂN THỦ KIẾN TRÚC HIỆN TẠI:
+
+models
+repositories
+services
+controllers
+routes
+tests
+
+Repository Pattern:
+
+IAppRegistryRepository
+InMemoryAppRegistryRepository
+SupabaseAppRegistryRepository
+
+==================================================
+DATABASE
+==================================================
+
+Tạo schema:
+
+applications_registry
+
+fields:
+
+id uuid
+slug text unique
+name text
+description text
+icon_url text
+banner_url text
+category text
+launch_url text
+owner_app text
+
+status text
+ACTIVE
+DISABLED
+
+featured boolean
+
+created_at
+updated_at
+
+--------------------------------------------------
+
+user_apps
+
+id uuid
+user_id uuid
+
+application_id uuid
+
+installed_at
+last_opened_at
+
+unique(user_id, application_id)
+
+==================================================
+MODELS
+==================================================
+
+AppCategory:
+
+SYSTEM
+SPORT
+WORLD
+ANIMAL
+ECONOMY
+UTILITY
+EDUCATION
+AI
+
+AppStatus:
+
+ACTIVE
+DISABLED
+
+CreateApplicationRequest
+
+InstallApplicationRequest
+
+Application
+
+UserApplication
+
+==================================================
+SERVICE
+==================================================
+
+AppRegistryService
+
+Methods:
+
+registerApp()
+
+disableApp()
+
+enableApp()
+
+getApp()
+
+getApps()
+
+getFeaturedApps()
+
+installApp()
+
+uninstallApp()
+
+getMyApps()
+
+openApp()
+
+==================================================
+BUSINESS RULES
+==================================================
+
+1.
+
+slug unique
+
+duplicate slug
+
+throw AppAlreadyExistsError
+
+2.
+
+install app twice
+
+không tạo duplicate
+
+3.
+
+disabled app
+
+không cho open
+
+throw AppDisabledError
+
+4.
+
+featured apps
+
+chỉ lấy featured=true
+
+5.
+
+openApp()
+
+cập nhật lastOpenedAt
+
+==================================================
+CONTROLLER
+==================================================
+
+GET
+
+/api/apps
+
+GET
+
+/api/apps/featured
+
+GET
+
+/api/apps/my
+
+GET
+
+/api/apps/:slug
+
+POST
+
+/api/apps/register
+
+POST
+
+/api/apps/install
+
+DELETE
+
+/api/apps/install/:slug
+
+POST
+
+/api/apps/:slug/open
+
+PATCH
+
+/api/apps/:slug/disable
+
+PATCH
+
+/api/apps/:slug/enable
+
+==================================================
+INTEGRATION
+==================================================
+
+Khi install app:
+
+ghi Activity Feed
+
+type=SYSTEM
+
+title="Installed App"
+
+Khi open app:
+
+ghi Activity Feed
+
+type=SYSTEM
+
+title="Opened App"
+
+==================================================
+TESTS
+==================================================
+
+Tạo ít nhất 100 unit tests.
+
+Cover:
+
+register app
+duplicate slug
+featured apps
+install app
+reinstall
+uninstall
+my apps
+disabled app
+open app
+lastOpenedAt
+activity integration
+pagination
+sorting
+multi-user isolation
+edge cases
+
+==================================================
+ACCEPTANCE CRITERIA
+==================================================
+
+100+ tests pass
+
+typecheck pass
+
+repository pattern đúng chuẩn
+
+activity integration hoạt động
+
+không phá HUB-1 → HUB-4
+
+báo cáo cuối cùng phải gồm:
+
+1. files tạo mới
+2. files sửa
+3. endpoints
+4. test results
+5. sample responses
+6. acceptance criteria
