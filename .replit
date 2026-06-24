@@ -111,4 +111,3 @@ packages = ["lsof"]
 [userenv]
 
 [userenv.shared]
-UNIVERSE_ACCOUNT_API_URL = "https://e0a5bb76-7d5a-4d51-a6e5-949d1e03c9d9-00-1h8q91j3vx3h4.pike.replit.dev/"
