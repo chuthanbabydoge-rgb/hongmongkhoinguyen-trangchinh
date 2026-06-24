@@ -50,6 +50,8 @@ export interface IAccountClient {
   getSettings(token?: string): Promise<SettingsDTO>;
   markNotificationRead(id: string, token?: string): Promise<void>;
   markAllNotificationsRead(token?: string): Promise<number>;
+  /** Kiểm tra service có reachable không — không phụ thuộc vào auth. */
+  ping(): Promise<{ connected: boolean; error?: string }>;
 }
 
 // ─── Implementation ───────────────────────────────────────────────────────────
@@ -142,6 +144,47 @@ export class AccountClient implements IAccountClient {
 
   async markAllNotificationsRead(token?: string): Promise<number> {
     return this.requestMutation<number>("/api/notifications/read-all", "PATCH", token);
+  }
+
+  /**
+   * Kiểm tra Universe Account service có reachable không.
+   *
+   * Logic mapping:
+   *   HTTP 2xx / 4xx (401, 403, 404, …) → connected: true  (service đang chạy)
+   *   HTTP 5xx                           → connected: false (server error)
+   *   Network error / timeout            → connected: false (không tới được)
+   *
+   * Không phụ thuộc vào auth — 401 vẫn nghĩa là service đang sống.
+   */
+  async ping(): Promise<{ connected: boolean; error?: string }> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    try {
+      const res = await fetch(`${this.baseUrl}/api/identity/me`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+      });
+
+      if (res.status >= 500) {
+        return {
+          connected: false,
+          error: `Universe Account service error: HTTP ${res.status}`,
+        };
+      }
+
+      // 2xx, 3xx, 4xx (kể cả 401/403/404) → service reachable
+      return { connected: true };
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
+      return {
+        connected: false,
+        error: `Universe Account service unavailable: ${detail}`,
+      };
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   private async requestMutation<T>(path: string, method: "PATCH" | "POST", token?: string): Promise<T> {

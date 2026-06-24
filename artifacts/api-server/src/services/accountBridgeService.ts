@@ -152,14 +152,11 @@ export class AccountBridgeService {
     };
   }
 
-  async checkAccountHealth(token?: string): Promise<{ connected: boolean; error?: string }> {
-    try {
-      await this.client.getIdentity(token);
-      return { connected: true };
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      return { connected: false, error: message };
-    }
+  async checkAccountHealth(_token?: string): Promise<{ connected: boolean; error?: string }> {
+    // Dùng ping() thay vì getIdentity() vì health check phản ánh
+    // service reachability, không phải trạng thái đăng nhập.
+    // HTTP 401/403/404 → service đang chạy → connected: true.
+    return this.client.ping();
   }
 
   clearCache(): void {

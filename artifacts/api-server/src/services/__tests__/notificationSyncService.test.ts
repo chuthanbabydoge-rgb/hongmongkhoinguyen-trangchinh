@@ -60,6 +60,7 @@ class MockAccountClient implements IAccountClient {
   async getAchievementCount(){ return 0; }
   async getReputation()      { throw new Error("not implemented"); }
   async getSettings()        { throw new Error("not implemented"); }
+  async ping()               { return { connected: true as const }; }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

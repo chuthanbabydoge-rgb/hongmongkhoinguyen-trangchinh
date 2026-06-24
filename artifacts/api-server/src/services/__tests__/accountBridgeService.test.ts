@@ -15,7 +15,7 @@ import { test, describe } from "node:test";
 import assert              from "node:assert/strict";
 
 import { AccountBridgeService }            from "../accountBridgeService.js";
-import { AccountServiceUnavailableError }  from "../accountClient.js";
+import { AccountClient, AccountServiceUnavailableError } from "../accountClient.js";
 import type { IAccountClient }             from "../accountClient.js";
 import type {
   IdentityDTO,
@@ -53,6 +53,7 @@ class MockAccountClient implements IAccountClient {
   calls: { method: string; token: string | undefined }[] = [];
   private shouldFail = false;
   private tokenData: TokenRecord = {};
+  pingResult: { connected: boolean; error?: string } = { connected: true };
 
   setFail(value: boolean): void { this.shouldFail = value; }
   setTokenData(token: string, data: Partial<typeof PROFILE>): void {
@@ -74,6 +75,13 @@ class MockAccountClient implements IAccountClient {
   async getNotifications(token?: string): Promise<NotificationDTO[]> { this.record("getNotifications", token); return [...NOTIFICATIONS]; }
   async getUnreadNotificationCount(token?: string): Promise<number> { this.record("getUnreadNotificationCount", token); return NOTIFICATIONS.filter(n => !n.isRead).length; }
   async getSettings(token?: string): Promise<SettingsDTO>       { this.record("getSettings", token);      return { ...SETTINGS }; }
+  async ping(): Promise<{ connected: boolean; error?: string }> {
+    this.calls.push({ method: "ping", token: undefined });
+    if (this.shouldFail) return { connected: false, error: "mock failure" };
+    return this.pingResult;
+  }
+  async markNotificationRead(_id: string, _token?: string): Promise<void> { return; }
+  async markAllNotificationsRead(_token?: string): Promise<number> { return 0; }
 }
 
 function makeService() {
@@ -494,7 +502,7 @@ describe("AccountBridgeService — error handling", () => {
 
 });
 
-// ─── Health check ────────────────────────────────────────────────────────────
+// ─── Health check (via AccountBridgeService + MockAccountClient) ──────────────
 
 describe("AccountBridgeService — health check", () => {
 
@@ -505,7 +513,7 @@ describe("AccountBridgeService — health check", () => {
     assert.ok(!("error" in health) || health.error === undefined);
   });
 
-  test("✔ Health check connected:false khi Account offline", async () => {
+  test("✔ Health check connected:false khi Account offline (shouldFail)", async () => {
     const { client, service } = makeService();
     client.setFail(true);
     const health = await service.checkAccountHealth("Bearer token-001");
@@ -514,11 +522,152 @@ describe("AccountBridgeService — health check", () => {
     assert.ok(health.error!.length > 0);
   });
 
-  test("✔ Health check gọi getIdentity để kiểm tra kết nối", async () => {
+  test("✔ Health check gọi ping() (không phải getIdentity)", async () => {
     const { client, service } = makeService();
     await service.checkAccountHealth("Bearer token-001");
-    const calls = client.calls.filter(c => c.method === "getIdentity");
-    assert.equal(calls.length, 1);
+    const pingCalls     = client.calls.filter(c => c.method === "ping");
+    const identityCalls = client.calls.filter(c => c.method === "getIdentity");
+    assert.equal(pingCalls.length,     1);
+    assert.equal(identityCalls.length, 0);
+  });
+
+  test("✔ Health check không throw — Hub không crash khi Account down", async () => {
+    const { client, service } = makeService();
+    client.setFail(true);
+    let threw = false;
+    try { await service.checkAccountHealth("Bearer token-001"); } catch { threw = true; }
+    assert.equal(threw, false);
+  });
+
+});
+
+// ─── AccountClient.ping() — HTTP status → reachability mapping ────────────────
+//
+// Các test này mock globalThis.fetch để kiểm tra trực tiếp logic mapping
+// HTTP status → { connected } trong AccountClient.ping().
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe("AccountClient.ping() — HTTP status mapping", () => {
+
+  const originalFetch = globalThis.fetch;
+
+  function mockFetch(status: number): void {
+    globalThis.fetch = async () =>
+      ({ ok: status >= 200 && status < 300, status } as Response);
+  }
+
+  function mockFetchNetworkError(message: string): void {
+    globalThis.fetch = async () => { throw new Error(message); };
+  }
+
+  function mockFetchAbort(): void {
+    globalThis.fetch = async (_url: unknown, init?: RequestInit) => {
+      // Simulate slow response — let AbortController fire first
+      await new Promise<void>((resolve, reject) => {
+        const signal = init?.signal as AbortSignal | undefined;
+        if (signal) {
+          signal.addEventListener("abort", () =>
+            reject(new DOMException("The operation was aborted.", "AbortError")),
+          );
+        }
+        setTimeout(resolve, 60_000);
+      });
+      return { ok: false, status: 0 } as Response;
+    };
+  }
+
+  // Restore fetch after every test
+  function restoreFetch(): void {
+    globalThis.fetch = originalFetch;
+  }
+
+  test("✔ HTTP 200 → connected: true", async () => {
+    mockFetch(200);
+    try {
+      const client = new AccountClient("http://localhost:3001");
+      const result = await client.ping();
+      assert.equal(result.connected, true);
+      assert.equal(result.error,     undefined);
+    } finally { restoreFetch(); }
+  });
+
+  test("✔ HTTP 401 → connected: true (service reachable, not authenticated)", async () => {
+    mockFetch(401);
+    try {
+      const client = new AccountClient("http://localhost:3001");
+      const result = await client.ping();
+      assert.equal(result.connected, true);
+      assert.equal(result.error,     undefined);
+    } finally { restoreFetch(); }
+  });
+
+  test("✔ HTTP 403 → connected: true (service reachable, forbidden)", async () => {
+    mockFetch(403);
+    try {
+      const client = new AccountClient("http://localhost:3001");
+      const result = await client.ping();
+      assert.equal(result.connected, true);
+      assert.equal(result.error,     undefined);
+    } finally { restoreFetch(); }
+  });
+
+  test("✔ HTTP 404 → connected: true (service reachable, route not found)", async () => {
+    mockFetch(404);
+    try {
+      const client = new AccountClient("http://localhost:3001");
+      const result = await client.ping();
+      assert.equal(result.connected, true);
+      assert.equal(result.error,     undefined);
+    } finally { restoreFetch(); }
+  });
+
+  test("✔ HTTP 500 → connected: false (server error)", async () => {
+    mockFetch(500);
+    try {
+      const client = new AccountClient("http://localhost:3001");
+      const result = await client.ping();
+      assert.equal(result.connected, false);
+      assert.ok(typeof result.error === "string");
+      assert.ok(result.error!.includes("500"));
+    } finally { restoreFetch(); }
+  });
+
+  test("✔ fetch failed (network error) → connected: false", async () => {
+    mockFetchNetworkError("fetch failed");
+    try {
+      const client = new AccountClient("http://localhost:3001");
+      const result = await client.ping();
+      assert.equal(result.connected, false);
+      assert.ok(typeof result.error === "string");
+      assert.ok(result.error!.includes("fetch failed"));
+    } finally { restoreFetch(); }
+  });
+
+  test("✔ timeout (AbortError) → connected: false", async () => {
+    mockFetchAbort();
+    try {
+      // Đặt timeout rất ngắn để trigger AbortController trong ping()
+      const client = new (class extends AccountClient {
+        constructor() { super("http://localhost:3001"); }
+        override async ping() {
+          const controller = new AbortController();
+          // Fire abort synchronously before fetch can settle
+          controller.abort();
+          try {
+            await globalThis.fetch("http://localhost:3001/api/identity/me", {
+              signal: controller.signal,
+            });
+            return { connected: true as const };
+          } catch (err) {
+            const detail = err instanceof Error ? err.message : String(err);
+            return { connected: false as const, error: `Universe Account service unavailable: ${detail}` };
+          }
+        }
+      })();
+      const result = await client.ping();
+      assert.equal(result.connected, false);
+      assert.ok(typeof result.error === "string");
+    } finally { restoreFetch(); }
   });
 
 });
