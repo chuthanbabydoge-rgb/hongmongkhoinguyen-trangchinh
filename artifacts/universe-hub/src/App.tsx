@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { WalletProvider } from "@/context/WalletContext";
 import { InventoryProvider } from "@/context/InventoryContext";
 import { MarketplaceProvider } from "@/context/MarketplaceContext";
+import { SessionProvider, useSession } from "@/context/SessionContext";
+import LoginPage from "@/pages/LoginPage";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/Dashboard";
 import UniverseMap from "@/pages/UniverseMap";
@@ -65,8 +67,8 @@ function Router() {
       <Route path="/marketplace/transactions" component={MarketplaceTransactions} />
       <Route path="/marketplace/analytics" component={MarketplaceAnalytics} />
       <Route path="/marketplace/trades" component={Trades} />
-      <Route path="/marketplace/watchlist"  component={WatchlistPage} />
-      <Route path="/marketplace/activity"  component={ActivityFeed} />
+      <Route path="/marketplace/watchlist" component={WatchlistPage} />
+      <Route path="/marketplace/activity" component={ActivityFeed} />
       <Route path="/launcher" component={Launcher} />
       <Route path="/apps/:slug" component={AppDetail} />
       <Route component={NotFound} />
@@ -74,26 +76,36 @@ function Router() {
   );
 }
 
+function AuthGuard({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useSession();
+  if (!isAuthenticated) return <LoginPage />;
+  return <>{children}</>;
+}
+
 function App() {
   useEffect(() => {
-    document.documentElement.classList.add('dark');
+    document.documentElement.classList.add("dark");
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WalletProvider>
-          <InventoryProvider>
-            <MarketplaceProvider>
-              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-                <Router />
-              </WouterRouter>
-              <Toaster />
-            </MarketplaceProvider>
-          </InventoryProvider>
-        </WalletProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <SessionProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <WalletProvider>
+            <InventoryProvider>
+              <MarketplaceProvider>
+                <AuthGuard>
+                  <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                    <Router />
+                  </WouterRouter>
+                </AuthGuard>
+                <Toaster />
+              </MarketplaceProvider>
+            </InventoryProvider>
+          </WalletProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </SessionProvider>
   );
 }
 

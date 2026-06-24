@@ -12,8 +12,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { useAccount } from "@/hooks/useAccount";
-import { type Notification, type NotificationType } from "@/services/accountService";
+import { useAccount, type Notification, type NotificationType } from "@/hooks/useAccount";
 
 // ─── Category config ──────────────────────────────────────────────────────────
 
