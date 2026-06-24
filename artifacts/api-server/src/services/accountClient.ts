@@ -69,6 +69,8 @@ export class AccountClient implements IAccountClient {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
+    const fullUrl = `${this.baseUrl}${path}`;
+
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
@@ -76,22 +78,39 @@ export class AccountClient implements IAccountClient {
       headers["Authorization"] = token;
     }
 
+    console.log(`[AccountClient] → ${fullUrl} | auth=${token ? "yes" : "no"}`);
+
     try {
-      const res = await fetch(`${this.baseUrl}${path}`, {
+      const res = await fetch(fullUrl, {
         method: "GET",
         headers,
         signal: controller.signal,
       });
 
       if (!res.ok) {
+        let body = "<empty>";
+        try { body = await res.text(); } catch { /* ignore */ }
+        console.error(`[AccountClient] ✗ ${fullUrl} → HTTP ${res.status} | body=${body.slice(0, 300)}`);
         throw new AccountServiceUnavailableError(
           `HTTP ${res.status} from ${path}`,
         );
       }
 
-      return (await res.json()) as T;
+      const raw = await res.text();
+      console.log(`[AccountClient] ✓ ${fullUrl} → HTTP ${res.status} | shape=${raw.slice(0, 200)}`);
+
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (parseErr) {
+        console.error(`[AccountClient] ✗ JSON parse failed for ${fullUrl}: ${parseErr}`);
+        throw new AccountServiceUnavailableError(`JSON parse error from ${path}: ${parseErr}`);
+      }
+
+      return parsed as T;
     } catch (err) {
       if (err instanceof AccountServiceUnavailableError) throw err;
+      console.error(`[AccountClient] ✗ fetch failed for ${fullUrl}: ${err}`);
       throw new AccountServiceUnavailableError(err);
     } finally {
       clearTimeout(timer);
