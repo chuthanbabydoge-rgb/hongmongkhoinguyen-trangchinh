@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import {
-  PETS, RARITY_META, ELEMENT_META, PET_STATUS_META,
+  RARITY_META, ELEMENT_META, PET_STATUS_META,
   type Rarity, type PetElement, type PetStatus,
 } from "@/lib/inventoryMockData";
+import { useInventory } from "@/context/InventoryContext";
+import type { Pet } from "@/types/inventory";
 import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal, Zap, Shield, Heart, Wind } from "lucide-react";
 

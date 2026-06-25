@@ -26,6 +26,13 @@ import type {
   TicketValidity,
   ItemCategory as InventoryItemCategory,
 } from "@/types/inventory";
+import {
+  PET_CATALOG,
+  PLAYER_CATALOG,
+  WORLD_ASSET_CATALOG,
+  TICKET_CATALOG,
+  ITEM_CATALOG,
+} from "@/lib/inventoryCatalog";
 
 // ─── Re-export types for convenience ─────────────────────────────────────────
 
@@ -45,74 +52,78 @@ interface ApiInventoryItem {
 // ─── Mappers: API item → rich frontend types ──────────────────────────────────
 
 function toPet(item: ApiInventoryItem): Pet {
+  const cat = PET_CATALOG.get(item.id);
   return {
-    id:         item.id,
-    name:       item.name,
-    category:   "pets",
-    rarity:     item.rarity as Rarity,
-    quantity:   1,
-    value:      0,
-    status:     item.status as ItemStatus,
-    image:      "🐾",
-    createdAt:  item.acquiredAt,
-    species:    "—",
-    element:    "fire" as PetElement,
-    level:      1,
-    maxLevel:   100,
-    power:      0,
-    hp:         0,
-    attack:     0,
-    defense:    0,
-    speed:      0,
-    petStatus:  "active" as PetStatus,
-    description: "",
+    id:          item.id,
+    name:        item.name,
+    category:    "pets",
+    rarity:      item.rarity as Rarity,
+    quantity:    cat?.quantity    ?? 1,
+    value:       cat?.value       ?? 0,
+    status:      item.status as ItemStatus,
+    image:       cat?.image       ?? "🐾",
+    createdAt:   item.acquiredAt,
+    species:     cat?.species     ?? "—",
+    element:     cat?.element     ?? ("fire" as PetElement),
+    level:       cat?.level       ?? 1,
+    maxLevel:    cat?.maxLevel    ?? 100,
+    power:       cat?.power       ?? 0,
+    hp:          cat?.hp          ?? 0,
+    attack:      cat?.attack      ?? 0,
+    defense:     cat?.defense     ?? 0,
+    speed:       cat?.speed       ?? 0,
+    petStatus:   cat?.petStatus   ?? ("active" as PetStatus),
+    description: cat?.description ?? "",
   };
 }
 
 function toPlayer(item: ApiInventoryItem): FootballPlayer {
+  const cat = PLAYER_CATALOG.get(item.id);
   return {
     id:             item.id,
     name:           item.name,
     category:       "football",
     rarity:         item.rarity as Rarity,
-    quantity:       1,
-    value:          0,
+    quantity:       cat?.quantity       ?? 1,
+    value:          cat?.value          ?? 0,
     status:         item.status as ItemStatus,
-    image:          "⚽",
+    image:          cat?.image          ?? "⚽",
     createdAt:      item.acquiredAt,
-    position:       "CM" as Position,
-    team:           "—",
-    nationality:    "—",
-    flag:           "🏳",
-    rating:         60,
-    level:          1,
-    stats:          { pace: 0, shooting: 0, passing: 0, dribbling: 0, defending: 0, physical: 0 },
-    specialAbility: "—",
+    position:       cat?.position       ?? ("CM" as Position),
+    team:           cat?.team           ?? "—",
+    nationality:    cat?.nationality    ?? "—",
+    flag:           cat?.flag           ?? "🏳",
+    rating:         cat?.rating         ?? 60,
+    level:          cat?.level          ?? 1,
+    stats:          cat?.stats          ?? { pace: 0, shooting: 0, passing: 0, dribbling: 0, defending: 0, physical: 0 },
+    specialAbility: cat?.specialAbility ?? "—",
   };
 }
 
 function toWorldAsset(item: ApiInventoryItem): WorldAsset {
+  const cat = WORLD_ASSET_CATALOG.get(item.id);
   return {
     id:          item.id,
     name:        item.name,
     category:    "world-assets",
     rarity:      item.rarity as Rarity,
-    quantity:    1,
-    value:       0,
+    quantity:    cat?.quantity    ?? 1,
+    value:       cat?.value       ?? 0,
     status:      item.status as ItemStatus,
-    image:       "🌍",
+    image:       cat?.image       ?? "🌍",
     createdAt:   item.acquiredAt,
-    assetType:   "land" as AssetType,
-    world:       "—",
-    coordinates: "—",
-    size:        0,
-    assetStatus: "owned" as AssetStatus,
-    income:      0,
-    description: "",
+    assetType:   cat?.assetType   ?? ("land" as AssetType),
+    world:       cat?.world       ?? "—",
+    coordinates: cat?.coordinates ?? "—",
+    size:        cat?.size        ?? 0,
+    assetStatus: cat?.assetStatus ?? ("owned" as AssetStatus),
+    income:      cat?.income      ?? 0,
+    description: cat?.description ?? "",
   };
 }
 
 function toTicket(item: ApiInventoryItem): Ticket {
+  const cat = TICKET_CATALOG.get(item.id);
   const validity: TicketValidity =
     item.status === "expired" ? "expired"
     : item.status === "used"   ? "used"
@@ -122,38 +133,39 @@ function toTicket(item: ApiInventoryItem): Ticket {
     name:           item.name,
     category:       "tickets",
     rarity:         item.rarity as Rarity,
-    quantity:       1,
-    value:          0,
+    quantity:       cat?.quantity       ?? 1,
+    value:          cat?.value          ?? 0,
     status:         item.status as ItemStatus,
-    image:          "🎫",
+    image:          cat?.image          ?? "🎫",
     createdAt:      item.acquiredAt,
-    ticketType:     "match" as TicketType,
-    event:          "—",
-    date:           "—",
-    time:           "—",
-    venue:          "—",
-    seatInfo:       "—",
-    perks:          [],
+    ticketType:     cat?.ticketType     ?? ("match" as TicketType),
+    event:          cat?.event          ?? "—",
+    date:           cat?.date           ?? "—",
+    time:           cat?.time           ?? "—",
+    venue:          cat?.venue          ?? "—",
+    seatInfo:       cat?.seatInfo       ?? "—",
+    perks:          cat?.perks          ?? [],
     ticketValidity: validity,
   };
 }
 
 function toInventoryItem(item: ApiInventoryItem): InventoryItem {
+  const cat = ITEM_CATALOG.get(item.id);
   return {
     id:           item.id,
     name:         item.name,
     category:     "items",
     rarity:       item.rarity as Rarity,
-    quantity:     1,
-    value:        0,
+    quantity:     cat?.quantity     ?? 1,
+    value:        cat?.value        ?? 0,
     status:       item.status as ItemStatus,
-    image:        "🎒",
+    image:        cat?.image        ?? "🎒",
     createdAt:    item.acquiredAt,
-    itemCategory: "equipment" as InventoryItemCategory,
-    power:        0,
-    effect:       "—",
-    usableIn:     [],
-    description:  "",
+    itemCategory: cat?.itemCategory ?? ("equipment" as InventoryItemCategory),
+    power:        cat?.power        ?? 0,
+    effect:       cat?.effect       ?? "—",
+    usableIn:     cat?.usableIn     ?? [],
+    description:  cat?.description  ?? "",
   };
 }
 

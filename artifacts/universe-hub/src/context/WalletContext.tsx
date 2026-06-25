@@ -248,7 +248,7 @@ WalletContext.displayName = "WalletContext";
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function WalletProvider({ children }: { children: ReactNode }) {
-  const [balances, setBalances]         = useState<CurrencyBalance[]>(CURRENCY_BALANCES);
+  const [balances, setBalances]         = useState<CurrencyBalance[]>(CURRENCY_BALANCES.map(b => ({ ...b, balance: 0 })));
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [rewards, setRewards]           = useState<Reward[]>(REWARDS);
   const [isLoading, setIsLoading]       = useState(false);
