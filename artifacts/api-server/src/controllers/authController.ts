@@ -1,11 +1,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// AuthController — proxies login/refresh to Universe Account API
+// AuthController — proxies auth to Universe Account API
 //
-// POST /api/auth/register         → { ok, data: { accessToken, refreshToken, expiresIn, user } }
-// POST /api/auth/login            → { ok, data: { accessToken, refreshToken, expiresIn, user } }
-// POST /api/auth/refresh          → { ok, data: { accessToken, expiresIn } }
-// POST /api/auth/logout           → { ok: true }
-// GET  /api/auth/sso/validate     → { ok, data: { user } }  — validates hub_token for SSO
+// Hub không tự tạo user. Mọi auth đều đi qua Universe Account:
+//
+// POST /api/auth/login        → { ok, data: { accessToken, refreshToken, expiresIn, user } }
+// POST /api/auth/refresh      → { ok, data: { accessToken, expiresIn } }
+// POST /api/auth/logout       → { ok: true }
+// GET  /api/auth/sso/validate → { ok, data: { user, token } }  — SSO token validation
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { type Request, type Response } from "express";
@@ -33,41 +34,6 @@ async function proxyPost<T>(path: string, body: unknown): Promise<T> {
     return json as T;
   } finally {
     clearTimeout(timer);
-  }
-}
-
-// ─── POST /api/auth/register ─────────────────────────────────────────────────
-
-export async function handleRegister(req: Request, res: Response): Promise<void> {
-  try {
-    const { email, password, username } = req.body as {
-      email?: string;
-      password?: string;
-      username?: string;
-    };
-    if (!email || !password || !username) {
-      res.status(400).json({ ok: false, error: "email, password và username là bắt buộc." });
-      return;
-    }
-
-    const acct = await proxyPost<{
-      user: { id: string; email: string; username: string; createdAt: string };
-      tokens: { accessToken: string; refreshToken: string; expiresIn: number };
-    }>("/api/auth/register", { email, password, username });
-
-    res.status(201).json({
-      ok: true,
-      data: {
-        accessToken:  acct.tokens.accessToken,
-        refreshToken: acct.tokens.refreshToken,
-        expiresIn:    acct.tokens.expiresIn,
-        user:         acct.user,
-      },
-    });
-  } catch (err) {
-    const e = err as Error & { status?: number };
-    const status = e.status === 409 ? 409 : e.status === 400 ? 400 : 502;
-    res.status(status).json({ ok: false, error: e.message ?? "Đăng ký thất bại." });
   }
 }
 
@@ -129,9 +95,35 @@ export async function handleRefresh(req: Request, res: Response): Promise<void> 
   }
 }
 
+// ─── POST /api/auth/logout ───────────────────────────────────────────────────
+// Forwards logout to Universe Account API — invalidates the server-side session.
+// Returns ok: true regardless so the client always clears its local session.
+
+export async function handleLogout(req: Request, res: Response): Promise<void> {
+  if (ACCOUNT_URL) {
+    const auth = req.headers["authorization"];
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+    try {
+      await fetch(`${ACCOUNT_URL}/api/auth/logout`, {
+        method:  "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(typeof auth === "string" ? { Authorization: auth } : {}),
+        },
+        signal: ctrl.signal,
+      });
+    } catch {
+      // Non-fatal — always return ok so the client clears its local session
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  res.json({ ok: true });
+}
+
 // ─── GET /api/auth/sso/validate ──────────────────────────────────────────────
-// SSO token validation endpoint — called by external apps (e.g. Universe Account)
-// to verify a hub_token passed via query param or Authorization header.
+// SSO token validation endpoint — called by external apps to verify a hub_token.
 //
 // Flow:
 //   1. External app receives ?hub_token=<token> in its URL
@@ -139,10 +131,9 @@ export async function handleRefresh(req: Request, res: Response): Promise<void> 
 //   3. Hub forwards to Account API /api/auth/me to verify the token
 //   4. Returns user profile so external app can create its own session
 //
-// Returns: { ok: true, data: { user: { id, email, username } } }
+// Returns: { ok: true, data: { user: { id, email, username }, token } }
 
 export async function handleSsoValidate(req: Request, res: Response): Promise<void> {
-  // Accept token from Authorization header or ?token= query param
   const authHeader = req.headers["authorization"];
   const queryToken = typeof req.query["token"] === "string" ? req.query["token"] : null;
 
@@ -182,8 +173,7 @@ export async function handleSsoValidate(req: Request, res: Response): Promise<vo
     }
 
     const profile = await (meRes as globalThis.Response).json() as unknown;
-    // Account API may return { user: {...} } or { data: { user: {...} } } or the user directly
-    const raw = profile as Record<string, unknown>;
+    const raw  = profile as Record<string, unknown>;
     const user = (raw["user"] ?? raw["data"] ?? raw) as Record<string, unknown>;
 
     res.json({
@@ -205,33 +195,4 @@ export async function handleSsoValidate(req: Request, res: Response): Promise<vo
       error: isTimeout ? "Account service timeout." : "Không thể xác thực token.",
     });
   }
-}
-
-// ─── POST /api/auth/logout ───────────────────────────────────────────────────
-// HUB-5 Logout Synchronization:
-// Forwards the logout to Universe Account API so the session is invalidated
-// server-side. Returns ok: true regardless — the client must clear its local
-// session even if the Account API call fails.
-
-export async function handleLogout(req: Request, res: Response): Promise<void> {
-  if (ACCOUNT_URL) {
-    const auth = req.headers["authorization"];
-    const ctrl  = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
-    try {
-      await fetch(`${ACCOUNT_URL}/api/auth/logout`, {
-        method:  "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(typeof auth === "string" ? { Authorization: auth } : {}),
-        },
-        signal: ctrl.signal,
-      });
-    } catch {
-      // Non-fatal — always return ok so the client clears its local session
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-  res.json({ ok: true });
 }

@@ -7,7 +7,6 @@ import { InventoryProvider } from "@/context/InventoryContext";
 import { MarketplaceProvider } from "@/context/MarketplaceContext";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import LoginPage from "@/pages/LoginPage";
-import RegisterPage from "@/pages/RegisterPage";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/Dashboard";
 import UniverseMap from "@/pages/UniverseMap";
@@ -79,16 +78,15 @@ function Router() {
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
-  const [path, navigate] = useLocation();
+  const [, navigate] = useLocation();
 
   useEffect(() => {
-    if (isAuthenticated && (path === "/register" || path === "/login")) {
+    if (isAuthenticated) {
       navigate("/", { replace: true } as never);
     }
-  }, [isAuthenticated, path, navigate]);
+  }, [isAuthenticated, navigate]);
 
   if (!isAuthenticated) {
-    if (path === "/register") return <RegisterPage key="register" />;
     return <LoginPage key="login" />;
   }
   return <Router key="app" />;

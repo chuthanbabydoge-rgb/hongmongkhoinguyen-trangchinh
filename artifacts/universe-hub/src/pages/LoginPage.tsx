@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useSession } from "@/context/SessionContext";
-import { Loader2, LogIn, Hexagon } from "lucide-react";
-import { Link } from "wouter";
+import { Loader2, LogIn, Hexagon, ExternalLink } from "lucide-react";
+
+const ACCOUNT_PROJECT_URL = "https://hongmongkhoinguyen-taikhoanvutru--manifestanhthu3.replit.app";
 
 export default function LoginPage() {
   const { login } = useSession();
@@ -93,11 +94,18 @@ export default function LoginPage() {
           </form>
         </div>
 
+        {/* Register link — goes to Account project, not Hub */}
         <p className="text-center text-xs text-muted-foreground mt-4">
           Chưa có tài khoản?{" "}
-          <Link href="/register" className="text-primary hover:underline font-medium">
-            Đăng ký ngay
-          </Link>
+          <a
+            href={`${ACCOUNT_PROJECT_URL}/register`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+          >
+            Tạo tài khoản tại Universe Account
+            <ExternalLink className="w-3 h-3" />
+          </a>
         </p>
 
         <p className="text-center text-xs text-muted-foreground/50 mt-4 font-mono">
