@@ -10,6 +10,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { type Request, type Response } from "express";
+import { socialService, accountBridgeService } from "../container.js";
 
 const ACCOUNT_URL = (process.env["UNIVERSE_ACCOUNT_API_URL"] ?? "").replace(/\/$/, "");
 const TIMEOUT_MS  = 10_000;
@@ -61,6 +62,8 @@ export async function handleLogin(req: Request, res: Response): Promise<void> {
         user:         acct.user,
       },
     });
+
+    socialService.setPresence(acct.user.id, "ONLINE").catch(() => {});
   } catch (err) {
     const e = err as Error & { status?: number };
     const status = e.status === 401 ? 401 : 502;
@@ -100,8 +103,19 @@ export async function handleRefresh(req: Request, res: Response): Promise<void> 
 // Returns ok: true regardless so the client always clears its local session.
 
 export async function handleLogout(req: Request, res: Response): Promise<void> {
+  const auth = req.headers["authorization"];
+
+  if (typeof auth === "string") {
+    accountBridgeService.getProfileCached(auth)
+      .then((profile) => {
+        const userId = (profile as { userId?: string; id?: string }).userId
+          || (profile as { userId?: string; id?: string }).id;
+        if (userId) socialService.setPresence(userId, "OFFLINE").catch(() => {});
+      })
+      .catch(() => {});
+  }
+
   if (ACCOUNT_URL) {
-    const auth = req.headers["authorization"];
     const ctrl  = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
     try {

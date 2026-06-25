@@ -36,15 +36,15 @@ router.get("/social/followers",         requireAuth, handleGetFollowers);
 router.get("/social/following",         requireAuth, handleGetFollowing);
 
 // ── Profiles ───────────────────────────────────────────────────────────────────
-router.get("/social/profile/me",         requireAuth, handleGetMyProfile);
-router.get("/social/profile/:userId",               handleGetPublicProfile);
+router.get("/social/profile/me",        requireAuth, handleGetMyProfile);
+router.get("/social/profile/:userId",   requireAuth, handleGetPublicProfile);
 
 // ── Search ─────────────────────────────────────────────────────────────────────
 router.get("/social/search", requireAuth, handleSearchUsers);
 
 // ── Presence ───────────────────────────────────────────────────────────────────
 router.post("/social/presence",         requireAuth, handleSetPresence);
-router.get("/social/presence/:userId",              handleGetPresence);
+router.get("/social/presence/:userId",  requireAuth, handleGetPresence);
 
 // ── Counts (dashboard widget) ──────────────────────────────────────────────────
 router.get("/social/counts",            requireAuth, handleGetSocialCounts);

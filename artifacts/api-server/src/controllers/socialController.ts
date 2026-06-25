@@ -1,5 +1,5 @@
 import { type Request, type Response } from "express";
-import { socialService, accountBridgeService } from "../container.js";
+import { socialService, accountBridgeService, userReputationService, achievementService } from "../container.js";
 import { SocialError } from "../services/socialService.js";
 import type { PresenceStatus } from "../repositories/socialRepository.js";
 
@@ -143,6 +143,37 @@ export async function handleGetFollowing(req: Request, res: Response): Promise<v
 
 // ── Profiles ─────────────────────────────────────────────────────────────────
 
+async function buildFullProfile(userId: string, displayName: string, avatarUrl: string | null) {
+  const [counts, presence, rep, achievements] = await Promise.allSettled([
+    socialService.getSocialCounts(userId),
+    socialService.getPresence(userId),
+    userReputationService.getReputation(userId),
+    achievementService.getUserAchievements(userId),
+  ]);
+
+  const countsData = counts.status === "fulfilled" ? counts.value : { friends: 0, followers: 0, following: 0, onlineFriends: 0 };
+  const presenceData = presence.status === "fulfilled" ? presence.value : null;
+  const repData = rep.status === "fulfilled" ? { totalPoints: rep.value.totalPoints, level: rep.value.level } : null;
+  const achievementsData = achievements.status === "fulfilled"
+    ? achievements.value.map((ua: { achievement?: { key?: string; title?: string; icon?: string }; achievementKey: string; unlockedAt: string }) => ({
+        key:   ua.achievement?.key   ?? ua.achievementKey,
+        title: ua.achievement?.title ?? ua.achievementKey,
+        icon:  ua.achievement?.icon  ?? "",
+        unlockedAt: ua.unlockedAt,
+      }))
+    : [];
+
+  return {
+    userId,
+    displayName,
+    avatarUrl,
+    ...countsData,
+    presence:     presenceData?.status ?? "OFFLINE" as PresenceStatus,
+    reputation:   repData,
+    achievements: achievementsData,
+  };
+}
+
 export async function handleGetMyProfile(req: Request, res: Response): Promise<void> {
   try {
     const userId = await resolveUserId(req);
@@ -160,45 +191,26 @@ export async function handleGetMyProfile(req: Request, res: Response): Promise<v
 
     await socialService.syncPublicProfile(userId, displayName, avatarUrl);
 
-    const counts = await socialService.getSocialCounts(userId);
-    const presence = await socialService.getPresence(userId);
-
-    res.json({
-      ok: true,
-      data: {
-        userId,
-        displayName,
-        avatarUrl,
-        ...counts,
-        presence: presence?.status ?? "OFFLINE",
-      },
-    });
+    const data = await buildFullProfile(userId, displayName, avatarUrl);
+    res.json({ ok: true, data });
   } catch (err) { handleError(err, res); }
 }
 
 export async function handleGetPublicProfile(req: Request, res: Response): Promise<void> {
   try {
-    const { userId } = req.params as { userId: string };
-    const profile = await socialService.getPublicProfile(userId);
+    const userId = await resolveUserId(req);
+    if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
+
+    const { userId: targetId } = req.params as { userId: string };
+    const profile = await socialService.getPublicProfile(targetId);
 
     if (!profile) {
       res.status(404).json({ ok: false, error: "Hồ sơ không tìm thấy." });
       return;
     }
 
-    const counts = await socialService.getSocialCounts(userId);
-    const presence = await socialService.getPresence(userId);
-
-    res.json({
-      ok: true,
-      data: {
-        userId:      profile.userId,
-        displayName: profile.displayName,
-        avatarUrl:   profile.avatarUrl,
-        ...counts,
-        presence: presence?.status ?? "OFFLINE",
-      },
-    });
+    const data = await buildFullProfile(targetId, profile.displayName, profile.avatarUrl);
+    res.json({ ok: true, data });
   } catch (err) { handleError(err, res); }
 }
 

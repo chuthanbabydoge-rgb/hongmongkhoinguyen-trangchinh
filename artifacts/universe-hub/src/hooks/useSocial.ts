@@ -228,10 +228,11 @@ export function useSocialCounts() {
 // ── Presence ──────────────────────────────────────────────────────────────────
 
 export function usePresence(userId: string | undefined) {
+  const { accessToken } = useAuth();
   return useQuery<UserPresence>({
     queryKey: ["social", "presence", userId],
-    queryFn:  () => fetch(`/api/social/presence/${userId}`).then(r => r.json()).then((j: { data: UserPresence }) => j.data),
-    enabled:  !!userId,
+    queryFn:  () => apiFetch(`/api/social/presence/${userId}`, accessToken ?? ""),
+    enabled:  !!userId && !!accessToken,
     staleTime: 15_000,
   });
 }
