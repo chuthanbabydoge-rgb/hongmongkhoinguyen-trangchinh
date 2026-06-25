@@ -53,6 +53,8 @@ import GuildLogs from "@/pages/guild/GuildLogs";
 import GuildSettings from "@/pages/guild/GuildSettings";
 import QuestsDashboard from "@/pages/quests/QuestsDashboard";
 import MailDashboard from "@/pages/mail/MailDashboard";
+import ChatHome from "@/pages/chat/ChatHome";
+import ChatRoom from "@/pages/chat/ChatRoom";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -106,6 +108,8 @@ function Router() {
       <Route path="/guild/:id" component={GuildDetail} />
       <Route path="/quests" component={QuestsDashboard} />
       <Route path="/mail" component={MailDashboard} />
+      <Route path="/chat" component={ChatHome} />
+      <Route path="/chat/:id" component={ChatRoom} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -31,7 +31,10 @@ export type QuestEventType =
   | "REPUTATION_GAINED"
   | "QUEST_COMPLETED"
   | "ACHIEVEMENT_UNLOCKED"
-  | "MAIL_CLAIMED";
+  | "MAIL_CLAIMED"
+  | "SEND_MESSAGE"
+  | "SEND_GUILD_MESSAGE"
+  | "PRIVATE_CHAT";
 
 // ─── Event envelope ──────────────────────────────────────────────────────────
 

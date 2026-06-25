@@ -1,0 +1,422 @@
+# HUB-14 — Universe Chat & Messaging System (Production Ready)
+
+Mục tiêu:
+
+Xây dựng hệ thống Chat realtime dùng chung cho toàn bộ Universe Platform.
+
+Không mock.
+
+Không polling.
+
+WebSocket realtime.
+
+PostgreSQL + Drizzle ORM.
+
+==================================================
+
+CHAT TYPES
+
+==================================================
+
+GLOBAL
+
+PRIVATE
+
+GUILD
+
+PARTY
+
+MARKETPLACE
+
+SYSTEM
+
+SUPPORT
+
+==================================================
+
+DATABASE
+
+==================================================
+
+Tạo schema:
+
+chat_rooms
+
+chat_members
+
+chat_messages
+
+chat_message_reads
+
+chat_attachments
+
+chat_pins
+
+chat_reactions
+
+chat_settings
+
+chat_blocks
+
+chat_reports
+
+==================================================
+
+MESSAGE TYPES
+
+==================================================
+
+TEXT
+
+IMAGE
+
+FILE
+
+SYSTEM
+
+ITEM_SHARE
+
+QUEST_SHARE
+
+ACHIEVEMENT
+
+LOCATION
+
+==================================================
+
+BACKEND
+
+==================================================
+
+Tạo:
+
+ChatRepository
+
+DrizzleChatRepository
+
+ChatService
+
+ChatController
+
+ChatGateway (WebSocket)
+
+ChatEventBus
+
+==================================================
+
+API
+
+==================================================
+
+GET /api/chat/rooms
+
+POST /api/chat/rooms
+
+GET /api/chat/rooms/:id
+
+DELETE /api/chat/rooms/:id
+
+GET /api/chat/rooms/:id/messages
+
+POST /api/chat/rooms/:id/messages
+
+PATCH /api/chat/messages/:id/edit
+
+DELETE /api/chat/messages/:id
+
+POST /api/chat/messages/:id/react
+
+POST /api/chat/messages/:id/read
+
+POST /api/chat/messages/:id/pin
+
+POST /api/chat/messages/:id/unpin
+
+==================================================
+
+WEBSOCKET EVENTS
+
+==================================================
+
+CHAT_ROOM_CREATED
+
+CHAT_MESSAGE_SENT
+
+CHAT_MESSAGE_UPDATED
+
+CHAT_MESSAGE_DELETED
+
+CHAT_MESSAGE_READ
+
+CHAT_USER_TYPING
+
+CHAT_USER_STOPPED_TYPING
+
+CHAT_REACTION
+
+CHAT_PIN
+
+==================================================
+
+FRONTEND
+
+==================================================
+
+Universe Chat App
+
+Pages:
+
+Chat Home
+
+Room List
+
+Conversation
+
+Pinned Messages
+
+Search
+
+Settings
+
+==================================================
+
+FEATURES
+
+==================================================
+
+Realtime typing indicator
+
+Realtime read receipts
+
+Unread badge
+
+Online status
+
+Emoji reactions
+
+Pin message
+
+Message edit
+
+Delete own message
+
+Image upload
+
+File upload
+
+Infinite scroll
+
+Search history
+
+Mention (@)
+
+==================================================
+
+SOCIAL INTEGRATION
+
+==================================================
+
+Friend
+
+↓
+
+Start private chat
+
+Guild
+
+↓
+
+Guild chat room
+
+Marketplace
+
+↓
+
+Buyer ↔ Seller private room
+
+Support
+
+↓
+
+System room
+
+==================================================
+
+NOTIFICATION
+
+==================================================
+
+Tin nhắn mới
+
+↓
+
+Notification
+
+↓
+
+Sidebar badge
+
+↓
+
+Dashboard widget
+
+==================================================
+
+ACTIVITY
+
+==================================================
+
+CHAT_MESSAGE_SENT
+
+CHAT_ROOM_CREATED
+
+CHAT_REACTION
+
+ghi Activity.
+
+==================================================
+
+QUEST
+
+==================================================
+
+Emit Quest Events:
+
+SEND_MESSAGE
+
+SEND_GUILD_MESSAGE
+
+PRIVATE_CHAT
+
+==================================================
+
+REPUTATION
+
+==================================================
+
+FIRST_CHAT
+
+FIRST_GUILD_CHAT
+
+FIRST_PRIVATE_CHAT
+
+==================================================
+
+APP REGISTRY
+
+==================================================
+
+Đăng ký:
+
+slug: chat
+
+name: Universe Chat
+
+category: COMMUNICATION
+
+status: ACTIVE
+
+Launcher hiển thị.
+
+==================================================
+
+PERFORMANCE
+
+==================================================
+
+Cursor pagination
+
+Virtualized messages
+
+Lazy loading
+
+Batch read receipts
+
+Không N+1 query
+
+==================================================
+
+SECURITY
+
+==================================================
+
+JWT bắt buộc.
+
+Chỉ thành viên room mới đọc được.
+
+Block user hoạt động.
+
+Report message hoạt động.
+
+Audit log đầy đủ.
+
+==================================================
+
+ACCEPTANCE
+
+==================================================
+
+Chứng minh bằng curl + PostgreSQL + WebSocket:
+
+✓ Tạo room
+
+✓ Join room
+
+✓ Gửi tin nhắn
+
+✓ Tin nhắn realtime
+
+✓ Typing realtime
+
+✓ Read receipt
+
+✓ Edit message
+
+✓ Delete message
+
+✓ Emoji reaction
+
+✓ Pin message
+
+✓ Search message
+
+✓ Guild chat
+
+✓ Private chat
+
+✓ Marketplace buyer/seller chat
+
+✓ Notification sinh
+
+✓ Activity sinh
+
+✓ Quest progress cập nhật
+
+✓ Reputation cập nhật
+
+✓ Sidebar badge realtime
+
+✓ Dashboard widget realtime
+
+✓ Launcher có Universe Chat
+
+✓ PostgreSQL lưu đầy đủ
+
+✓ Không mock
+
+✓ Không polling
+
+✓ Typecheck không phát sinh lỗi mới
+
+Sau khi hoàn thành cung cấp:
+
+* Sprint Report
+* Files Created
+* Files Modified
+* Database Schema
+* API Endpoints
+* WebSocket Events
+* Curl Proof
+* PostgreSQL Proof
+* Launcher Proof
+* Acceptance Checklist 100%

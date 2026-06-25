@@ -15,7 +15,8 @@ import {
   type MarketplaceEvent,
   type MarketplaceEventType,
 } from "./marketplaceEventBus";
-import { mailEventBus, type MailEvent } from "./mailEventBus";
+import { mailEventBus, type MailEvent }   from "./mailEventBus";
+import { chatEventBus, type ChatEvent }   from "./chatEventBus";
 
 // ─── Metrics ──────────────────────────────────────────────────────────────────
 
@@ -46,7 +47,7 @@ export function attachWebSocketServer(server: Server): WebSocketServer {
   const wss     = new WebSocketServer({ server, path: "/ws/marketplace" });
   const clients = new Map<WebSocket, ClientState>();
 
-  function broadcast(event: MarketplaceEvent | MailEvent): void {
+  function broadcast(event: MarketplaceEvent | MailEvent | ChatEvent): void {
     for (const [, state] of clients) {
       if (state.ws.readyState !== WebSocket.OPEN) continue;
       const userId = "userId" in event ? event.userId : undefined;
@@ -68,6 +69,9 @@ export function attachWebSocketServer(server: Server): WebSocketServer {
 
   // Broadcast mail bus events — routed by userId
   mailEventBus.subscribe((event: MailEvent) => broadcast(event));
+
+  // Broadcast chat bus events — routed by roomId/userId
+  chatEventBus.subscribe((event: ChatEvent) => broadcast(event));
 
   wss.on("connection", (ws) => {
     _connectedClients++;

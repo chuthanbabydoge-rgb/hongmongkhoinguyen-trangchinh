@@ -680,6 +680,33 @@ export const mailService = new MailService(
   userReputationService,
 );
 
+// ─── Chat & Messaging System (HUB-14) ────────────────────────────────────────
+
+import { DrizzleChatRepository } from "./repositories/drizzle/DrizzleChatRepository.js";
+import { ChatService }           from "./services/chatService.js";
+
+const chatRepo = new DrizzleChatRepository();
+logger.info("Container: chat system → Drizzle");
+
+export const chatService = new ChatService(
+  chatRepo,
+  notificationsService,
+  activitiesService,
+  userReputationService,
+);
+
+// Seed "chat" app into ecosystem registry
+appRegistryService.registerApp({
+  slug:        "chat",
+  name:        "Universe Chat",
+  description: "Nhắn tin realtime cho toàn bộ Universe Platform",
+  icon:        "💬",
+  url:         "/chat",
+  category:    "SOCIAL",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
+
 // Seed "mail" app into ecosystem registry
 appRegistryService.registerApp({
   slug:        "mail",

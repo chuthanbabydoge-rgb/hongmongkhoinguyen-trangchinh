@@ -10,6 +10,7 @@ import { MarketplaceStats } from "@/components/dashboard/MarketplaceStats";
 import { ReputationCard } from "@/components/dashboard/ReputationCard";
 import { SocialOverviewCard } from "@/components/dashboard/SocialOverviewCard";
 import { MailOverviewCard } from "@/components/dashboard/MailOverviewCard";
+import { ChatWidget } from "@/components/dashboard/ChatWidget";
 import { AchievementShowcase } from "@/components/dashboard/AchievementShowcase";
 import { QuestWidget } from "@/components/dashboard/QuestWidget";
 import { useDashboard } from "@/hooks/useDashboard";
@@ -56,6 +57,7 @@ export default function Dashboard() {
             </div>
             <QuestWidget />
             <MailOverviewCard />
+            <ChatWidget />
             <SocialOverviewCard />
             <AchievementShowcase />
             <InventorySummary />

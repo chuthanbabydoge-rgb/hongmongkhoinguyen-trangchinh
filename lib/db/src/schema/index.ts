@@ -31,3 +31,4 @@ export * from "./social";
 export * from "./guilds";
 export * from "./quests";
 export * from "./mail";
+export * from "./chat";

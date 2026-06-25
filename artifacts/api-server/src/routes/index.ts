@@ -18,6 +18,7 @@ import socialRouter from "./social";
 import guildRouter from "./guild";
 import questsRouter from "./quests";
 import mailRouter from "./mail";
+import chatRouter from "./chat";
 
 const router: IRouter = Router();
 
@@ -40,5 +41,6 @@ router.use(socialRouter);
 router.use(guildRouter);
 router.use(questsRouter);
 router.use(mailRouter);
+router.use(chatRouter);
 
 export default router;
