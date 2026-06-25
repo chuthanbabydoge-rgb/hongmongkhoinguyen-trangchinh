@@ -1,0 +1,524 @@
+# HUB-13 — Mail & Inbox System (NO MOCK, PostgreSQL, Production Ready)
+
+Mục tiêu:
+
+Xây dựng hệ thống Mail/Inbox thống nhất cho toàn bộ Universe Platform.
+
+Đây là hệ thống nhận thưởng, quà tặng, thông báo quan trọng, compensation và attachment giữa tất cả các module.
+
+Không dùng mock.
+
+Không dùng in-memory.
+
+Tất cả dữ liệu lưu PostgreSQL bằng Drizzle ORM.
+
+==================================================
+
+ARCHITECTURE
+
+==================================================
+
+Tạo module mới:
+
+MailRepository
+
+MailService
+
+MailController
+
+MailRoutes
+
+MailGateway (WebSocket)
+
+MailEventBus integration
+
+==================================================
+
+DATABASE
+
+==================================================
+
+Tạo schema:
+
+mail_templates
+
+mails
+
+mail_attachments
+
+mail_claim_logs
+
+mail_labels
+
+mail_user_labels
+
+mail_type enum
+
+mail_status enum
+
+attachment_type enum
+
+==================================================
+
+MAIL TYPES
+
+==================================================
+
+SYSTEM
+
+QUEST
+
+MARKETPLACE
+
+WALLET
+
+SOCIAL
+
+GUILD
+
+EVENT
+
+COMPENSATION
+
+GIFT
+
+ADMIN
+
+==================================================
+
+MAIL STATUS
+
+==================================================
+
+UNREAD
+
+READ
+
+CLAIMED
+
+ARCHIVED
+
+DELETED
+
+==================================================
+
+MAIL ATTACHMENTS
+
+==================================================
+
+Hỗ trợ:
+
+Credits
+
+Coins
+
+Tokens
+
+RewardPoints
+
+Inventory Item
+
+Pet
+
+Ticket
+
+NFT
+
+World Asset
+
+Guild Reward
+
+Quest Reward
+
+Achievement Reward
+
+Một mail có nhiều attachment.
+
+==================================================
+
+BACKEND API
+
+==================================================
+
+GET /api/mail
+
+GET /api/mail/unread
+
+GET /api/mail/:id
+
+POST /api/mail
+
+PATCH /api/mail/:id/read
+
+PATCH /api/mail/read-all
+
+POST /api/mail/:id/claim
+
+POST /api/mail/:id/archive
+
+DELETE /api/mail/:id
+
+GET /api/mail/labels
+
+POST /api/mail/labels
+
+==================================================
+
+AUTO MAIL GENERATION
+
+==================================================
+
+Marketplace Sale
+
+↓
+
+Mail người bán
+
+Marketplace Purchase
+
+↓
+
+Mail người mua
+
+Quest Complete
+
+↓
+
+Mail reward
+
+Achievement Unlock
+
+↓
+
+Mail chúc mừng
+
+Guild Contribution Reward
+
+↓
+
+Mail
+
+Guild Event Reward
+
+↓
+
+Mail
+
+Admin Broadcast
+
+↓
+
+Mail toàn server
+
+Wallet Compensation
+
+↓
+
+Mail
+
+System Maintenance
+
+↓
+
+Mail
+
+==================================================
+
+CLAIM SYSTEM
+
+==================================================
+
+Claim attachment phải tự động:
+
+Wallet
+
+Inventory
+
+Reputation
+
+Achievement
+
+Activity
+
+Notification
+
+được cập nhật.
+
+Một attachment chỉ claim đúng 1 lần.
+
+Transaction toàn bộ.
+
+Rollback nếu có lỗi.
+
+==================================================
+
+WEBSOCKET
+
+==================================================
+
+Realtime events:
+
+MAIL_CREATED
+
+MAIL_READ
+
+MAIL_CLAIMED
+
+MAIL_DELETED
+
+MAIL_ARCHIVED
+
+Frontend nhận event ngay.
+
+Không polling.
+
+==================================================
+
+FRONTEND
+
+==================================================
+
+Tạo ứng dụng Universe Mail.
+
+Sidebar:
+
+Inbox
+
+Unread
+
+Archived
+
+Claimable
+
+Templates (Admin)
+
+Dashboard widget:
+
+Unread Mail
+
+Claimable Rewards
+
+Recent Mail
+
+Mail Detail:
+
+Subject
+
+Content
+
+Sender
+
+Created Time
+
+Attachments
+
+Claim button
+
+Archive
+
+Delete
+
+==================================================
+
+SEARCH
+
+==================================================
+
+Filter:
+
+type
+
+status
+
+label
+
+date
+
+sender
+
+attachment
+
+full-text search
+
+==================================================
+
+APP REGISTRY
+
+==================================================
+
+Đăng ký app mới:
+
+slug: mail
+
+name: Universe Mail
+
+category: COMMUNICATION
+
+status: ACTIVE
+
+Launcher tự hiển thị.
+
+==================================================
+
+NOTIFICATION INTEGRATION
+
+==================================================
+
+Mail mới
+
+↓
+
+Notification
+
+↓
+
+Badge tăng
+
+↓
+
+WebSocket push
+
+==================================================
+
+ACTIVITY INTEGRATION
+
+==================================================
+
+MAIL_RECEIVED
+
+MAIL_READ
+
+MAIL_CLAIMED
+
+MAIL_ARCHIVED
+
+ghi Activity.
+
+==================================================
+
+QUEST INTEGRATION
+
+==================================================
+
+Claim mail reward
+
+↓
+
+Quest Progress Engine emit:
+
+MAIL_CLAIMED
+
+Nếu quest yêu cầu nhận thưởng mail thì progress tự tăng.
+
+==================================================
+
+REPUTATION
+
+==================================================
+
+Claim mail reward lần đầu
+
+↓
+
+* Reputation Event
+
+FIRST_MAIL
+
+==================================================
+
+PERFORMANCE
+
+==================================================
+
+Pagination
+
+Cursor pagination
+
+Lazy loading
+
+Batch claim
+
+Index đầy đủ
+
+Không N+1 query
+
+==================================================
+
+SECURITY
+
+==================================================
+
+User chỉ đọc mail của chính mình.
+
+Không truy cập mail người khác.
+
+JWT bắt buộc.
+
+Audit log toàn bộ thao tác.
+
+==================================================
+
+ACCEPTANCE CRITERIA
+
+==================================================
+
+Chứng minh bằng curl và PostgreSQL:
+
+✓ Tạo mail hệ thống
+
+✓ Mail xuất hiện Inbox
+
+✓ Đánh dấu đã đọc
+
+✓ Read All
+
+✓ Archive
+
+✓ Delete
+
+✓ Mail có nhiều attachment
+
+✓ Claim reward
+
+✓ Wallet cập nhật
+
+✓ Inventory cập nhật
+
+✓ Notification sinh
+
+✓ Activity sinh
+
+✓ Quest Progress cập nhật
+
+✓ Reputation cập nhật
+
+✓ Achievement unlock nếu có
+
+✓ WebSocket realtime
+
+✓ Dashboard widget realtime
+
+✓ Sidebar badge realtime
+
+✓ Launcher có Universe Mail
+
+✓ App Registry ACTIVE
+
+✓ PostgreSQL lưu đầy đủ
+
+✓ Không mock
+
+✓ Typecheck không phát sinh lỗi mới
+
+Sau khi hoàn thành, cung cấp Sprint Report đầy đủ gồm:
+
+* Files Created
+* Files Modified
+* Database Schema
+* API Endpoints
+* WebSocket Events
+* Integration Matrix
+* Curl Proof
+* PostgreSQL Proof
+* Launcher Proof
+* Acceptance Checklist (100%)
