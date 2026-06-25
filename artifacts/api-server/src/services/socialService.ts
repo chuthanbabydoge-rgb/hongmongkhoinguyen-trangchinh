@@ -12,6 +12,7 @@
 import type { ISocialRepository, FriendRequest, SocialRelationship, UserPresence, PublicProfile, PresenceStatus } from "../repositories/socialRepository.js";
 import type { NotificationsService } from "./notificationsService.js";
 import type { ActivitiesService } from "./activitiesService.js";
+import { questEventBus } from "../realtime/questEventBus.js";
 
 export class SocialError extends Error {
   constructor(
@@ -99,6 +100,9 @@ export class SocialService {
 
     await this.repo.createRelationship(req.fromUserId, req.toUserId, "FRIEND");
     await this.repo.createRelationship(req.toUserId, req.fromUserId, "FRIEND");
+
+    questEventBus.publish({ userId: currentUserId,   type: "ADD_FRIEND", amount: 1, metadata: { friendId: req.fromUserId } });
+    questEventBus.publish({ userId: req.fromUserId,  type: "ADD_FRIEND", amount: 1, metadata: { friendId: currentUserId } });
 
     this.notifService.fire(
       req.fromUserId,

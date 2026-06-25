@@ -140,14 +140,13 @@ export class QuestService {
     return updated!;
   }
 
-  async claimReward(userId: string, userQuestId: string): Promise<{
+  async claimReward(userId: string, questId: string): Promise<{
     userQuest: UserQuest;
     wallet: unknown;
     reputation: unknown;
   }> {
-    const uq = await this.repo.findUserQuestById(userQuestId);
-    if (!uq) throw new UserQuestNotFoundError(userQuestId);
-    if (uq.userId !== userId) throw new Error("Không có quyền nhận phần thưởng này.");
+    const uq = await this.repo.findUserQuestByUserAndQuest(userId, questId);
+    if (!uq) throw new UserQuestNotFoundError(questId);
     if (uq.status === "CLAIMED") throw new QuestAlreadyClaimedError();
     if (uq.status !== "COMPLETED") throw new QuestNotCompletedError();
 
@@ -155,7 +154,7 @@ export class QuestService {
     if (!quest) throw new QuestNotFoundError(uq.questId);
 
     const now = new Date().toISOString();
-    const updated = await this.repo.updateUserQuestStatus(userQuestId, "CLAIMED", { claimedAt: now });
+    const updated = await this.repo.updateUserQuestStatus(uq.id, "CLAIMED", { claimedAt: now });
 
     // ── 1. Wallet rewards ─────────────────────────────────────────────────────
     let walletResult: unknown = null;

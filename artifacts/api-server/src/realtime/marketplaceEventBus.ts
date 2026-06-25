@@ -21,7 +21,9 @@ export type MarketplaceEventType =
   | "NOTIFICATION_CREATED"
   | "SELLER_LEVEL_UP"
   | "SELLER_SUSPENDED"
-  | "SELLER_BANNED";
+  | "SELLER_BANNED"
+  | "QUEST_PROGRESS"
+  | "QUEST_COMPLETED";
 
 // ─── Event envelope ───────────────────────────────────────────────────────────
 

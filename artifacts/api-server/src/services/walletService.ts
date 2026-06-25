@@ -4,6 +4,7 @@ import type { WalletData, Transaction, Currency } from "../data/walletData";
 import type { NotificationsService } from "./notificationsService";
 import type { UserReputationService } from "./userReputationService";
 import type { AchievementService } from "./achievementService";
+import { questEventBus } from "../realtime/questEventBus.js";
 
 export type EntryDirection = "credit" | "debit";
 export type EntryStatus    = "completed" | "pending" | "failed";
@@ -107,6 +108,8 @@ export class WalletService {
     if (repResult && this.achievements) {
       this.achievements.checkAndUnlockAsync(userId, "WALLET_TRANSFER", { totalPoints: repResult.reputation.totalPoints });
     }
+
+    questEventBus.publish({ userId, type: "WALLET_TRANSFER", amount: 1, metadata: { from, to, amount } });
 
     const updatedWallet = await this.getWallet(userId);
     return { debit: debitTx, credit: creditTx, wallet: updatedWallet };

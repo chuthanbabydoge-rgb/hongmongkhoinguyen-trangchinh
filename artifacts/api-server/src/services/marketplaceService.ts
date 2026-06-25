@@ -33,6 +33,7 @@ import type { MarketplaceRealtimeService }         from "./marketplaceRealtimeSe
 import type { NotificationsService }               from "./notificationsService";
 import type { UserReputationService }              from "./userReputationService";
 import type { AchievementService }                 from "./achievementService";
+import { questEventBus } from "../realtime/questEventBus.js";
 
 const STATUS_ACTIVE   = "đang hoạt động";
 const STATUS_TRADING  = "đang giao dịch";
@@ -127,6 +128,9 @@ export class MarketplaceService {
         this.achievements.checkAndUnlockAsync(listing.sellerId, "MARKETPLACE_LISTING", { totalPoints: repResult.reputation.totalPoints });
       }
     }
+
+    questEventBus.publish({ userId: listing.sellerId, type: "MARKETPLACE_LISTING", amount: 1, metadata: { listingId: listing.id, itemName: listing.itemName } });
+
     return listing;
   }
 
@@ -219,6 +223,9 @@ export class MarketplaceService {
         if (sellerRep) this.achievements.checkAndUnlockAsync(listing.sellerId, "MARKETPLACE_SALE", { totalPoints: sellerRep.reputation.totalPoints });
       }
     }
+
+    questEventBus.publish({ userId: input.buyerId,      type: "MARKETPLACE_PURCHASE", amount: 1, metadata: { listingId, itemName: listing.itemName, price: listing.price } });
+    questEventBus.publish({ userId: listing.sellerId,   type: "MARKETPLACE_SALE",     amount: 1, metadata: { listingId, itemName: listing.itemName, price: listing.price } });
 
     return { transaction, listing: updatedListing ?? listing };
   }

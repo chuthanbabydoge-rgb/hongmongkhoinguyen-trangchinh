@@ -1,5 +1,6 @@
 import type { IUserReputationRepository, UserReputation, ReputationEvent, ReputationEventType } from "../repositories/userReputationRepository";
 import { REPUTATION_RULES, LEVEL_THRESHOLDS } from "../repositories/userReputationRepository";
+import { questEventBus } from "../realtime/questEventBus.js";
 
 export interface ReputationProfile {
   userId:          string;
@@ -54,6 +55,9 @@ export class UserReputationService {
       this.repo.addEvent({ userId, eventType, metadata }),
       this.repo.upsert(userId, points),
     ]);
+    if (points > 0) {
+      questEventBus.publish({ userId, type: "REPUTATION_GAINED", amount: points, metadata: { eventType: eventType as string } });
+    }
     return { event, reputation: buildProfile(rep) };
   }
 

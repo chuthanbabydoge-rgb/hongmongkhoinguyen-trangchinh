@@ -656,3 +656,11 @@ export const questService = new QuestService(
 );
 
 questService.seedDefaultQuests().catch((err) => logger.warn({ err }, "Quest seed skipped"));
+
+// ─── Quest Progress Engine (HUB-12.5) ────────────────────────────────────────
+
+import { QuestProgressEngine } from "./services/questProgressEngine.js";
+
+export const questProgressEngine = new QuestProgressEngine(questService);
+questProgressEngine.start();
+logger.info("Container: quest progress engine → active");

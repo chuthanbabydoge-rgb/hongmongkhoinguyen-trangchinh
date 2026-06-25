@@ -1,6 +1,16 @@
 import { type Request, type Response } from "express";
 import { profileService, accountBridgeService } from "../container";
 import { AccountUnauthorizedError, AccountServiceUnavailableError } from "../services/accountClient";
+import { questEventBus } from "../realtime/questEventBus.js";
+
+// Track USER_LOGIN once per userId per UTC day to avoid duplicate quest events
+const _loginTracker = new Map<string, string>();
+function trackLoginOncePerDay(userId: string): void {
+  const today = new Date().toISOString().slice(0, 10);
+  if (_loginTracker.get(userId) === today) return;
+  _loginTracker.set(userId, today);
+  questEventBus.publish({ userId, type: "USER_LOGIN", amount: 1 });
+}
 
 async function resolveUserId(req: Request): Promise<string> {
   const auth = req.headers["authorization"] as string | undefined;
@@ -16,6 +26,7 @@ export async function handleGetProfile(
   try {
     const userId = req.params["userId"] as string | undefined
       ?? await resolveUserId(req);
+    trackLoginOncePerDay(userId);
     const profile = await profileService.getProfile(userId);
     res.json({ ok: true, data: profile });
   } catch (err) {

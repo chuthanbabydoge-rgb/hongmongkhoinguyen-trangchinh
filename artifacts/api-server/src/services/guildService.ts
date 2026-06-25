@@ -23,6 +23,7 @@ import { ROLE_RANK, DEFAULT_ROLE_PERMISSIONS } from "../repositories/guildReposi
 import type { NotificationsService } from "./notificationsService.js";
 import type { ActivitiesService } from "./activitiesService.js";
 import type { UserReputationService } from "./userReputationService.js";
+import { questEventBus } from "../realtime/questEventBus.js";
 
 export class GuildError extends Error {
   constructor(
@@ -82,6 +83,9 @@ export class GuildService {
       description: `Bạn đã tạo guild "${guild.name}" [${guild.tag}].`,
       metadata: { guildId: guild.id, guildName: guild.name }, sourceApp: "universe-guild",
     });
+
+    questEventBus.publish({ userId: input.ownerId, type: "CREATE_GUILD", amount: 1, metadata: { guildId: guild.id, guildName: guild.name } });
+    questEventBus.publish({ userId: input.ownerId, type: "JOIN_GUILD",   amount: 1, metadata: { guildId: guild.id, guildName: guild.name } });
 
     return guild;
   }
@@ -195,6 +199,9 @@ export class GuildService {
       userId: req.userId, type: "social", title: "Đã tham gia guild",
       description: `Đã tham gia guild "${guild.name}".`, metadata: { guildId }, sourceApp: "universe-guild",
     });
+
+    questEventBus.publish({ userId: req.userId, type: "JOIN_GUILD", amount: 1, metadata: { guildId } });
+
     return member;
   }
 
@@ -234,6 +241,9 @@ export class GuildService {
       userId, type: "social", title: "Đã tham gia guild qua lời mời",
       description: `Đã tham gia guild "${guild.name}" qua lời mời.`, metadata: { guildId: invite.guildId }, sourceApp: "universe-guild",
     });
+
+    questEventBus.publish({ userId, type: "JOIN_GUILD", amount: 1, metadata: { guildId: invite.guildId } });
+
     return member;
   }
 
@@ -358,6 +368,9 @@ export class GuildService {
       userId, type: "social", title: "Đã đóng góp cho guild",
       description: `Đóng góp ${amount} ${type} vào guild.`, metadata: { guildId, type, amount }, sourceApp: "universe-guild",
     });
+
+    questEventBus.publish({ userId, type: "GUILD_CONTRIBUTION", amount: 1, metadata: { guildId, contributionType: type, amount } });
+
     return contribution;
   }
 
