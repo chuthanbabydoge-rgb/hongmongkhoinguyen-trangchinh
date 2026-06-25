@@ -1,0 +1,537 @@
+HUB-11 — Guild / Clan System (Universe Ecosystem)
+Mục tiêu
+
+Xây dựng Universe Guild hoàn chỉnh, kết nối với toàn bộ hệ sinh thái:
+
+Universe Account
+Reputation
+Social
+Notifications
+Activity
+Marketplace
+Wallet
+Inventory
+
+Yêu cầu bắt buộc:
+
+Không sử dụng mock data
+Không hardcode user-001
+Không placeholder
+PostgreSQL + Drizzle ORM
+JWT authentication
+Mọi thao tác ghi DB đều dùng transaction nếu cần
+Tích hợp Launcher
+Tích hợp Dashboard
+Sinh Notification + Activity đúng HUB-8
+Sinh Reputation đúng HUB-9
+Tích hợp Social đúng HUB-10
+DATABASE
+
+Tạo schema mới
+
+guilds
+
+guild_members
+
+guild_join_requests
+
+guild_invites
+
+guild_announcements
+
+guild_logs
+
+guild_roles
+
+guild_role_permissions
+
+guild_contributions
+
+guild_events
+
+Guild gồm:
+
+id
+
+name
+
+tag
+
+description
+
+avatar
+
+banner
+
+ownerId
+
+memberLimit
+
+level
+
+xp
+
+treasuryCredits
+
+treasuryCoins
+
+reputation
+
+visibility
+
+createdAt
+
+updatedAt
+
+Guild Member
+
+guildId
+
+userId
+
+role
+
+joinedAt
+
+contribution
+
+lastActive
+
+Role
+
+OWNER
+
+LEADER
+
+OFFICER
+
+ELDER
+
+MEMBER
+
+RECRUIT
+
+Permission
+
+INVITE
+
+KICK
+
+MANAGE_EVENTS
+
+MANAGE_BANK
+
+MANAGE_ROLES
+
+POST_ANNOUNCEMENT
+
+APPROVE_JOIN
+
+VIEW_LOGS
+
+API
+Guild
+
+POST /api/guilds
+
+GET /api/guilds
+
+GET /api/guilds/:id
+
+PUT /api/guilds/:id
+
+DELETE /api/guilds/:id
+
+Member
+
+GET /api/guilds/:id/members
+
+POST /api/guilds/:id/invite
+
+POST /api/guilds/:id/join
+
+POST /api/guilds/:id/approve
+
+POST /api/guilds/:id/reject
+
+POST /api/guilds/:id/leave
+
+POST /api/guilds/:id/kick
+
+PUT /api/guilds/:id/member/:userId/role
+
+Announcement
+
+POST /api/guilds/:id/announcement
+
+GET /api/guilds/:id/announcement
+
+Contribution
+
+POST /api/guilds/:id/contribute
+
+GET /api/guilds/:id/contributions
+
+Events
+
+POST /api/guilds/:id/events
+
+GET /api/guilds/:id/events
+
+POST /api/guilds/:id/events/:eventId/join
+
+Logs
+
+GET /api/guilds/:id/logs
+
+FRONTEND
+
+Tạo app
+
+Universe Guild
+
+Launcher hiển thị
+
+Category:
+
+SOCIAL
+
+Status:
+
+ACTIVE
+
+Pages
+
+Guild Dashboard
+
+Guild List
+
+Guild Detail
+
+Guild Members
+
+Guild Bank
+
+Guild Events
+
+Guild Rankings
+
+Guild Settings
+
+Guild Logs
+
+Guild Search
+
+Dashboard Widget
+
+Guild Card
+
+Hiển thị
+
+Guild Name
+
+Role
+
+Level
+
+Members
+
+Treasury
+
+Contribution
+
+Announcements
+
+Events
+
+SOCIAL INTEGRATION
+
+Khi:
+
+Join guild
+
+Leave guild
+
+Kick
+
+Invite
+
+Accept
+
+Reject
+
+Sinh:
+
+Notification
+
+Activity
+
+REPUTATION INTEGRATION
+
+Tự động cộng Reputation
+
+Create Guild
+
++50
+
+Join Guild
+
++20
+
+Guild Event
+
++30
+
+Contribution
+
++10
+
+Announcement
+
++5
+
+Recruit Member
+
++25
+
+WALLET
+
+Guild Treasury
+
+Deposit Credits
+
+Deposit Coins
+
+Withdraw
+
+Permission check
+
+Transaction history
+
+INVENTORY
+
+Guild Warehouse
+
+Deposit Item
+
+Withdraw Item
+
+Transfer Ownership
+
+History
+
+MARKETPLACE
+
+Guild có thể:
+
+Tạo listing
+
+Mua vật phẩm
+
+Guild Treasury thanh toán
+
+Log transaction
+
+ACTIVITY
+
+Sinh activity
+
+Guild Created
+
+Guild Joined
+
+Guild Left
+
+Guild Invite
+
+Guild Event
+
+Guild Promotion
+
+Guild Demotion
+
+Guild Treasury Deposit
+
+Guild Treasury Withdraw
+
+Guild Warehouse Deposit
+
+Guild Warehouse Withdraw
+
+NOTIFICATION
+
+Sinh notification
+
+Invite received
+
+Join approved
+
+Join rejected
+
+Promotion
+
+Demotion
+
+Guild announcement
+
+Guild event starting
+
+Guild treasury transaction
+
+Guild warehouse transaction
+
+DASHBOARD
+
+Thêm
+
+Guild Widget
+
+Recent Guild Activities
+
+Guild Announcement
+
+Upcoming Guild Events
+
+LAUNCHER
+
+Universe Guild
+
+ACTIVE
+
+Category SOCIAL
+
+Có icon
+
+Có URL
+
+SECURITY
+
+JWT
+
+Bearer
+
+Permission middleware
+
+Role middleware
+
+Owner protection
+
+Không được kick Owner
+
+Không được xóa guild nếu không phải Owner
+
+Officer không được sửa Leader
+
+Leader không được sửa Owner
+
+DATABASE TRANSACTION
+
+Các thao tác sau phải transaction
+
+Create guild
+
+Join guild
+
+Kick
+
+Contribution
+
+Treasury
+
+Warehouse
+
+Marketplace purchase
+
+ACCEPTANCE CRITERIA
+End-to-end Proof
+1
+
+User A tạo Guild
+
+201
+
+2
+
+User B gửi Join Request
+
+201
+
+3
+
+Owner Approve
+
+200
+
+4
+
+Guild Members = 2
+
+5
+
+Contribution
+
+Credits
+
+Coins
+
+Inventory
+
+đều cập nhật DB
+
+6
+
+Guild Treasury thay đổi đúng
+
+7
+
+Guild Warehouse nhận Item
+
+8
+
+Guild Event tạo thành công
+
+User Join Event thành công
+
+9
+
+Notification sinh đúng
+
+Owner
+
+Member
+
+Officer
+
+10
+
+Activity sinh đúng
+
+11
+
+Reputation tăng đúng rule
+
+12
+
+Launcher hiển thị Universe Guild
+
+ACTIVE
+
+13
+
+Dashboard hiển thị Guild Widget
+
+14
+
+Không còn Mock Data
+
+grep -R "mock"
+
+grep -R "user-001"
+
+không còn trong Guild module
+
+15
+
+Typecheck sạch
+
+Không phát sinh lỗi mới

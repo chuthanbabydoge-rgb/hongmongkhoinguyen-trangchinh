@@ -64,7 +64,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd /home/runner/workspace/artifacts/ecosystem-analytics && PORT=3002 BASE_PATH=/ pnpm run dev"
+args = "PORT=3002 BASE_PATH=/ pnpm --filter @workspace/ecosystem-analytics run dev"
 waitForPort = 3002
 
 [[workflows.workflow]]
@@ -76,7 +76,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd /home/runner/workspace/artifacts/wallet-app && PORT=3001 BASE_PATH=/wallet-app pnpm run dev"
+args = "PORT=3001 BASE_PATH=/wallet-app pnpm --filter @workspace/wallet-app run dev"
 waitForPort = 3001
 
 [agent]
@@ -90,14 +90,6 @@ timeoutMs = 20000
 [[ports]]
 localPort = 3001
 externalPort = 3001
-
-[[ports]]
-localPort = 3002
-externalPort = 3002
-
-[[ports]]
-localPort = 5000
-externalPort = 80
 
 [nix]
 channel = "stable-25_05"
