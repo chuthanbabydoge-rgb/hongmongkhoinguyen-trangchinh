@@ -29,7 +29,7 @@ function StatBar({ value, max = 1000, color }: { value: number; max?: number; co
   );
 }
 
-function PetCard({ pet, index }: { pet: typeof PETS[0]; index: number }) {
+function PetCard({ pet, index }: { pet: Pet; index: number }) {
   const rm = RARITY_META[pet.rarity];
   const em = ELEMENT_META[pet.element];
   const sm = PET_STATUS_META[pet.petStatus];
@@ -101,12 +101,13 @@ function PetCard({ pet, index }: { pet: typeof PETS[0]; index: number }) {
 }
 
 export default function Pets() {
+  const { pets } = useInventory();
   const [search, setSearch] = useState("");
   const [filterRarity, setFilterRarity] = useState<"all" | Rarity>("all");
   const [filterElement, setFilterElement] = useState<"all" | PetElement>("all");
   const [filterStatus, setFilterStatus] = useState<"all" | PetStatus>("all");
 
-  const filtered = useMemo(() => PETS.filter(p => {
+  const filtered = useMemo(() => pets.filter(p => {
     if (filterRarity !== "all" && p.rarity !== filterRarity) return false;
     if (filterElement !== "all" && p.element !== filterElement) return false;
     if (filterStatus !== "all" && p.petStatus !== filterStatus) return false;
@@ -133,7 +134,7 @@ export default function Pets() {
               <span className="w-2 h-6 bg-purple-400 rounded-sm shadow-[0_0_10px_rgba(192,132,252,0.6)]" />
               Thú cưng
             </h1>
-            <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">{filtered.length} / {PETS.length} THÚ CƯNG</p>
+            <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">{filtered.length} / {pets.length} THÚ CƯNG</p>
           </div>
 
           {/* Filters */}

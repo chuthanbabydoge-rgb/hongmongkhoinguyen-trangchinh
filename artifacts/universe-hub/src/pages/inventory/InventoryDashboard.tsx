@@ -3,11 +3,8 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
-import {
-  PETS, FOOTBALL_PLAYERS, WORLD_ASSETS, TICKETS, ITEMS,
-  RARITY_META, CATEGORY_BREAKDOWN, RARITY_BREAKDOWN, INVENTORY_STATS,
-  type Rarity,
-} from "@/lib/inventoryMockData";
+import { RARITY_META, type Rarity } from "@/lib/inventoryMockData";
+import { useInventory } from "@/context/InventoryContext";
 import { cn } from "@/lib/utils";
 import {
   PawPrint, Trophy, Globe, Ticket, Box, TrendingUp, Star,
@@ -37,31 +34,33 @@ const fmtK = (v: number) =>
   v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M` :
   v >= 1_000 ? `${(v / 1_000).toFixed(0)}K` : String(v);
 
-const CATEGORY_CARDS = [
-  { icon: PawPrint, label: "Tổng thú cưng",          path: "/inventory/pets",         count: PETS.length,             color: "text-purple-400",  bg: "bg-purple-400/10",  border: "border-purple-400/20" },
-  { icon: Trophy,   label: "Tổng cầu thủ bóng đá",  path: "/inventory/football",     count: FOOTBALL_PLAYERS.length, color: "text-blue-400",    bg: "bg-blue-400/10",    border: "border-blue-400/20" },
-  { icon: Globe,    label: "Tổng tài sản thế giới",  path: "/inventory/world-assets", count: WORLD_ASSETS.length,     color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20" },
-  { icon: Ticket,   label: "Tổng số vé",              path: "/inventory/tickets",      count: TICKETS.length,          color: "text-amber-400",   bg: "bg-amber-400/10",   border: "border-amber-400/20" },
-  { icon: Box,      label: "Tổng vật phẩm",           path: "/inventory/items",        count: ITEMS.length,            color: "text-red-400",     bg: "bg-red-400/10",     border: "border-red-400/20" },
-];
-
 export default function InventoryDashboard() {
-  const totalAssets = CATEGORY_CARDS.reduce((s, c) => s + c.count, 0);
+  const { pets, footballPlayers, worldAssets, tickets, items, stats, categoryBreakdown, rarityBreakdown } = useInventory();
+
+  const CATEGORY_CARDS = useMemo(() => [
+    { icon: PawPrint, label: "Tổng thú cưng",         path: "/inventory/pets",         count: pets.length,             color: "text-purple-400",  bg: "bg-purple-400/10",  border: "border-purple-400/20" },
+    { icon: Trophy,   label: "Tổng cầu thủ bóng đá", path: "/inventory/football",     count: footballPlayers.length,  color: "text-blue-400",    bg: "bg-blue-400/10",    border: "border-blue-400/20" },
+    { icon: Globe,    label: "Tổng tài sản thế giới", path: "/inventory/world-assets", count: worldAssets.length,      color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20" },
+    { icon: Ticket,   label: "Tổng số vé",             path: "/inventory/tickets",      count: tickets.length,          color: "text-amber-400",   bg: "bg-amber-400/10",   border: "border-amber-400/20" },
+    { icon: Box,      label: "Tổng vật phẩm",          path: "/inventory/items",        count: items.length,            color: "text-red-400",     bg: "bg-red-400/10",     border: "border-red-400/20" },
+  ], [pets.length, footballPlayers.length, worldAssets.length, tickets.length, items.length]);
+
+  const totalAssets = stats.totalItems;
 
   const recentItems = useMemo(() => {
     const all = [
-      ...PETS.map(p => ({ id: p.id, image: p.image, name: p.name, rarity: p.rarity, type: "Thú cưng",          createdAt: p.createdAt })),
-      ...FOOTBALL_PLAYERS.map(p => ({ id: p.id, image: p.image, name: p.name, rarity: p.rarity, type: "Cầu thủ bóng đá",  createdAt: p.createdAt })),
-      ...WORLD_ASSETS.map(a => ({ id: a.id, image: a.image, name: a.name, rarity: a.rarity, type: "Tài sản thế giới", createdAt: a.createdAt })),
-      ...TICKETS.map(t => ({ id: t.id, image: t.image, name: t.name, rarity: t.rarity, type: "Vé",                createdAt: t.createdAt })),
-      ...ITEMS.map(i => ({ id: i.id, image: i.image, name: i.name, rarity: i.rarity, type: "Vật phẩm",         createdAt: i.createdAt })),
+      ...pets.map(p => ({ id: p.id, image: p.image, name: p.name, rarity: p.rarity, type: "Thú cưng",          createdAt: p.createdAt })),
+      ...footballPlayers.map(p => ({ id: p.id, image: p.image, name: p.name, rarity: p.rarity, type: "Cầu thủ bóng đá",  createdAt: p.createdAt })),
+      ...worldAssets.map(a => ({ id: a.id, image: a.image, name: a.name, rarity: a.rarity, type: "Tài sản thế giới", createdAt: a.createdAt })),
+      ...tickets.map(t => ({ id: t.id, image: t.image, name: t.name, rarity: t.rarity, type: "Vé",                createdAt: t.createdAt })),
+      ...items.map(i => ({ id: i.id, image: i.image, name: i.name, rarity: i.rarity, type: "Vật phẩm",          createdAt: i.createdAt })),
     ];
     return all
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 8);
-  }, []);
+  }, [pets, footballPlayers, worldAssets, tickets, items]);
 
-  const rarityLegendTotal = RARITY_BREAKDOWN.reduce((s, r) => s + r.count, 0);
+  const rarityLegendTotal = rarityBreakdown.reduce((s, r) => s + r.count, 0);
 
   return (
     <div className="flex min-h-screen bg-background text-foreground scanline">
@@ -78,7 +77,7 @@ export default function InventoryDashboard() {
               Bảng điều khiển Kho đồ
             </h1>
             <p className="text-[10px] font-mono text-muted-foreground/30 mt-1 tracking-wider">
-              {totalAssets} VẬT PHẨM · {INVENTORY_STATS.mythicCount} THẦN THOẠI · {INVENTORY_STATS.legendaryCount} HUYỀN THOẠI
+              {totalAssets} VẬT PHẨM · {stats.mythicCount} THẦN THOẠI · {stats.legendaryCount} HUYỀN THOẠI
             </p>
           </motion.div>
 
@@ -86,9 +85,9 @@ export default function InventoryDashboard() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               { label: "Tổng tài sản",    value: String(totalAssets),                                     icon: Package,   color: "text-purple-400",  border: "border-purple-400/20" },
-              { label: "Tổng giá trị",    value: `${fmtK(INVENTORY_STATS.totalValue)} CR`,                 icon: Coins,     color: "text-emerald-400", border: "border-emerald-400/20" },
-              { label: "Thần & Huyền",    value: `${INVENTORY_STATS.mythicCount + INVENTORY_STATS.legendaryCount}`,  icon: Gem,       color: "text-amber-400",   border: "border-amber-400/20" },
-              { label: "Thu nhập / tuần", value: `+${fmtK(INVENTORY_STATS.weeklyIncome)} CR`,              icon: TrendingUp, color: "text-blue-400",   border: "border-blue-400/20" },
+              { label: "Tổng giá trị",    value: `${fmtK(stats.totalValue)} CR`,                icon: Coins,     color: "text-emerald-400", border: "border-emerald-400/20" },
+              { label: "Thần & Huyền",    value: `${stats.mythicCount + stats.legendaryCount}`,  icon: Gem,       color: "text-amber-400",   border: "border-amber-400/20" },
+              { label: "Thu nhập / tuần", value: `+${fmtK(stats.weeklyIncome)} CR`,              icon: TrendingUp, color: "text-blue-400",   border: "border-blue-400/20" },
             ].map((kpi, i) => (
               <motion.div key={kpi.label}
                 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
@@ -137,15 +136,15 @@ export default function InventoryDashboard() {
                 <ResponsiveContainer width={160} height={160}>
                   <PieChart>
                     <Pie
-                      data={RARITY_BREAKDOWN} cx="50%" cy="50%"
+                      data={rarityBreakdown} cx="50%" cy="50%"
                       innerRadius={45} outerRadius={72} paddingAngle={3} dataKey="count">
-                      {RARITY_BREAKDOWN.map((r, i) => <Cell key={i} fill={r.color} stroke="transparent" />)}
+                      {rarityBreakdown.map((r, i) => <Cell key={i} fill={r.color} stroke="transparent" />)}
                     </Pie>
                     <Tooltip {...TOOLTIP_STYLE} formatter={(v: number) => [`${v} vật phẩm`, ""]} />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="flex-1 space-y-2 w-full">
-                  {RARITY_BREAKDOWN.map(r => {
+                  {rarityBreakdown.map(r => {
                     const pct = ((r.count / rarityLegendTotal) * 100).toFixed(0);
                     return (
                       <div key={r.name} className="space-y-1">
@@ -171,7 +170,7 @@ export default function InventoryDashboard() {
               <p className="text-sm font-bold text-white uppercase tracking-wider mb-0.5">Giá trị theo danh mục</p>
               <p className="text-[10px] font-mono text-muted-foreground/40 mb-4">Tổng CR theo từng danh mục</p>
               <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={CATEGORY_BREAKDOWN} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+                <BarChart data={categoryBreakdown} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                   <XAxis dataKey="name" tick={{ fill: "rgba(255,255,255,0.28)", fontSize: 10, fontFamily: "monospace" }} tickLine={false} axisLine={false} />
                   <YAxis
@@ -181,7 +180,7 @@ export default function InventoryDashboard() {
                   />
                   <Tooltip {...TOOLTIP_STYLE} formatter={(v: number) => [v.toLocaleString("vi-VN") + " CR", "Giá trị"]} />
                   <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                    {CATEGORY_BREAKDOWN.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                    {categoryBreakdown.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>

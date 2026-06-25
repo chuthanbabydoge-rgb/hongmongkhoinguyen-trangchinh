@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import {
-  WORLD_ASSETS, RARITY_META, ASSET_TYPE_META, ASSET_STATUS_META,
+  RARITY_META, ASSET_TYPE_META, ASSET_STATUS_META,
   type Rarity, type AssetType, type AssetStatus,
 } from "@/lib/inventoryMockData";
+import { useInventory } from "@/context/InventoryContext";
+import type { WorldAsset } from "@/types/inventory";
 import { cn } from "@/lib/utils";
 import { Search, MapPin, TrendingUp, Coins } from "lucide-react";
 
@@ -17,7 +19,7 @@ const BG = () => (
   </div>
 );
 
-function AssetCard({ asset, index }: { asset: typeof WORLD_ASSETS[0]; index: number }) {
+function AssetCard({ asset, index }: { asset: WorldAsset; index: number }) {
   const rm = RARITY_META[asset.rarity];
   const tm = ASSET_TYPE_META[asset.assetType];
   const sm = ASSET_STATUS_META[asset.assetStatus];
@@ -72,21 +74,22 @@ function AssetCard({ asset, index }: { asset: typeof WORLD_ASSETS[0]; index: num
 }
 
 export default function WorldAssets() {
+  const { worldAssets } = useInventory();
   const [search, setSearch] = useState("");
   const [filterRarity, setFilterRarity] = useState<"all" | Rarity>("all");
   const [filterType, setFilterType] = useState<"all" | AssetType>("all");
   const [filterStatus, setFilterStatus] = useState<"all" | AssetStatus>("all");
 
-  const totalValue = WORLD_ASSETS.reduce((s, a) => s + a.value, 0);
-  const weeklyIncome = WORLD_ASSETS.reduce((s, a) => s + a.income, 0);
+  const totalValue = worldAssets.reduce((s, a) => s + a.value, 0);
+  const weeklyIncome = worldAssets.reduce((s, a) => s + a.income, 0);
 
-  const filtered = useMemo(() => WORLD_ASSETS.filter(a => {
+  const filtered = useMemo(() => worldAssets.filter(a => {
     if (filterRarity !== "all" && a.rarity !== filterRarity) return false;
     if (filterType !== "all" && a.assetType !== filterType) return false;
     if (filterStatus !== "all" && a.assetStatus !== filterStatus) return false;
     if (search && !a.name.toLowerCase().includes(search.toLowerCase()) && !a.world.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
-  }), [search, filterRarity, filterType, filterStatus]);
+  }), [search, filterRarity, filterType, filterStatus, worldAssets]);
 
   const Chip = ({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) => (
     <button onClick={onClick} className={cn("px-2.5 py-1 rounded text-[10px] font-mono font-bold tracking-widest uppercase border transition-all",
@@ -108,7 +111,7 @@ export default function WorldAssets() {
                 <span className="w-2 h-6 bg-emerald-400 rounded-sm shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
                 Tài sản Thế giới
               </h1>
-              <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">{filtered.length} / {WORLD_ASSETS.length} TÀI SẢN</p>
+              <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">{filtered.length} / {worldAssets.length} TÀI SẢN</p>
             </div>
             <div className="flex gap-3">
               <div className="glass-panel rounded-xl border border-emerald-400/20 px-3 py-2">

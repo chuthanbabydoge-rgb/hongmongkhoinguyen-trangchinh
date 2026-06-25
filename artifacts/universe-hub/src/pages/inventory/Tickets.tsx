@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import {
-  TICKETS, RARITY_META, TICKET_TYPE_META, TICKET_STATUS_META,
+  RARITY_META, TICKET_TYPE_META, TICKET_STATUS_META,
   type Rarity, type TicketType, type TicketStatus,
 } from "@/lib/inventoryMockData";
+import { useInventory } from "@/context/InventoryContext";
+import type { Ticket } from "@/types/inventory";
 import { cn } from "@/lib/utils";
 import { Search, MapPin, Clock, CheckCircle2, XCircle, Sparkles } from "lucide-react";
 
@@ -17,7 +19,7 @@ const BG = () => (
   </div>
 );
 
-function TicketCard({ ticket, index }: { ticket: typeof TICKETS[0]; index: number }) {
+function TicketCard({ ticket, index }: { ticket: Ticket; index: number }) {
   const rm = RARITY_META[ticket.rarity];
   const tm = TICKET_TYPE_META[ticket.ticketType];
   const sm = TICKET_STATUS_META[ticket.ticketValidity];
@@ -101,18 +103,19 @@ function TicketCard({ ticket, index }: { ticket: typeof TICKETS[0]; index: numbe
 }
 
 export default function Tickets() {
+  const { tickets } = useInventory();
   const [search, setSearch] = useState("");
   const [filterRarity, setFilterRarity] = useState<"all" | Rarity>("all");
   const [filterType, setFilterType] = useState<"all" | TicketType>("all");
   const [filterStatus, setFilterStatus] = useState<"all" | TicketStatus>("all");
 
-  const filtered = useMemo(() => TICKETS.filter(t => {
+  const filtered = useMemo(() => tickets.filter(t => {
     if (filterRarity !== "all" && t.rarity !== filterRarity) return false;
     if (filterType !== "all" && t.ticketType !== filterType) return false;
     if (filterStatus !== "all" && t.ticketValidity !== filterStatus) return false;
     if (search && !t.name.toLowerCase().includes(search.toLowerCase()) && !t.event.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
-  }), [search, filterRarity, filterType, filterStatus]);
+  }), [search, filterRarity, filterType, filterStatus, tickets]);
 
   const Chip = ({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) => (
     <button onClick={onClick} className={cn("px-2.5 py-1 rounded text-[10px] font-mono font-bold tracking-widest uppercase border transition-all",
@@ -133,7 +136,7 @@ export default function Tickets() {
               <span className="w-2 h-6 bg-amber-400 rounded-sm shadow-[0_0_10px_rgba(251,191,36,0.6)]" />
               Vé
             </h1>
-            <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">{filtered.length} / {TICKETS.length} VÉ</p>
+            <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">{filtered.length} / {tickets.length} VÉ</p>
           </div>
 
           <div className="glass-panel rounded-xl border border-white/5 p-4 space-y-3">

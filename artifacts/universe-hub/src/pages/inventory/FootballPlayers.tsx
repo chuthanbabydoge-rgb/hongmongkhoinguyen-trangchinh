@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import {
-  FOOTBALL_PLAYERS, RARITY_META, POSITION_META,
+  RARITY_META, POSITION_META,
   type Rarity, type Position,
 } from "@/lib/inventoryMockData";
+import { useInventory } from "@/context/InventoryContext";
+import type { FootballPlayer } from "@/types/inventory";
 import { cn } from "@/lib/utils";
 import { Search, Star } from "lucide-react";
 
@@ -17,7 +19,7 @@ const BG = () => (
   </div>
 );
 
-const STAT_KEYS: { key: keyof typeof FOOTBALL_PLAYERS[0]["stats"]; label: string; color: string }[] = [
+const STAT_KEYS: { key: keyof FootballPlayer["stats"]; label: string; color: string }[] = [
   { key: "pace",      label: "TĐ",  color: "bg-cyan-400" },
   { key: "shooting",  label: "SÚT", color: "bg-red-400" },
   { key: "passing",   label: "PAS", color: "bg-blue-400" },
@@ -26,7 +28,7 @@ const STAT_KEYS: { key: keyof typeof FOOTBALL_PLAYERS[0]["stats"]; label: string
   { key: "physical",  label: "PHY", color: "bg-purple-400" },
 ];
 
-function PlayerCard({ player, index }: { player: typeof FOOTBALL_PLAYERS[0]; index: number }) {
+function PlayerCard({ player, index }: { player: FootballPlayer; index: number }) {
   const rm = RARITY_META[player.rarity];
   const pm = POSITION_META[player.position];
 
@@ -93,18 +95,19 @@ function PlayerCard({ player, index }: { player: typeof FOOTBALL_PLAYERS[0]; ind
 }
 
 export default function FootballPlayers() {
+  const { footballPlayers } = useInventory();
   const [search, setSearch] = useState("");
   const [filterRarity, setFilterRarity] = useState<"all" | Rarity>("all");
   const [filterPos, setFilterPos] = useState<"all" | Position>("all");
 
   const POSITIONS: Position[] = ["GK","CB","LB","RB","CDM","CM","CAM","LW","RW","ST"];
 
-  const filtered = useMemo(() => FOOTBALL_PLAYERS.filter(p => {
+  const filtered = useMemo(() => footballPlayers.filter(p => {
     if (filterRarity !== "all" && p.rarity !== filterRarity) return false;
     if (filterPos !== "all" && p.position !== filterPos) return false;
     if (search && !p.name.toLowerCase().includes(search.toLowerCase()) && !p.team.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
-  }), [search, filterRarity, filterPos]);
+  }), [search, filterRarity, filterPos, footballPlayers]);
 
   const Chip = ({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) => (
     <button onClick={onClick} className={cn("px-2.5 py-1 rounded text-[10px] font-mono font-bold tracking-widest uppercase border transition-all",
@@ -125,7 +128,7 @@ export default function FootballPlayers() {
               <span className="w-2 h-6 bg-blue-400 rounded-sm shadow-[0_0_10px_rgba(96,165,250,0.6)]" />
               Cầu thủ bóng đá
             </h1>
-            <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">{filtered.length} / {FOOTBALL_PLAYERS.length} CẦU THỦ</p>
+            <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">{filtered.length} / {footballPlayers.length} CẦU THỦ</p>
           </div>
 
           <div className="glass-panel rounded-xl border border-white/5 p-4 space-y-3">

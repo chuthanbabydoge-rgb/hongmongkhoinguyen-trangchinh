@@ -11,6 +11,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Request, Response } from "express";
+import { db, usersTable, inventoryItemsTable, marketplaceTransactionsTable, marketplaceListingsTable } from "@workspace/db";
+import { count, eq } from "drizzle-orm";
 
 function ok(res: Response, data: unknown) {
   res.json({ ok: true, data });
@@ -18,23 +20,44 @@ function ok(res: Response, data: unknown) {
 
 // ── Stats ─────────────────────────────────────────────────────────────────────
 
-export function handleGetAnalyticsStats(_req: Request, res: Response) {
-  ok(res, {
-    totalUsers:         2_847_392,
-    totalAssets:       14_293_847,
-    totalWorlds:            8_423,
-    totalFootballClubs:     1_247,
-    totalPets:          3_891_204,
-    totalTransactions: 47_293_018,
-    changes: {
-      users:          12.3,
-      assets:          8.7,
-      worlds:          2.1,
-      footballClubs:   0.5,
-      pets:           15.4,
-      transactions:   24.8,
-    },
-  });
+export async function handleGetAnalyticsStats(_req: Request, res: Response) {
+  try {
+    const [
+      [usersRow],
+      [assetsRow],
+      [petsRow],
+      [footballRow],
+      [txRow],
+      [listingsRow],
+    ] = await Promise.all([
+      db.select({ total: count() }).from(usersTable),
+      db.select({ total: count() }).from(inventoryItemsTable),
+      db.select({ total: count() }).from(inventoryItemsTable).where(eq(inventoryItemsTable.category, "pets")),
+      db.select({ total: count() }).from(inventoryItemsTable).where(eq(inventoryItemsTable.category, "football")),
+      db.select({ total: count() }).from(marketplaceTransactionsTable),
+      db.select({ total: count() }).from(marketplaceListingsTable),
+    ]);
+
+    ok(res, {
+      totalUsers:         usersRow?.total        ?? 0,
+      totalAssets:        assetsRow?.total        ?? 0,
+      totalWorlds:        0,
+      totalFootballClubs: footballRow?.total      ?? 0,
+      totalPets:          petsRow?.total          ?? 0,
+      totalTransactions:  txRow?.total            ?? 0,
+      totalListings:      listingsRow?.total      ?? 0,
+      changes: {
+        users:         0,
+        assets:        0,
+        worlds:        0,
+        footballClubs: 0,
+        pets:          0,
+        transactions:  0,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: "Lỗi khi truy vấn thống kê hệ thống" });
+  }
 }
 
 // ── User growth ───────────────────────────────────────────────────────────────

@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import {
-  ITEMS, RARITY_META, ITEM_CATEGORY_META,
+  RARITY_META, ITEM_CATEGORY_META,
   type Rarity, type ItemCategory,
 } from "@/lib/inventoryMockData";
+import { useInventory } from "@/context/InventoryContext";
+import type { InventoryItem } from "@/types/inventory";
 import { cn } from "@/lib/utils";
 import { Search, Zap, Layers } from "lucide-react";
 
@@ -17,7 +19,7 @@ const BG = () => (
   </div>
 );
 
-function ItemCard({ item, index }: { item: typeof ITEMS[0]; index: number }) {
+function ItemCard({ item, index }: { item: InventoryItem; index: number }) {
   const rm = RARITY_META[item.rarity];
   const cm = ITEM_CATEGORY_META[item.itemCategory];
 
@@ -87,13 +89,14 @@ function ItemCard({ item, index }: { item: typeof ITEMS[0]; index: number }) {
 }
 
 export default function Items() {
+  const { items } = useInventory();
   const [search, setSearch] = useState("");
   const [filterRarity, setFilterRarity] = useState<"all" | Rarity>("all");
   const [filterCat, setFilterCat] = useState<"all" | ItemCategory>("all");
   const [sortBy, setSortBy] = useState<"name" | "value" | "power" | "quantity">("value");
 
   const filtered = useMemo(() => {
-    return ITEMS
+    return items
       .filter(it => {
         if (filterRarity !== "all" && it.rarity !== filterRarity) return false;
         if (filterCat !== "all" && it.itemCategory !== filterCat) return false;
@@ -106,9 +109,9 @@ export default function Items() {
         if (sortBy === "quantity") return b.quantity - a.quantity;
         return a.name.localeCompare(b.name);
       });
-  }, [search, filterRarity, filterCat, sortBy]);
+  }, [search, filterRarity, filterCat, sortBy, items]);
 
-  const totalValue = ITEMS.reduce((s, i) => s + i.value * i.quantity, 0);
+  const totalValue = useMemo(() => items.reduce((s, i) => s + i.value * i.quantity, 0), [items]);
 
   const Chip = ({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) => (
     <button onClick={onClick} className={cn("px-2.5 py-1 rounded text-[10px] font-mono font-bold tracking-widest uppercase border transition-all",
@@ -130,7 +133,7 @@ export default function Items() {
                 <span className="w-2 h-6 bg-red-400 rounded-sm shadow-[0_0_10px_rgba(248,113,113,0.6)]" />
                 Vật phẩm
               </h1>
-              <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">{filtered.length} / {ITEMS.length} LOẠI VẬT PHẨM</p>
+              <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">{filtered.length} / {items.length} LOẠI VẬT PHẨM</p>
             </div>
             <div className="glass-panel rounded-xl border border-emerald-400/20 px-3 py-2">
               <p className="text-[9px] font-mono text-muted-foreground/30">TỔNG GIÁ TRỊ KHO</p>

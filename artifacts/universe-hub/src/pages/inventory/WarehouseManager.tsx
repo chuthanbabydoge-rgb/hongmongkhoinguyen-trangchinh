@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import {
-  PETS, FOOTBALL_PLAYERS, WORLD_ASSETS, TICKETS, ITEMS,
-  RARITY_META,
+  RARITY_META, STATUS_META,
   type Rarity, type AnyInventoryItem, type ItemStatus,
-  type InventoryCategory, STATUS_META,
+  type InventoryCategory,
 } from "@/lib/inventoryMockData";
+import { useInventory } from "@/context/InventoryContext";
 import { CATEGORY_META } from "@/types/inventory";
 import { cn } from "@/lib/utils";
 import {
@@ -30,15 +30,6 @@ const BG = () => (
 type SortKey = "value" | "quantity" | "date" | "name";
 type SortDir = "asc" | "desc";
 type ViewMode = "grid" | "table";
-
-// ─── All items merged ─────────────────────────────────────────────────────────
-const ALL_ITEMS: AnyInventoryItem[] = [
-  ...PETS,
-  ...FOOTBALL_PLAYERS,
-  ...WORLD_ASSETS,
-  ...TICKETS,
-  ...ITEMS,
-];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatValue(v: number) {
@@ -347,6 +338,12 @@ function DetailModal({ item, onClose }: { item: AnyInventoryItem; onClose: () =>
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function WarehouseManager() {
+  const { pets, footballPlayers, worldAssets, tickets, items: inventoryItems } = useInventory();
+  const allItems = useMemo<AnyInventoryItem[]>(
+    () => [...pets, ...footballPlayers, ...worldAssets, ...tickets, ...inventoryItems],
+    [pets, footballPlayers, worldAssets, tickets, inventoryItems],
+  );
+
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState<"all" | InventoryCategory>("all");
   const [filterRarity, setFilterRarity] = useState<"all" | Rarity>("all");
@@ -362,7 +359,7 @@ export default function WarehouseManager() {
   }, [sortKey]);
 
   const filtered = useMemo(() => {
-    let items = ALL_ITEMS.filter(item => {
+    let items = allItems.filter(item => {
       if (filterCategory !== "all" && item.category !== filterCategory) return false;
       if (filterRarity !== "all" && item.rarity !== filterRarity) return false;
       if (filterStatus !== "all" && item.status !== filterStatus) return false;
@@ -386,7 +383,7 @@ export default function WarehouseManager() {
     });
 
     return items;
-  }, [search, filterCategory, filterRarity, filterStatus, sortKey, sortDir]);
+  }, [search, filterCategory, filterRarity, filterStatus, sortKey, sortDir, allItems]);
 
   const totalValue = useMemo(() => filtered.reduce((s, i) => s + i.value * i.quantity, 0), [filtered]);
 
@@ -426,7 +423,7 @@ export default function WarehouseManager() {
                 Trình quản lý Kho hàng
               </h1>
               <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">
-                {filtered.length} / {ALL_ITEMS.length} VẬT PHẨM &nbsp;•&nbsp; TỔNG GIÁ TRỊ {formatValue(totalValue)}
+                {filtered.length} / {allItems.length} VẬT PHẨM &nbsp;•&nbsp; TỔNG GIÁ TRỊ {formatValue(totalValue)}
               </p>
             </div>
             {/* View toggle */}

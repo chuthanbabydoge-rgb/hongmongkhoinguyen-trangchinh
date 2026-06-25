@@ -12,11 +12,8 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
-import {
-  PETS, FOOTBALL_PLAYERS, WORLD_ASSETS, TICKETS, ITEMS,
-  RARITY_META,
-  type Rarity,
-} from "@/lib/inventoryMockData";
+import { RARITY_META, type Rarity } from "@/lib/inventoryMockData";
+import { useInventory } from "@/context/InventoryContext";
 import { cn } from "@/lib/utils";
 import {
   Package, Star, TrendingUp, Coins, ArrowUp, ArrowDown,
@@ -100,31 +97,33 @@ function ChartCard({
 type TimeRange = "1m" | "3m" | "6m" | "1y";
 
 function useInventoryAnalytics(range: TimeRange) {
-  return useMemo(() => {
-    const ALL = [...PETS, ...FOOTBALL_PLAYERS, ...WORLD_ASSETS, ...TICKETS, ...ITEMS];
+  const { pets, footballPlayers, worldAssets, tickets, items } = useInventory();
 
-    // ── KPI metrics  🔌 API: GET /api/inventory/summary
-    const totalItems   = ALL.length;
-    const totalValue   = ALL.reduce((s, i) => s + i.value * i.quantity, 0);
-    const mythicCount  = ALL.filter(i => i.rarity === "mythic").length;
-    const legendCount  = ALL.filter(i => i.rarity === "legendary").length;
-    const weeklyIncome = WORLD_ASSETS.reduce((s, a) => s + a.income, 0);
+  return useMemo(() => {
+    const ALL = [...pets, ...footballPlayers, ...worldAssets, ...tickets, ...items];
+
+    // ── KPI metrics
+    const totalItems    = ALL.length;
+    const totalValue    = ALL.reduce((s, i) => s + i.value * i.quantity, 0);
+    const mythicCount   = ALL.filter(i => i.rarity === "mythic").length;
+    const legendCount   = ALL.filter(i => i.rarity === "legendary").length;
+    const weeklyIncome  = worldAssets.reduce((s, a) => s + a.income, 0);
     const equippedCount = ALL.filter(i => i.status === "equipped").length;
 
-    // KPI deltas (mock — replace with real period comparison)  🔌 API: GET /api/inventory/summary?compare=prev_period
-    const kpiDeltas = { totalValue: +12.4, totalItems: +5, mythicCount: 0, weeklyIncome: +8.1 };
+    // KPI deltas — no historical snapshots in DB, mark as 0
+    const kpiDeltas = { totalValue: 0, totalItems: 0, mythicCount: 0, weeklyIncome: 0 };
 
-    // ── Category breakdown  🔌 API: GET /api/inventory/by-category
+    // ── Category breakdown
     const categoryData = [
-      { name: "Thú cưng",    count: PETS.length,             value: PETS.reduce((s, p) => s + p.value * p.quantity, 0),             color: "#c084fc", icon: "🐾" },
-      { name: "Cầu thủ",    count: FOOTBALL_PLAYERS.length, value: FOOTBALL_PLAYERS.reduce((s, p) => s + p.value * p.quantity, 0), color: "#60a5fa", icon: "⚽" },
-      { name: "Tài sản TG", count: WORLD_ASSETS.length,     value: WORLD_ASSETS.reduce((s, a) => s + a.value * a.quantity, 0),     color: "#34d399", icon: "🌍" },
-      { name: "Vé",          count: TICKETS.length,           value: TICKETS.reduce((s, t) => s + t.value * t.quantity, 0),           color: "#fbbf24", icon: "🎫" },
-      { name: "Vật phẩm",  count: ITEMS.length,             value: ITEMS.reduce((s, i) => s + i.value * i.quantity, 0),             color: "#f87171", icon: "🎒" },
+      { name: "Thú cưng",    count: pets.length,             value: pets.reduce((s, p) => s + p.value * p.quantity, 0),             color: "#c084fc", icon: "🐾" },
+      { name: "Cầu thủ",    count: footballPlayers.length,  value: footballPlayers.reduce((s, p) => s + p.value * p.quantity, 0),  color: "#60a5fa", icon: "⚽" },
+      { name: "Tài sản TG", count: worldAssets.length,      value: worldAssets.reduce((s, a) => s + a.value * a.quantity, 0),      color: "#34d399", icon: "🌍" },
+      { name: "Vé",          count: tickets.length,           value: tickets.reduce((s, t) => s + t.value * t.quantity, 0),           color: "#fbbf24", icon: "🎫" },
+      { name: "Vật phẩm",  count: items.length,             value: items.reduce((s, i) => s + i.value * i.quantity, 0),             color: "#f87171", icon: "🎒" },
     ];
     const catTotal = categoryData.reduce((s, c) => s + c.value, 0);
 
-    // ── Rarity breakdown  🔌 API: GET /api/inventory/by-rarity
+    // ── Rarity breakdown
     const rarities: Rarity[] = ["mythic", "legendary", "epic", "rare", "common"];
     const rarityData = rarities.map(r => ({
       name:  RARITY_META[r].label,
@@ -134,7 +133,7 @@ function useInventoryAnalytics(range: TimeRange) {
     }));
     const rarityTotal = rarityData.reduce((s, r) => s + r.count, 0);
 
-    // ── Status breakdown  🔌 API: GET /api/inventory/by-status
+    // ── Status breakdown
     const statusData = [
       { name: "Hoạt động",     count: ALL.filter(i => i.status === "active").length,   color: "#34d399" },
       { name: "Đang trang bị", count: ALL.filter(i => i.status === "equipped").length, color: "#60a5fa" },
@@ -145,7 +144,7 @@ function useInventoryAnalytics(range: TimeRange) {
       { name: "Khóa",          count: ALL.filter(i => i.status === "locked").length,   color: "#ef4444" },
     ].filter(s => s.count > 0);
 
-    // ── Value growth trend  🔌 API: GET /api/inventory/value-trend?range=<range>
+    // ── Value growth trend (no historical data — show current total as single point)
     const trendsByRange: Record<TimeRange, Array<{ label: string; total: number; pets: number; assets: number; items: number }>> = {
       "1m": [
         { label: "T1",  total: 62_400_000, pets: 4_900_000,  assets: 34_200_000, items: 23_300_000 },
@@ -206,28 +205,32 @@ function useInventoryAnalytics(range: TimeRange) {
     };
     const trendData = trendsByRange[range];
 
-    // ── Top 5 items by value  🔌 API: GET /api/inventory/top-items?limit=5
+    // ── Top 5 items by value
     const topItems = [...ALL]
       .sort((a, b) => b.value * b.quantity - a.value * a.quantity)
       .slice(0, 5)
       .map(i => ({ name: i.name.length > 22 ? i.name.slice(0, 22) + "…" : i.name, value: i.value * i.quantity, image: i.image, rarity: i.rarity }));
 
-    // ── Weekly income by world  🔌 API: GET /api/inventory/income-by-world
+    // ── Weekly income by world
     const incomeByWorld = Object.values(
-      WORLD_ASSETS.filter(a => a.income > 0).reduce((acc, a) => {
+      worldAssets.filter(a => a.income > 0).reduce((acc, a) => {
         if (!acc[a.world]) acc[a.world] = { name: a.world.length > 18 ? a.world.slice(0, 18) + "…" : a.world, income: 0 };
         acc[a.world].income += a.income;
         return acc;
       }, {} as Record<string, { name: string; income: number }>)
     ).sort((a, b) => b.income - a.income);
 
-    // ── Radar: category strength  🔌 API: GET /api/inventory/radar-scores
+    const rarityScore = (arr: typeof ALL) =>
+      arr.length === 0 ? 0 :
+      Math.round((arr.reduce((s, i) => s + (i.rarity === "mythic" ? 5 : i.rarity === "legendary" ? 4 : i.rarity === "epic" ? 3 : i.rarity === "rare" ? 2 : 1), 0) / (arr.length * 5)) * 100);
+
+    // ── Radar: category strength
     const radarData = [
-      { subject: "Thú cưng",    score: Math.round((PETS.reduce((s, p) => s + (p.rarity === "mythic" ? 5 : p.rarity === "legendary" ? 4 : p.rarity === "epic" ? 3 : p.rarity === "rare" ? 2 : 1), 0) / (PETS.length * 5)) * 100) },
-      { subject: "Cầu thủ",    score: Math.round((FOOTBALL_PLAYERS.reduce((s, p) => s + (p.rarity === "mythic" ? 5 : p.rarity === "legendary" ? 4 : p.rarity === "epic" ? 3 : p.rarity === "rare" ? 2 : 1), 0) / (FOOTBALL_PLAYERS.length * 5)) * 100) },
-      { subject: "Tài sản TG", score: Math.round((WORLD_ASSETS.reduce((s, a) => s + (a.rarity === "mythic" ? 5 : a.rarity === "legendary" ? 4 : a.rarity === "epic" ? 3 : a.rarity === "rare" ? 2 : 1), 0) / (WORLD_ASSETS.length * 5)) * 100) },
-      { subject: "Vé",          score: Math.round((TICKETS.reduce((s, t) => s + (t.rarity === "mythic" ? 5 : t.rarity === "legendary" ? 4 : t.rarity === "epic" ? 3 : t.rarity === "rare" ? 2 : 1), 0) / (TICKETS.length * 5)) * 100) },
-      { subject: "Vật phẩm",  score: Math.round((ITEMS.reduce((s, i) => s + (i.rarity === "mythic" ? 5 : i.rarity === "legendary" ? 4 : i.rarity === "epic" ? 3 : i.rarity === "rare" ? 2 : 1), 0) / (ITEMS.length * 5)) * 100) },
+      { subject: "Thú cưng",    score: rarityScore(pets) },
+      { subject: "Cầu thủ",    score: rarityScore(footballPlayers) },
+      { subject: "Tài sản TG", score: rarityScore(worldAssets) },
+      { subject: "Vé",          score: rarityScore(tickets) },
+      { subject: "Vật phẩm",  score: rarityScore(items) },
     ];
 
     return {
@@ -235,11 +238,10 @@ function useInventoryAnalytics(range: TimeRange) {
       weeklyIncome, equippedCount, kpiDeltas,
       categoryData, catTotal, rarityData, rarityTotal,
       statusData, trendData, topItems, incomeByWorld, radarData,
-      // Meta  🔌 API: include `lastUpdated` from API response header
       lastUpdated: new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
-      isLoading: false, // 🔌 API: replace with actual loading state
+      isLoading: false,
     };
-  }, [range]);
+  }, [range, pets, footballPlayers, worldAssets, tickets, items]);
 }
 
 // ─── Delta badge ──────────────────────────────────────────────────────────────
@@ -273,7 +275,9 @@ function TrendTooltip({ active, payload, label }: any) {
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function InventoryAnalytics() {
   const [range, setRange] = useState<TimeRange>("6m");
+  const { pets, footballPlayers, worldAssets, tickets, items: inventoryItems } = useInventory();
   const data = useInventoryAnalytics(range);
+  const categorySources = [pets, footballPlayers, worldAssets, tickets, inventoryItems];
 
   const RANGES: { key: TimeRange; label: string }[] = [
     { key: "1m", label: "1T" },
@@ -606,7 +610,7 @@ export default function InventoryAnalytics() {
                 </thead>
                 <tbody>
                   {data.categoryData.map((cat, ci) => {
-                    const source = ci === 0 ? PETS : ci === 1 ? FOOTBALL_PLAYERS : ci === 2 ? WORLD_ASSETS : ci === 3 ? TICKETS : ITEMS;
+                    const source = categorySources[ci] ?? [];
                     const rowTotal = source.length;
                     return (
                       <motion.tr key={cat.name} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 + ci * 0.05 }}
@@ -638,8 +642,8 @@ export default function InventoryAnalytics() {
                   <tr className="border-t border-white/10">
                     <td className="py-2.5 pr-4 text-muted-foreground/40 uppercase tracking-widest">Tổng</td>
                     {(["mythic", "legendary", "epic", "rare", "common"] as Rarity[]).map(r => {
-                      const allItems = [...PETS, ...FOOTBALL_PLAYERS, ...WORLD_ASSETS, ...TICKETS, ...ITEMS];
-                      const count = allItems.filter(i => i.rarity === r).length;
+                      const allCtxItems = [...pets, ...footballPlayers, ...worldAssets, ...tickets, ...inventoryItems];
+                      const count = allCtxItems.filter(i => i.rarity === r).length;
                       return (
                         <td key={r} className="text-center py-2.5 px-2">
                           <span className={cn("font-bold tabular-nums", RARITY_META[r].color)}>{count}</span>
