@@ -72,6 +72,9 @@ import { DrizzleNotificationSyncRepository }           from "./repositories/driz
 import { InMemoryNotificationsRepository }             from "./repositories/notificationsRepository";
 import { DrizzleNotificationsRepository }              from "./repositories/drizzle/DrizzleNotificationsRepository";
 import { NotificationsService }                        from "./services/notificationsService";
+import { InMemoryActivitiesRepository }                from "./repositories/activitiesRepository";
+import { DrizzleActivitiesRepository }                 from "./repositories/drizzle/DrizzleActivitiesRepository";
+import { ActivitiesService }                           from "./services/activitiesService";
 import { DrizzleApplicationRegistryRepository }        from "./repositories/drizzle/DrizzleApplicationRegistryRepository";
 import { DrizzleUserAppRepository }                    from "./repositories/drizzle/DrizzleUserAppRepository";
 import { MockInventoryRepository }          from "./repositories/inventoryRepository";
@@ -321,23 +324,34 @@ export const profileService = new ProfileService(
   reputationRepo,
 );
 
-export const walletService = new WalletService(
-  walletRepo,
-  walletTransactionRepo,
-);
-
-export const inventoryService = new InventoryService(inventoryItemsRepo);
-
-const marketplacePaymentRepo          = useDrizzle || useSupabase ? new DrizzlePaymentRepository() : new MockMarketplacePaymentRepository();
-export const marketplacePaymentService = new MarketplacePaymentService(walletRepo, marketplacePaymentRepo);
-
-// ─── User Notifications ───────────────────────────────────────────────────────
+// ─── User Notifications (wired early — other services depend on it) ───────────
 
 const userNotifRepo = useDrizzle || useSupabase
   ? new DrizzleNotificationsRepository()
   : new InMemoryNotificationsRepository();
 logger.info(`Container: user notifications → ${useDrizzle || useSupabase ? "Drizzle" : "InMemory"}`);
 export const notificationsService = new NotificationsService(userNotifRepo);
+
+// ─── Activities (HUB-8) ───────────────────────────────────────────────────────
+
+const activitiesRepo = useDrizzle || useSupabase
+  ? new DrizzleActivitiesRepository()
+  : new InMemoryActivitiesRepository();
+logger.info(`Container: activities → ${useDrizzle || useSupabase ? "Drizzle" : "InMemory"}`);
+export const activitiesService = new ActivitiesService(activitiesRepo);
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const walletService = new WalletService(
+  walletRepo,
+  walletTransactionRepo,
+  notificationsService,
+);
+
+export const inventoryService = new InventoryService(inventoryItemsRepo, activitiesService);
+
+const marketplacePaymentRepo          = useDrizzle || useSupabase ? new DrizzlePaymentRepository() : new MockMarketplacePaymentRepository();
+export const marketplacePaymentService = new MarketplacePaymentService(walletRepo, marketplacePaymentRepo);
 
 // ─── Marketplace Notifications (V1.7) ─────────────────────────────────────────
 
@@ -374,6 +388,7 @@ export const marketplaceService = new MarketplaceService(
   marketplaceNotificationService,
   sellerReputationService,
   marketplaceRealtimeService,
+  notificationsService,
 );
 
 // ─── Treasury ─────────────────────────────────────────────────────────────────

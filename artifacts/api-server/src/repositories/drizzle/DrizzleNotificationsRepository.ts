@@ -60,4 +60,8 @@ export class DrizzleNotificationsRepository implements INotificationsRepository 
   async markAllRead(userId: string): Promise<void> {
     await db.update(notificationsTable).set({ isRead: true }).where(eq(notificationsTable.userId, userId));
   }
+
+  async deleteById(id: string): Promise<void> {
+    await db.delete(notificationsTable).where(eq(notificationsTable.id, id));
+  }
 }

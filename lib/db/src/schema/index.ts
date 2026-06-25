@@ -1,4 +1,5 @@
 export * from "./notifications";
+export * from "./activities";
 export * from "./ecosystemApps";
 export * from "./appLaunches";
 export * from "./notificationSync";

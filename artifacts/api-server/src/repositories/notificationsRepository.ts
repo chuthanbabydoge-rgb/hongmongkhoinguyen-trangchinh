@@ -16,6 +16,7 @@ export interface INotificationsRepository {
   create(n: Notification): Promise<Notification>;
   markRead(id: string): Promise<void>;
   markAllRead(userId: string): Promise<void>;
+  deleteById(id: string): Promise<void>;
 }
 
 export class InMemoryNotificationsRepository implements INotificationsRepository {
@@ -33,7 +34,7 @@ export class InMemoryNotificationsRepository implements INotificationsRepository
   }
 
   async create(n: Notification): Promise<Notification> {
-    this.items.push(n);
+    this.items.unshift(n);
     return n;
   }
 
@@ -44,5 +45,9 @@ export class InMemoryNotificationsRepository implements INotificationsRepository
 
   async markAllRead(userId: string): Promise<void> {
     this.items.filter(n => n.userId === userId).forEach(n => { n.isRead = true; });
+  }
+
+  async deleteById(id: string): Promise<void> {
+    this.items = this.items.filter(n => n.id !== id);
   }
 }

@@ -1,6 +1,7 @@
 import type { IWalletRepository } from "../repositories/walletRepository";
 import type { IWalletTransactionRepository } from "../repositories/walletTransactionRepository";
 import type { WalletData, Transaction, Currency } from "../data/walletData";
+import type { NotificationsService } from "./notificationsService";
 
 export type EntryDirection = "credit" | "debit";
 export type EntryStatus    = "completed" | "pending" | "failed";
@@ -9,6 +10,7 @@ export class WalletService {
   constructor(
     private readonly wallets: IWalletRepository,
     private readonly transactions: IWalletTransactionRepository,
+    private readonly notifications: NotificationsService | null = null,
   ) {}
 
   async getWallet(userId: string): Promise<WalletData> {
@@ -88,6 +90,13 @@ export class WalletService {
     await this.transactions.create(debitTx, userId);
     await this.transactions.create(creditTx, userId);
 
+    this.notifications?.fire(
+      userId,
+      "transaction",
+      `Chuyển ví: ${amount} ${from} → ${to}`,
+      `${description}. Số dư ${from} còn: ${currency[from]}.`,
+    );
+
     const updatedWallet = await this.getWallet(userId);
     return { debit: debitTx, credit: creditTx, wallet: updatedWallet };
   }
@@ -125,6 +134,14 @@ export class WalletService {
         ...ref,
         currency: currency as unknown as typeof ref.currency,
       });
+
+      const dirLabel = direction === "credit" ? "nhận" : "trừ";
+      this.notifications?.fire(
+        userId,
+        "transaction",
+        `Giao dịch ví: ${dirLabel} ${Math.abs(amount)} ${walletType}`,
+        description,
+      );
     }
 
     const wallet = await this.getWallet(userId);

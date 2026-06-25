@@ -13,6 +13,7 @@ import type {
   CreateInventoryItemInput,
   UpdateInventoryItemInput,
 } from "../repositories/inventoryItemsRepository";
+import type { ActivitiesService } from "./activitiesService";
 
 export interface InventoryData {
   userId:  string;
@@ -37,7 +38,10 @@ export class ItemNotFoundError extends Error {
 }
 
 export class InventoryService {
-  constructor(private readonly repo: IInventoryItemsRepository) {}
+  constructor(
+    private readonly repo: IInventoryItemsRepository,
+    private readonly activities: ActivitiesService | null = null,
+  ) {}
 
   async getInventory(userId: string): Promise<InventoryData> {
     const [summary, items] = await Promise.all([
@@ -70,12 +74,29 @@ export class InventoryService {
   }
 
   async createItem(userId: string, input: CreateInventoryItemInput): Promise<InventoryItem> {
-    return this.repo.create(userId, input);
+    const item = await this.repo.create(userId, input);
+    this.activities?.fire({
+      userId,
+      type:        "inventory",
+      title:       `Nhận vật phẩm: ${item.name}`,
+      description: `Đã thêm ${item.name} (${item.rarity}) vào kho đồ.`,
+      metadata:    { itemId: item.id, name: item.name, rarity: item.rarity, category: item.category },
+      sourceApp:   "universe-hub",
+    });
+    return item;
   }
 
   async updateItem(userId: string, id: string, input: UpdateInventoryItemInput): Promise<InventoryItem> {
     const updated = await this.repo.update(id, userId, input);
     if (!updated) throw new ItemNotFoundError(id);
+    this.activities?.fire({
+      userId,
+      type:        "inventory",
+      title:       `Cập nhật vật phẩm: ${updated.name}`,
+      description: `Vật phẩm ${updated.name} đã được cập nhật.`,
+      metadata:    { itemId: updated.id, name: updated.name, rarity: updated.rarity },
+      sourceApp:   "universe-hub",
+    });
     return updated;
   }
 

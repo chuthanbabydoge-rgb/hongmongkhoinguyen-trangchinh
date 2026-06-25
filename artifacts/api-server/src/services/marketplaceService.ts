@@ -30,6 +30,7 @@ import type { IMarketplacePaymentService }        from "./marketplacePaymentServ
 import type { IMarketplaceNotificationService }   from "./marketplaceNotificationService";
 import type { MarketplaceReputationService }       from "./marketplaceReputationService";
 import type { MarketplaceRealtimeService }         from "./marketplaceRealtimeService";
+import type { NotificationsService }               from "./notificationsService";
 
 const STATUS_ACTIVE   = "đang hoạt động";
 const STATUS_TRADING  = "đang giao dịch";
@@ -53,16 +54,17 @@ function isListable(status: string): boolean {
 
 export class MarketplaceService {
   constructor(
-    private readonly listings:     IListingsRepository,
-    private readonly transactions: ITransactionsRepository,
-    private readonly auctions:     IAuctionsRepository,
-    private readonly bids:         IBidsRepository,
-    private readonly stats:        IMarketplaceStatsRepository,
-    private readonly inventory:    IInventoryItemsMutationRepository,
-    private readonly payment:      IMarketplacePaymentService | null = null,
-    private readonly notif:        IMarketplaceNotificationService | null = null,
-    private readonly reputation:   MarketplaceReputationService | null = null,
-    private readonly realtime:     MarketplaceRealtimeService | null = null,
+    private readonly listings:       IListingsRepository,
+    private readonly transactions:   ITransactionsRepository,
+    private readonly auctions:       IAuctionsRepository,
+    private readonly bids:           IBidsRepository,
+    private readonly stats:          IMarketplaceStatsRepository,
+    private readonly inventory:      IInventoryItemsMutationRepository,
+    private readonly payment:        IMarketplacePaymentService | null = null,
+    private readonly notif:          IMarketplaceNotificationService | null = null,
+    private readonly reputation:     MarketplaceReputationService | null = null,
+    private readonly realtime:       MarketplaceRealtimeService | null = null,
+    private readonly userNotif:      NotificationsService | null = null,
   ) {}
 
   // ─── Stats ──────────────────────────────────────────────────────────────────
@@ -182,6 +184,19 @@ export class MarketplaceService {
     this.notif?.onListingSold(listing.sellerId, input.buyerId, listing).catch(() => {});
     this.reputation?.recordSale(listing.sellerId, listing.price).catch(() => {});
     this.realtime?.emit("LISTING_SOLD", { listingId: listing.id, itemName: listing.itemName, price: listing.price, currency: listing.currency, sellerId: listing.sellerId, buyerId: input.buyerId });
+
+    this.userNotif?.fire(
+      input.buyerId,
+      "marketplace",
+      `Mua thành công: ${listing.itemName}`,
+      `Bạn đã mua ${listing.itemName} với giá ${listing.price} ${listing.currency}.`,
+    );
+    this.userNotif?.fire(
+      listing.sellerId,
+      "marketplace",
+      `Bán thành công: ${listing.itemName}`,
+      `${listing.itemName} của bạn đã được bán với giá ${listing.price} ${listing.currency}.`,
+    );
 
     return { transaction, listing: updatedListing ?? listing };
   }
