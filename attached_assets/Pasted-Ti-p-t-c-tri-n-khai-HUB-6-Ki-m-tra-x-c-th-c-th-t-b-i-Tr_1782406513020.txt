@@ -1,0 +1,120 @@
+Tiếp tục triển khai HUB-6.
+
+Kiểm tra xác thực thất bại.
+
+Trạng thái hiện tại:
+
+* Hoàn tất dọn dẹp bản mô phỏng
+* Giao diện người dùng kho hàng được kết nối một phần
+* Tiêu chí chấp nhận HUB-6 KHÔNG được đáp ứng
+
+Thực hiện các yêu cầu còn thiếu.
+
+=====================================
+HỆ THỐNG PHÍA SAU
+=======
+
+Tạo các tuyến đường:
+
+GET /api/inventory/me
+GET /api/inventory/items
+GET /api/inventory/items/:id
+GET /api/inventory/summary
+
+POST /api/inventory/items
+PUT /api/inventory/items/:id
+DELETE /api/inventory/items/:id
+
+Yêu cầu:
+
+* Cần xác thực Bearer
+* Giải quyết userId từ JWT
+* Không có user-001 ở bất kỳ đâu
+* Không có chủ sở hữu kho hàng được mã hóa cứng
+* Các lớp Repository + Service + Controller
+
+=====================================
+KHO HÀNG TÓM TẮT
+=================
+
+GET /api/inventory/summary
+
+Phản hồi:
+
+{
+tổng tài sản,
+thú cưng,
+vật phẩm,
+vé,
+tài sản thế giới,
+đồ sưu tầm
+}
+
+Tiện ích kho đồ trên bảng điều khiển phải sử dụng điểm cuối này.
+
+=====================================
+TRANG CHI TIẾT GIAO DIỆN NGƯỜI DÙNG
+====================
+
+Tạo:
+
+/inventory/:id
+
+Hiển thị:
+
+* tên
+* mô tả
+* độ hiếm
+* số lượng
+* siêu dữ liệu
+* thời gian tạo
+
+=====================================
+ĐĂNG KÝ ỨNG DỤNG
+============
+
+Đăng ký:
+
+slug: inventory
+tên: Kho đồ Universe
+danh mục: TÀI SẢN
+trạng thái: HOẠT ĐỘNG
+
+Kho đồ phải tự động hiển thị trong:
+
+GET /api/apps
+Trình khởi chạy trang
+
+=====================================
+DỌN DẸP
+=======
+
+Xóa bỏ mọi lần xuất hiện còn lại của:
+
+user-001
+
+bao gồm:
+
+* inventoryData.ts
+
+* inventoryRepository.ts
+
+=====================================
+CẦN CÓ BẰNG CHỨNG CHẤP NHẬN
+============================
+
+Không đánh dấu hoàn thành cho đến khi hiển thị:
+
+1. curl GET /api/inventory/me
+2. curl GET /api/inventory/items
+3. curl GET /api/inventory/items/:id
+4. curl GET /api/inventory/summary
+5. curl POST inventory mục
+6. curl PUT mục kho
+7. curl DELETE mục kho
+8. curl GET /api/apps hiển thị kho đang HOẠT ĐỘNG
+9. Ảnh chụp màn hình Trình khởi chạy hiển thị thẻ Kho hàng
+10. Ảnh chụp màn hình trang /inventory/:id
+11. grep -R "user-001" . => 0 kết quả
+
+Chỉ sau khi tất cả 11 bằng chứng được chấp thuận thì HUB-6 mới được chấp nhận.
