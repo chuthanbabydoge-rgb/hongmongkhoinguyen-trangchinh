@@ -1,0 +1,280 @@
+HUB-7 — Marketplace × Inventory × Wallet Integration
+
+GOAL
+
+Biến Marketplace thành giao dịch thật giữa người dùng.
+
+Flow:
+
+Inventory
+  ↓
+Create Listing
+  ↓
+Marketplace
+  ↓
+Buy Item
+  ↓
+Wallet Transfer
+  ↓
+Ownership Transfer
+  ↓
+Transaction History
+
+====================================================
+
+AC-1 CREATE LISTING
+
+Implement:
+
+POST /api/marketplace/listings
+
+Body:
+
+{
+  "inventoryItemId": "<item-id>",
+  "price": 5000,
+  "currency": "CREDITS"
+}
+
+Rules:
+
+- user phải sở hữu item
+- item tồn tại
+- quantity > 0
+- item chưa được list
+
+Response:
+
+201
+
+{
+  "ok": true,
+  "data": {
+    "listingId": "...",
+    "status": "ACTIVE"
+  }
+}
+
+====================================================
+
+AC-2 REAL LISTINGS
+
+GET /api/marketplace/listings
+
+Không dùng mock.
+
+Listings phải lấy từ inventory thật.
+
+Response:
+
+{
+  "id": "...",
+  "itemId": "...",
+  "itemName": "...",
+  "rarity": "epic",
+  "sellerId": "...",
+  "price": 5000,
+  "currency": "CREDITS",
+  "status": "ACTIVE"
+}
+
+====================================================
+
+AC-3 BUY ITEM
+
+POST /api/marketplace/listings/:id/buy
+
+Flow:
+
+1. Verify buyer
+2. Verify listing ACTIVE
+3. Verify buyer balance
+4. Trừ tiền buyer
+5. Cộng tiền seller
+6. Chuyển ownership item
+7. Mark listing SOLD
+8. Create transaction record
+
+====================================================
+
+AC-4 WALLET INTEGRATION
+
+Dùng wallet service thật.
+
+Buyer:
+
+10000
+↓ buy 5000
+5000
+
+Seller:
+
+2000
+↓ receive 5000
+7000
+
+Không dùng mock balance.
+
+====================================================
+
+AC-5 INVENTORY OWNERSHIP TRANSFER
+
+Before:
+
+Seller:
+Dragon Sword
+
+Buyer:
+empty
+
+After:
+
+Seller:
+empty
+
+Buyer:
+Dragon Sword
+
+Item owner phải đổi thật trong inventory repository.
+
+====================================================
+
+AC-6 TRANSACTION HISTORY
+
+GET /api/marketplace/transactions
+
+Response:
+
+[
+  {
+    "id": "...",
+    "buyerId": "...",
+    "sellerId": "...",
+    "itemId": "...",
+    "amount": 5000,
+    "currency": "CREDITS",
+    "createdAt": "..."
+  }
+]
+
+====================================================
+
+AC-7 MARKETPLACE UI
+
+Marketplace page:
+
+- Listing cards
+- Buy button
+- Price
+- Currency
+- Seller
+- Item name
+- Rarity
+
+Add:
+
+My Listings
+
+Purchase History
+
+Data từ API thật.
+
+====================================================
+
+AC-8 INVENTORY INTEGRATION
+
+Inventory item detail:
+
+/inventory/:id
+
+Add button:
+
+[List On Marketplace]
+
+Flow:
+
+Inventory Item
+→ Enter Price
+→ Create Listing
+→ Marketplace
+
+====================================================
+
+AC-9 DASHBOARD
+
+Add widget:
+
+Marketplace Stats
+
+Show:
+
+- Active Listings
+- Sold Items
+- Total Sales Volume
+- Credits Earned
+
+Data từ API.
+
+Không hardcode.
+
+====================================================
+
+AC-10 REMOVE MOCKS
+
+Search and eliminate:
+
+MOCK_LISTINGS
+MOCK_TRANSACTIONS
+mockMarketplaceData
+fakeListing
+fakeTransaction
+
+Marketplace chỉ được dùng:
+
+- Inventory Repository
+- Wallet Service
+- Marketplace Repository
+
+====================================================
+
+ACCEPTANCE PROOF REQUIRED
+
+Provide curl outputs for:
+
+POST /api/marketplace/listings
+→ 201
+
+GET /api/marketplace/listings
+→ listing appears
+
+POST /api/marketplace/listings/:id/buy
+→ 200
+
+GET /api/wallet/me
+→ balances changed
+
+GET /api/inventory/items
+→ ownership transferred
+
+GET /api/marketplace/transactions
+→ transaction exists
+
+====================================================
+
+FORBIDDEN
+
+- user-001
+- mock data
+- fake listings
+- fake transactions
+- hardcoded seller
+- hardcoded buyer
+
+REQUIRED
+
+JWT → userId
+Inventory Repository
+Wallet Service
+Marketplace Service
+
+Only mark HUB-7 COMPLETE when full buy/sell flow works end-to-end with real API responses.
