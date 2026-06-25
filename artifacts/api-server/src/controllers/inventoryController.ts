@@ -4,11 +4,42 @@ import type { InventoryCategory, Rarity, ItemStatus } from "../repositories/inve
 import { AccountUnauthorizedError, AccountServiceUnavailableError } from "../services/accountClient";
 import { ItemNotFoundError } from "../services/inventoryService";
 
+// ── JWT-local userId extraction ───────────────────────────────────────────────
+// Decodes the JWT payload (2nd segment, base64url) to extract userId locally.
+// Checks: sub → userId → id  (standard JWT claims)
+// No Account API call — inventory works independently.
+function extractUserIdFromJwt(authHeader: string): string | null {
+  try {
+    const token  = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+    const parts  = token.split(".");
+    if (parts.length !== 3) return null;
+    const raw    = Buffer.from(parts[1]!, "base64url").toString("utf8");
+    const payload = JSON.parse(raw) as Record<string, unknown>;
+    const id      = payload["sub"] ?? payload["userId"] ?? payload["id"];
+    return typeof id === "string" && id.length > 0 ? id : null;
+  } catch {
+    return null;
+  }
+}
+
 async function resolveUserId(req: Request): Promise<string> {
   const auth = req.headers["authorization"] as string | undefined;
-  if (!auth) throw Object.assign(new Error("Chưa xác thực."), { status: 401 });
-  const profile = await accountBridgeService.getProfileCached(auth);
-  return profile.userId || profile.id;
+  if (!auth || !auth.startsWith("Bearer ")) {
+    throw Object.assign(new Error("Chưa xác thực."), { status: 401 });
+  }
+
+  // 1. Decode userId from JWT locally — no Account API dependency
+  const jwtUserId = extractUserIdFromJwt(auth);
+  if (jwtUserId) return jwtUserId;
+
+  // 2. Fallback: call Account API (for opaque / non-JWT tokens)
+  try {
+    const profile = await accountBridgeService.getProfileCached(auth);
+    return profile.userId || profile.id;
+  } catch {
+    // Account API unavailable and token is not a decodable JWT → 401
+    throw Object.assign(new Error("Chưa xác thực. Token không hợp lệ."), { status: 401 });
+  }
 }
 
 function handleAuthError(res: Response, err: unknown): boolean {
