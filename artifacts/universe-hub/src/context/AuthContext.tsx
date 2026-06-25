@@ -199,6 +199,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     clearSession();
     setSession(null);
+
+    // Full page reload: ensures React tree, QueryClient cache, and all in-memory
+    // state are wiped clean. Prevents the stale-fiber "insertBefore" crash that
+    // occurs when React tries to reconcile the post-login tree against DOM nodes
+    // left over from the previous authenticated session.
+    window.location.replace("/");
   }, [session]);
 
   // ── getAccessToken (legacy) ───────────────────────────────────────────────
