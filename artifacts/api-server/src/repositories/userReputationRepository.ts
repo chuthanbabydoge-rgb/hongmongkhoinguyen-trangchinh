@@ -10,7 +10,8 @@ export type ReputationEventType =
   | "GUILD_EVENT"
   | "GUILD_CONTRIBUTION"
   | "GUILD_ANNOUNCEMENT"
-  | "GUILD_RECRUIT";
+  | "GUILD_RECRUIT"
+  | "QUEST_COMPLETED";
 
 export const REPUTATION_RULES: Record<ReputationEventType, number> = {
   LOGIN:                 5,
@@ -25,6 +26,7 @@ export const REPUTATION_RULES: Record<ReputationEventType, number> = {
   GUILD_CONTRIBUTION:   10,
   GUILD_ANNOUNCEMENT:   5,
   GUILD_RECRUIT:        25,
+  QUEST_COMPLETED:      0,
 };
 
 export const LEVEL_THRESHOLDS: Array<{ level: string; min: number; max: number | null }> = [

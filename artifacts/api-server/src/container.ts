@@ -637,3 +637,22 @@ const guildRepo = new DrizzleGuildRepository();
 logger.info("Container: guild system → Drizzle");
 
 export const guildService = new GuildService(guildRepo, notificationsService, activitiesService, userReputationService);
+
+// ─── Quest / Mission System (HUB-12) ─────────────────────────────────────────
+
+import { DrizzleQuestRepository } from "./repositories/drizzle/DrizzleQuestRepository.js";
+import { QuestService }           from "./services/questService.js";
+
+const questRepo = new DrizzleQuestRepository();
+logger.info("Container: quest system → Drizzle");
+
+export const questService = new QuestService(
+  questRepo,
+  walletService,
+  userReputationService,
+  achievementService,
+  notificationsService,
+  activitiesService,
+);
+
+questService.seedDefaultQuests().catch((err) => logger.warn({ err }, "Quest seed skipped"));

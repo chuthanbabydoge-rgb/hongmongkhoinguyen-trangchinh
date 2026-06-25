@@ -34,6 +34,7 @@ import {
   Star,
   Users,
   Shield,
+  Sword,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -164,6 +165,13 @@ export function Sidebar() {
           </p>
           <NavItem icon={Users} label="Universe Social" path="/social" />
           <NavItem icon={Shield} label="Universe Guild" path="/guild" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Nhiệm vụ
+          </p>
+          <NavItem icon={Sword} label="Quest &amp; Nhiệm vụ" path="/quests" />
         </div>
 
         <div className="pt-1 pb-1">

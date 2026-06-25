@@ -51,6 +51,7 @@ import GuildEvents from "@/pages/guild/GuildEvents";
 import GuildRankings from "@/pages/guild/GuildRankings";
 import GuildLogs from "@/pages/guild/GuildLogs";
 import GuildSettings from "@/pages/guild/GuildSettings";
+import QuestsDashboard from "@/pages/quests/QuestsDashboard";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -102,6 +103,7 @@ function Router() {
       <Route path="/guild/:id/logs" component={GuildLogs} />
       <Route path="/guild/:id/settings" component={GuildSettings} />
       <Route path="/guild/:id" component={GuildDetail} />
+      <Route path="/quests" component={QuestsDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

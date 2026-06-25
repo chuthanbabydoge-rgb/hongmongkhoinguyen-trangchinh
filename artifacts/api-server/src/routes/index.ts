@@ -16,6 +16,7 @@ import notificationSyncRouter from "./notificationSync";
 import appsRouter from "./apps";
 import socialRouter from "./social";
 import guildRouter from "./guild";
+import questsRouter from "./quests";
 
 const router: IRouter = Router();
 
@@ -36,5 +37,6 @@ router.use(notificationSyncRouter);
 router.use(appsRouter);
 router.use(socialRouter);
 router.use(guildRouter);
+router.use(questsRouter);
 
 export default router;

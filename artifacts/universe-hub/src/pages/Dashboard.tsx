@@ -10,6 +10,7 @@ import { MarketplaceStats } from "@/components/dashboard/MarketplaceStats";
 import { ReputationCard } from "@/components/dashboard/ReputationCard";
 import { SocialOverviewCard } from "@/components/dashboard/SocialOverviewCard";
 import { AchievementShowcase } from "@/components/dashboard/AchievementShowcase";
+import { QuestWidget } from "@/components/dashboard/QuestWidget";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useAddReputationEvent } from "@/hooks/useReputation";
 import { useEffect, useRef } from "react";
@@ -52,6 +53,7 @@ export default function Dashboard() {
               <ReputationCard />
               <WalletOverview wallet={wallet} loading={loading} />
             </div>
+            <QuestWidget />
             <SocialOverviewCard />
             <AchievementShowcase />
             <InventorySummary />

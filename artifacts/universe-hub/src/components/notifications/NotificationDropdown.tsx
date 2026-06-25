@@ -25,6 +25,7 @@ const TYPE_META: Record<
   system:      { label: "Hệ thống",     icon: Settings,       color: "text-slate-400",   bg: "bg-slate-400/10"   },
   social:      { label: "Xã hội",       icon: Users,          color: "text-blue-400",    bg: "bg-blue-400/10"    },
   marketplace: { label: "Chợ",          icon: ShoppingBag,    color: "text-violet-400",  bg: "bg-violet-400/10"  },
+  quest:       { label: "Nhiệm vụ",     icon: Gift,           color: "text-yellow-400",  bg: "bg-yellow-400/10"  },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -40,7 +41,7 @@ function timeAgo(iso: string): string {
 // ─── Single notification row ──────────────────────────────────────────────────
 
 function NotificationItem({ item }: { item: Notification }) {
-  const meta = TYPE_META[item.type];
+  const meta = TYPE_META[item.type as NotificationType] ?? TYPE_META.system;
   const Icon = meta.icon;
 
   return (

@@ -44,7 +44,7 @@ export interface UserReputation {
   badges: string[];
 }
 
-export type NotificationType = "reward" | "transaction" | "system" | "social" | "marketplace";
+export type NotificationType = "reward" | "transaction" | "system" | "social" | "marketplace" | "quest";
 
 export interface Notification {
   id: string;

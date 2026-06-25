@@ -198,6 +198,16 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     status:      "ACTIVE",
     version:     "1.0.0",
   },
+  {
+    slug:        "quests",
+    name:        "Universe Quests",
+    description: "Hệ thống nhiệm vụ và quest — hoàn thành thử thách để nhận phần thưởng Credits, Coins, Token và Reputation",
+    icon:        "https://cdn.universe.io/icons/quests.png",
+    url:         `${REPLIT_HUB_URL}/quests`,
+    category:    "OTHER",
+    status:      "ACTIVE",
+    version:     "1.0.0",
+  },
 ];
 
 // ─── Service ──────────────────────────────────────────────────────────────────

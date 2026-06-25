@@ -29,3 +29,4 @@ export * from "./marketplacePricing";
 export * from "./marketplacePayments";
 export * from "./social";
 export * from "./guilds";
+export * from "./quests";
