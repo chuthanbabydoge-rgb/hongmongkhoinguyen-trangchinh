@@ -1,0 +1,359 @@
+HUB-12 — Quest / Mission System (NO MOCK, PostgreSQL, Drizzle ORM)
+
+Mục tiêu:
+Xây dựng hệ thống Quest/Mission hoàn chỉnh dùng dữ liệu thật. Quest sẽ kết nối trực tiếp với:
+
+- Account
+- Reputation
+- Achievement
+- Wallet
+- Inventory
+- Marketplace
+- Guild
+- Notification
+- Activity
+
+KHÔNG sử dụng mock data.
+KHÔNG tạo dữ liệu hardcode.
+Toàn bộ dùng PostgreSQL + Drizzle ORM.
+
+==================================================
+PHẦN 1 — DATABASE
+==================================================
+
+Tạo schema:
+
+quests
+daily_quests
+weekly_quests
+user_quests
+quest_rewards
+quest_objectives
+
+Quest gồm:
+
+id
+title
+description
+type
+
+MAIN
+SIDE
+DAILY
+WEEKLY
+EVENT
+
+status
+
+ACTIVE
+INACTIVE
+FINISHED
+
+difficulty
+
+EASY
+NORMAL
+HARD
+LEGENDARY
+
+requiredLevel
+
+repeatable
+
+startAt
+endAt
+
+rewardCredits
+rewardCoins
+rewardTokens
+rewardReputation
+
+metadata jsonb
+
+==================================================
+PHẦN 2 — QUEST ENGINE
+==================================================
+
+Quest Objective hỗ trợ:
+
+LOGIN
+
+OPEN_APP
+
+BUY_ITEM
+
+SELL_ITEM
+
+CREATE_LISTING
+
+TRANSFER_WALLET
+
+GAIN_REPUTATION
+
+ADD_FRIEND
+
+JOIN_GUILD
+
+CONTRIBUTE_GUILD
+
+COLLECT_ITEM
+
+OWN_ITEM
+
+LEVEL_REPUTATION
+
+CUSTOM
+
+Engine tự update progress.
+
+==================================================
+PHẦN 3 — API
+==================================================
+
+GET
+
+/api/quests
+
+/api/quests/:id
+
+/api/quests/me
+
+/api/quests/daily
+
+/api/quests/weekly
+
+/api/quests/completed
+
+POST
+
+/api/quests/:id/start
+
+/api/quests/:id/claim
+
+/api/quests/:id/cancel
+
+==================================================
+PHẦN 4 — AUTO TRACKING
+==================================================
+
+Marketplace purchase
+
+↓
+
+Quest progress
+
+Wallet transfer
+
+↓
+
+Quest progress
+
+Inventory acquire
+
+↓
+
+Quest progress
+
+Guild join
+
+↓
+
+Quest progress
+
+Friend request accepted
+
+↓
+
+Quest progress
+
+Login
+
+↓
+
+Quest progress
+
+Quest engine phải subscribe các event đã có của HUB-7~11.
+
+==================================================
+PHẦN 5 — REWARD
+==================================================
+
+Khi Claim:
+
+Wallet
+
++
+
+Inventory
+
++
+
+Reputation
+
++
+
+Achievement
+
++
+
+Notification
+
++
+
+Activity
+
+được cập nhật thật.
+
+==================================================
+PHẦN 6 — FRONTEND
+==================================================
+
+Tạo
+
+/pages/quests
+
+Dashboard Quest Widget
+
+Daily Quest Card
+
+Weekly Quest Card
+
+Quest Detail
+
+Quest Progress Bar
+
+Reward Preview
+
+Quest History
+
+==================================================
+PHẦN 7 — DASHBOARD
+==================================================
+
+Dashboard thêm
+
+Today's Missions
+
+Weekly Missions
+
+Completed Today
+
+Claimable Rewards
+
+==================================================
+PHẦN 8 — LAUNCHER
+==================================================
+
+Đăng ký app mới
+
+slug
+
+quests
+
+category
+
+GAMEPLAY
+
+status
+
+ACTIVE
+
+Launcher phải hiện app Quest.
+
+==================================================
+PHẦN 9 — NOTIFICATION
+==================================================
+
+Quest Complete
+
+Quest Claimed
+
+Daily Reset
+
+Weekly Reset
+
+==================================================
+PHẦN 10 — ACTIVITY
+==================================================
+
+Activity Feed phải ghi
+
+QUEST_STARTED
+
+QUEST_COMPLETED
+
+QUEST_CLAIMED
+
+==================================================
+PHẦN 11 — REPUTATION
+==================================================
+
+Quest hoàn thành sẽ cộng Reputation.
+
+Rule:
+
+Easy
+
++5
+
+Normal
+
++10
+
+Hard
+
++25
+
+Legendary
+
++100
+
+==================================================
+PHẦN 12 — ACHIEVEMENT
+==================================================
+
+Unlock:
+
+FIRST_QUEST
+
+100_QUESTS
+
+DAILY_MASTER
+
+LEGEND_HUNTER
+
+==================================================
+PHẦN 13 — ACCEPTANCE
+==================================================
+
+Chứng minh đầy đủ:
+
+✓ tạo quest
+
+✓ start quest
+
+✓ progress update tự động
+
+✓ complete
+
+✓ claim
+
+✓ wallet tăng
+
+✓ reputation tăng
+
+✓ notification sinh
+
+✓ activity sinh
+
+✓ achievement unlock
+
+✓ launcher có Quest
+
+✓ dashboard có widget
+
+✓ PostgreSQL lưu thật
+
+✓ không mock
+
+✓ curl proof toàn bộ
