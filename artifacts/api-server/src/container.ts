@@ -69,6 +69,9 @@ import { DrizzleModerationRepository }                 from "./repositories/driz
 import { DrizzleAppRegistryRepository }                from "./repositories/drizzle/DrizzleAppRegistryRepository";
 import { DrizzleAppLauncherRepository }                from "./repositories/drizzle/DrizzleAppLauncherRepository";
 import { DrizzleNotificationSyncRepository }           from "./repositories/drizzle/DrizzleNotificationSyncRepository";
+import { InMemoryNotificationsRepository }             from "./repositories/notificationsRepository";
+import { DrizzleNotificationsRepository }              from "./repositories/drizzle/DrizzleNotificationsRepository";
+import { NotificationsService }                        from "./services/notificationsService";
 import { DrizzleApplicationRegistryRepository }        from "./repositories/drizzle/DrizzleApplicationRegistryRepository";
 import { DrizzleUserAppRepository }                    from "./repositories/drizzle/DrizzleUserAppRepository";
 import { MockInventoryRepository }          from "./repositories/inventoryRepository";
@@ -327,6 +330,14 @@ export const inventoryService = new InventoryService(inventoryItemsRepo);
 
 const marketplacePaymentRepo          = useDrizzle || useSupabase ? new DrizzlePaymentRepository() : new MockMarketplacePaymentRepository();
 export const marketplacePaymentService = new MarketplacePaymentService(walletRepo, marketplacePaymentRepo);
+
+// ─── User Notifications ───────────────────────────────────────────────────────
+
+const userNotifRepo = useDrizzle || useSupabase
+  ? new DrizzleNotificationsRepository()
+  : new InMemoryNotificationsRepository();
+logger.info(`Container: user notifications → ${useDrizzle || useSupabase ? "Drizzle" : "InMemory"}`);
+export const notificationsService = new NotificationsService(userNotifRepo);
 
 // ─── Marketplace Notifications (V1.7) ─────────────────────────────────────────
 

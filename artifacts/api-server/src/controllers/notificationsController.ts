@@ -1,15 +1,6 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// NotificationsController — HUB-5
-//
-// Resolves the authenticated user from the Bearer token via accountBridgeService.
-// Falls back to empty notifications when no token is present (unauthenticated
-// access returns empty instead of 401 so the UI degrades gracefully).
-// ─────────────────────────────────────────────────────────────────────────────
-
 import { type Request, type Response } from "express";
-import { getNotifications, getUnreadCount } from "../services/notificationsService";
-import { accountBridgeService } from "../container";
-import { type NotificationType } from "../data/notificationsData";
+import { accountBridgeService, notificationsService } from "../container";
+import type { NotificationType } from "../repositories/notificationsRepository";
 
 const VALID_TYPES: NotificationType[] = [
   "reward", "transaction", "system", "social", "marketplace",
@@ -19,7 +10,6 @@ export async function handleGetNotifications(req: Request, res: Response): Promi
   try {
     const auth = req.headers["authorization"] as string | undefined;
 
-    // Resolve userId from real Account API token; return empty if unauthenticated
     let userId: string | null = null;
     if (auth) {
       try {
@@ -41,8 +31,8 @@ export async function handleGetNotifications(req: Request, res: Response): Promi
       ? (rawType as NotificationType)
       : undefined;
 
-    const notifications = await getNotifications(userId, type, unreadOnly);
-    const unreadCount   = await getUnreadCount(userId);
+    const notifications = await notificationsService.getNotifications(userId, type, unreadOnly);
+    const unreadCount   = await notificationsService.getUnreadCount(userId);
 
     res.json({
       ok: true,

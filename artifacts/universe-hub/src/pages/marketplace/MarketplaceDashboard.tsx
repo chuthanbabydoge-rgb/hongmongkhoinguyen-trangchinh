@@ -4,11 +4,10 @@ import { Link } from "wouter";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import {
-  LISTINGS, AUCTIONS, TRADES, MARKET_TRANSACTIONS,
-  MARKET_VOLUME_TREND, MARKET_CATEGORY_VOLUME, TOP_SELLERS,
   RARITY_COLORS, RARITY_LABELS, CATEGORY_META_MARKET, TX_TYPE_META,
-  type Listing, type Auction,
+  type Listing, type Auction, type MarketTransaction,
 } from "@/lib/marketplaceMockData";
+import { useMarketplace } from "@/context/MarketplaceContext";
 import { cn } from "@/lib/utils";
 import {
   ShoppingBag, Gavel, CheckCircle2, TrendingUp, ChevronRight,
@@ -192,7 +191,7 @@ function HotAuctionRow({ auction, index }: { auction: Auction; index: number }) 
 
 // ─── Activity feed item ───────────────────────────────────────────────────────
 
-function ActivityItem({ tx, index }: { tx: (typeof MARKET_TRANSACTIONS)[0]; index: number }) {
+function ActivityItem({ tx, index }: { tx: MarketTransaction; index: number }) {
   const tm = TX_TYPE_META[tx.type];
   const rc = RARITY_COLORS[tx.rarity];
   return (
@@ -227,29 +226,31 @@ function ActivityItem({ tx, index }: { tx: (typeof MARKET_TRANSACTIONS)[0]; inde
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function MarketplaceDashboard() {
-  const activeListings   = useMemo(() => LISTINGS.filter(l => l.status === "active"), []);
-  const completedSales   = useMemo(() => MARKET_TRANSACTIONS.filter(t => t.type === "purchase" || t.type === "auction_win"), []);
-  const totalVolume      = useMemo(() => MARKET_TRANSACTIONS.reduce((s, t) => s + t.price, 0), []);
-  const recentListings   = useMemo(() => activeListings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 6), [activeListings]);
-  const hotAuctions      = useMemo(() => AUCTIONS.filter(a => a.isHot), []);
-  const activityFeed     = useMemo(() => MARKET_TRANSACTIONS.slice(0, 12), []);
-  const maxCatVol        = useMemo(() => Math.max(...MARKET_CATEGORY_VOLUME.map(c => c.value)), []);
+  const { listings, auctions, trades, transactions, stats } = useMarketplace();
 
-  const pendingTrades = TRADES.filter(t => t.status === "pending").length;
+  const activeListings   = useMemo(() => listings.filter(l => l.status === "active"), [listings]);
+  const completedSales   = useMemo(() => transactions.filter(t => t.type === "purchase" || t.type === "auction_win"), [transactions]);
+  const totalVolume      = useMemo(() => transactions.reduce((s, t) => s + t.price, 0), [transactions]);
+  const recentListings   = useMemo(() => [...activeListings].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 6), [activeListings]);
+  const hotAuctions      = useMemo(() => auctions.filter(a => a.isHot), [auctions]);
+  const activityFeed     = useMemo(() => transactions.slice(0, 12), [transactions]);
+  const maxCatVol        = useMemo(() => stats.categoryVolume.length > 0 ? Math.max(...stats.categoryVolume.map(c => c.value)) : 1, [stats]);
+
+  const pendingTrades = trades.filter(t => t.status === "pending").length;
 
   const STAT_CARDS: StatCardProps[] = [
     {
       icon: ShoppingBag, label: "Niêm yết đang mở",
       value: String(activeListings.length),
-      sub: `${LISTINGS.filter(l => l.status === "sold").length} đã bán · ${LISTINGS.filter(l => l.status === "expired").length} hết hạn`,
+      sub: `${listings.filter(l => l.status === "sold").length} đã bán · ${listings.filter(l => l.status === "expired").length} hết hạn`,
       delta: "+3 hôm nay", deltaPositive: true,
       color: "text-emerald-400", border: "border-emerald-400/20", bg: "bg-emerald-400/10",
       glow: "shadow-[0_0_24px_rgba(52,211,153,0.06)]", delay: 0.1,
     },
     {
       icon: Gavel, label: "Đấu giá đang diễn ra",
-      value: String(AUCTIONS.length),
-      sub: `${hotAuctions.length} phiên nóng · ${AUCTIONS.filter(a => new Date(a.endTime).getTime() - Date.now() < 3 * 3_600_000).length} sắp kết thúc`,
+      value: String(auctions.length),
+      sub: `${hotAuctions.length} phiên nóng · ${auctions.filter(a => new Date(a.endTime).getTime() - Date.now() < 3 * 3_600_000).length} sắp kết thúc`,
       delta: `${hotAuctions.length} Hot`, deltaPositive: true,
       color: "text-amber-400", border: "border-amber-400/20", bg: "bg-amber-400/10",
       glow: "shadow-[0_0_24px_rgba(251,191,36,0.06)]", delay: 0.16,
@@ -257,7 +258,7 @@ export default function MarketplaceDashboard() {
     {
       icon: CheckCircle2, label: "Giao dịch hoàn thành",
       value: String(completedSales.length),
-      sub: `${pendingTrades} trao đổi đang chờ · ${TRADES.filter(t => t.status === "accepted").length} đã chốt`,
+      sub: `${pendingTrades} trao đổi đang chờ · ${trades.filter(t => t.status === "accepted").length} đã chốt`,
       delta: "+5 tuần này", deltaPositive: true,
       color: "text-blue-400", border: "border-blue-400/20", bg: "bg-blue-400/10",
       glow: "shadow-[0_0_24px_rgba(96,165,250,0.06)]", delay: 0.22,
@@ -265,7 +266,7 @@ export default function MarketplaceDashboard() {
     {
       icon: Coins, label: "Tổng khối lượng giao dịch",
       value: fmtCR(totalVolume),
-      sub: `Phí: ${fmtCR(MARKET_TRANSACTIONS.reduce((s, t) => s + t.fee, 0))} · ${MARKET_TRANSACTIONS.length} tx`,
+      sub: `Phí: ${fmtCR(transactions.reduce((s, t) => s + t.fee, 0))} · ${transactions.length} tx`,
       delta: "+18.4% tháng", deltaPositive: true,
       color: "text-purple-400", border: "border-purple-400/20", bg: "bg-purple-400/10",
       glow: "shadow-[0_0_24px_rgba(192,132,252,0.06)]", delay: 0.28,
@@ -295,7 +296,7 @@ export default function MarketplaceDashboard() {
                 Bảng điều khiển chợ
               </h1>
               <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">
-                UNIVERSE HUB MARKETPLACE · {activeListings.length} NIÊM YẾT · {AUCTIONS.length} ĐẤU GIÁ · {MARKET_TRANSACTIONS.length} GIAO DỊCH
+                UNIVERSE HUB MARKETPLACE · {activeListings.length} NIÊM YẾT · {auctions.length} ĐẤU GIÁ · {transactions.length} GIAO DỊCH
               </p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
@@ -332,12 +333,12 @@ export default function MarketplaceDashboard() {
                   <p className="text-[10px] font-mono text-muted-foreground/35 mt-0.5">12 tháng gần nhất (CR)</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-bold font-mono text-emerald-400">{fmtCR(MARKET_VOLUME_TREND[MARKET_VOLUME_TREND.length - 1].volume)}</p>
+                  <p className="text-xs font-bold font-mono text-emerald-400">{fmtCR(stats.volumeTrend.length > 0 ? stats.volumeTrend[stats.volumeTrend.length - 1].volume : 0)}</p>
                   <p className="text-[9px] font-mono text-emerald-400/60">tháng này</p>
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={190}>
-                <AreaChart data={MARKET_VOLUME_TREND} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                <AreaChart data={stats.volumeTrend} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="mkt-vol" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%"  stopColor="#34d399" stopOpacity={0.28} />
@@ -366,7 +367,7 @@ export default function MarketplaceDashboard() {
                 </div>
               </div>
               <div className="space-y-3 flex-1">
-                {MARKET_CATEGORY_VOLUME.map((cat, i) => {
+                {stats.categoryVolume.map((cat, i) => {
                   const pct = Math.round((cat.value / maxCatVol) * 100);
                   const cm = CATEGORY_META_MARKET[cat.name === "Tài sản TG" ? "world-assets" : cat.name === "Cầu thủ" ? "football" : cat.name === "Thú cưng" ? "pets" : cat.name === "Vật phẩm" ? "items" : "tickets"];
                   return (
@@ -393,7 +394,7 @@ export default function MarketplaceDashboard() {
               </div>
               <div className="mt-4 pt-3 border-t border-white/5 grid grid-cols-2 gap-2">
                 <div className="glass-panel rounded-xl border border-white/8 p-2.5 text-center">
-                  <p className="text-sm font-bold font-mono text-white">{MARKET_CATEGORY_VOLUME.reduce((s, c) => s + c.txCount, 0)}</p>
+                  <p className="text-sm font-bold font-mono text-white">{stats.categoryVolume.reduce((s, c) => s + c.txCount, 0)}</p>
                   <p className="text-[9px] font-mono text-muted-foreground/35">Tổng giao dịch</p>
                 </div>
                 <div className="glass-panel rounded-xl border border-white/8 p-2.5 text-center">
@@ -487,7 +488,7 @@ export default function MarketplaceDashboard() {
                   <Star className="w-4 h-4 text-amber-400" /> Người bán hàng đầu
                 </p>
                 <div className="space-y-2">
-                  {TOP_SELLERS.map((s, i) => (
+                  {stats.topSellers.map((s, i) => (
                     <motion.div key={s.name} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 + i * 0.06 }}
                       className="flex items-center gap-2.5 p-2.5 rounded-xl border border-white/5 hover:bg-white/3 transition-colors">
                       <div className="relative">

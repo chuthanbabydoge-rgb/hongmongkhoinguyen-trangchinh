@@ -3,10 +3,11 @@ import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import {
-  MARKET_TRANSACTIONS, RARITY_COLORS, RARITY_LABELS,
+  RARITY_COLORS, RARITY_LABELS,
   CATEGORY_META_MARKET, TX_TYPE_META,
   type ListingCategory, type MarketRarity, type TxType,
 } from "@/lib/marketplaceMockData";
+import { useMarketplace } from "@/context/MarketplaceContext";
 import { cn } from "@/lib/utils";
 import { Search, SlidersHorizontal, X, ArrowUpDown, Coins, TrendingUp, ArrowLeftRight } from "lucide-react";
 
@@ -21,6 +22,7 @@ const fmtCR = (v: number) => v >= 1_000_000 ? `${(v / 1_000_000).toFixed(2)}M CR
 type SortKey = "date" | "price_desc" | "price_asc";
 
 export default function MarketplaceTransactions() {
+  const { transactions } = useMarketplace();
   const [search, setSearch] = useState("");
   const [cat, setCat] = useState<"all" | ListingCategory>("all");
   const [rarity, setRarity] = useState<"all" | MarketRarity>("all");
@@ -28,7 +30,7 @@ export default function MarketplaceTransactions() {
   const [sort, setSort] = useState<SortKey>("date");
 
   const filtered = useMemo(() => {
-    let items = MARKET_TRANSACTIONS.filter(t => {
+    let items = transactions.filter(t => {
       if (cat !== "all" && t.category !== cat) return false;
       if (rarity !== "all" && t.rarity !== rarity) return false;
       if (txType !== "all" && t.type !== txType) return false;
@@ -66,7 +68,7 @@ export default function MarketplaceTransactions() {
               <span className="w-2 h-6 bg-blue-400 rounded-sm shadow-[0_0_10px_rgba(96,165,250,0.6)]" />
               Giao dịch
             </h1>
-            <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">{filtered.length} / {MARKET_TRANSACTIONS.length} GIAO DỊCH</p>
+            <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">{filtered.length} / {transactions.length} GIAO DỊCH</p>
           </div>
 
           {/* Summary KPIs */}

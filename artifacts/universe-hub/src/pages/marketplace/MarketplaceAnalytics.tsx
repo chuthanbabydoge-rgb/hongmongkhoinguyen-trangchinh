@@ -2,11 +2,11 @@ import { motion } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import {
-  MARKET_TRANSACTIONS, MARKET_VOLUME_TREND, MARKET_CATEGORY_VOLUME,
-  TOP_SELLERS, LISTINGS, AUCTIONS, RARITY_COLORS, RARITY_LABELS,
+  RARITY_COLORS, RARITY_LABELS,
   CATEGORY_META_MARKET, TX_TYPE_META,
   type MarketRarity,
 } from "@/lib/marketplaceMockData";
+import { useMarketplace } from "@/context/MarketplaceContext";
 import { cn } from "@/lib/utils";
 import { TrendingUp, Coins, BarChart3, Users, Star, ArrowUp, Gavel } from "lucide-react";
 import {
@@ -42,33 +42,35 @@ function ChartCard({ title, subtitle, children, delay = 0, className }: { title:
 }
 
 export default function MarketplaceAnalytics() {
-  const totalVolume = MARKET_TRANSACTIONS.reduce((s, t) => s + t.price, 0);
-  const totalFees   = MARKET_TRANSACTIONS.reduce((s, t) => s + t.fee, 0);
-  const avgPrice    = Math.round(totalVolume / MARKET_TRANSACTIONS.length);
-  const auctionWins = MARKET_TRANSACTIONS.filter(t => t.type === "auction_win").length;
+  const { transactions, listings, auctions, stats } = useMarketplace();
+
+  const totalVolume = transactions.reduce((s, t) => s + t.price, 0);
+  const totalFees   = transactions.reduce((s, t) => s + t.fee, 0);
+  const avgPrice    = transactions.length > 0 ? Math.round(totalVolume / transactions.length) : 0;
+  const auctionWins = transactions.filter(t => t.type === "auction_win").length;
 
   // Rarity volume breakdown
   const rarities = ["mythic","legendary","epic","rare","common"] as MarketRarity[];
   const rarityVolume = rarities.map(r => ({
     name: RARITY_LABELS[r],
-    value: MARKET_TRANSACTIONS.filter(t => t.rarity === r).reduce((s, t) => s + t.price, 0),
-    count: MARKET_TRANSACTIONS.filter(t => t.rarity === r).length,
+    value: transactions.filter(t => t.rarity === r).reduce((s, t) => s + t.price, 0),
+    count: transactions.filter(t => t.rarity === r).length,
     color: r === "mythic" ? "#fb7185" : r === "legendary" ? "#fbbf24" : r === "epic" ? "#c084fc" : r === "rare" ? "#60a5fa" : "#9ca3af",
   })).filter(r => r.value > 0);
 
   // Tx type breakdown
   const txByType = Object.entries(TX_TYPE_META).map(([key, meta]) => ({
     name: meta.label,
-    count: MARKET_TRANSACTIONS.filter(t => t.type === key).length,
-    volume: MARKET_TRANSACTIONS.filter(t => t.type === key).reduce((s, t) => s + t.price, 0),
+    count: transactions.filter(t => t.type === key).length,
+    volume: transactions.filter(t => t.type === key).reduce((s, t) => s + t.price, 0),
     color: meta.color.replace("text-", "#").replace("-400", ""),
   })).filter(t => t.count > 0);
 
   const KPIS = [
-    { label: "Tổng khối lượng", value: fmtCR(totalVolume),     icon: Coins,       color: "text-emerald-400", border: "border-emerald-400/20", delta: "+18.4%" },
-    { label: "Số giao dịch",    value: String(MARKET_TRANSACTIONS.length), icon: BarChart3,  color: "text-blue-400",    border: "border-blue-400/20",    delta: "+12" },
-    { label: "Giá trị TB",      value: fmtCR(avgPrice),         icon: TrendingUp,  color: "text-purple-400",  border: "border-purple-400/20",  delta: "+8.2%" },
-    { label: "Phí thu",         value: fmtCR(totalFees),         icon: Star,        color: "text-amber-400",   border: "border-amber-400/20",   delta: "+18.4%" },
+    { label: "Tổng khối lượng", value: fmtCR(totalVolume),          icon: Coins,      color: "text-emerald-400", border: "border-emerald-400/20", delta: "+18.4%" },
+    { label: "Số giao dịch",    value: String(transactions.length),  icon: BarChart3,  color: "text-blue-400",    border: "border-blue-400/20",    delta: "+12" },
+    { label: "Giá trị TB",      value: fmtCR(avgPrice),              icon: TrendingUp, color: "text-purple-400",  border: "border-purple-400/20",  delta: "+8.2%" },
+    { label: "Phí thu",         value: fmtCR(totalFees),              icon: Star,       color: "text-amber-400",   border: "border-amber-400/20",   delta: "+18.4%" },
   ];
 
   return (
@@ -85,7 +87,7 @@ export default function MarketplaceAnalytics() {
               Phân tích Chợ trực tuyến
             </h1>
             <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">
-              {MARKET_TRANSACTIONS.length} GIAO DỊCH · {LISTINGS.filter(l => l.status === "active").length} NIÊM YẾT · {AUCTIONS.length} ĐẤU GIÁ
+              {transactions.length} GIAO DỊCH · {listings.filter(l => l.status === "active").length} NIÊM YẾT · {auctions.length} ĐẤU GIÁ
             </p>
           </div>
 
@@ -110,7 +112,7 @@ export default function MarketplaceAnalytics() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             <ChartCard title="Khối lượng giao dịch" subtitle="12 tháng gần nhất (CR + số lượt)" delay={0.1} className="lg:col-span-2">
               <ResponsiveContainer width="100%" height={220}>
-                <ComposedChart data={MARKET_VOLUME_TREND} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+                <ComposedChart data={stats.volumeTrend} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="mkt-vol-grad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#34d399" stopOpacity={0.3} />
@@ -132,15 +134,15 @@ export default function MarketplaceAnalytics() {
             <ChartCard title="Khối lượng theo danh mục" subtitle="Phân bổ tổng giá trị" delay={0.15}>
               <ResponsiveContainer width="100%" height={160}>
                 <PieChart>
-                  <Pie data={MARKET_CATEGORY_VOLUME} cx="50%" cy="50%" innerRadius={44} outerRadius={70} paddingAngle={3} dataKey="value" startAngle={90} endAngle={-270}>
-                    {MARKET_CATEGORY_VOLUME.map((c, i) => <Cell key={i} fill={c.color} stroke="transparent" />)}
+                  <Pie data={stats.categoryVolume} cx="50%" cy="50%" innerRadius={44} outerRadius={70} paddingAngle={3} dataKey="value" startAngle={90} endAngle={-270}>
+                    {stats.categoryVolume.map((c, i) => <Cell key={i} fill={c.color} stroke="transparent" />)}
                   </Pie>
                   <Tooltip {...TS} formatter={(v: number) => [fmtCR(v), "Khối lượng"]} />
                 </PieChart>
               </ResponsiveContainer>
               <div className="space-y-1.5 mt-2">
-                {MARKET_CATEGORY_VOLUME.map(c => {
-                  const total = MARKET_CATEGORY_VOLUME.reduce((s, x) => s + x.value, 0);
+                {stats.categoryVolume.map(c => {
+                  const total = stats.categoryVolume.reduce((s, x) => s + x.value, 0);
                   return (
                     <div key={c.name} className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: c.color }} />
@@ -189,11 +191,11 @@ export default function MarketplaceAnalytics() {
             <ChartCard title="Thống kê đấu giá" subtitle="So sánh với giao dịch thông thường" delay={0.3}>
               <div className="space-y-4 mt-2">
                 {[
-                  { label: "Tỉ lệ thắng đấu giá", value: `${Math.round((auctionWins / MARKET_TRANSACTIONS.length) * 100)}%`, color: "text-amber-400", pct: (auctionWins / MARKET_TRANSACTIONS.length) * 100, barColor: "#fbbf24" },
-                  { label: "Phiên đấu giá đang mở", value: String(AUCTIONS.length), color: "text-purple-400", pct: (AUCTIONS.length / 20) * 100, barColor: "#c084fc" },
-                  { label: "Phiên đấu giá HOT", value: String(AUCTIONS.filter(a => a.isHot).length), color: "text-orange-400", pct: (AUCTIONS.filter(a => a.isHot).length / AUCTIONS.length) * 100, barColor: "#fb923c" },
-                  { label: "Có giá mua ngay", value: String(AUCTIONS.filter(a => a.buyNowPrice).length), color: "text-emerald-400", pct: (AUCTIONS.filter(a => a.buyNowPrice).length / AUCTIONS.length) * 100, barColor: "#34d399" },
-                  { label: "Tổng người theo dõi", value: AUCTIONS.reduce((s, a) => s + a.watchers, 0).toLocaleString(), color: "text-blue-400", pct: 80, barColor: "#60a5fa" },
+                  { label: "Tỉ lệ thắng đấu giá", value: `${transactions.length > 0 ? Math.round((auctionWins / transactions.length) * 100) : 0}%`, color: "text-amber-400", pct: transactions.length > 0 ? (auctionWins / transactions.length) * 100 : 0, barColor: "#fbbf24" },
+                  { label: "Phiên đấu giá đang mở", value: String(auctions.length), color: "text-purple-400", pct: (auctions.length / Math.max(auctions.length, 20)) * 100, barColor: "#c084fc" },
+                  { label: "Phiên đấu giá HOT", value: String(auctions.filter(a => a.isHot).length), color: "text-orange-400", pct: auctions.length > 0 ? (auctions.filter(a => a.isHot).length / auctions.length) * 100 : 0, barColor: "#fb923c" },
+                  { label: "Có giá mua ngay", value: String(auctions.filter(a => a.buyNowPrice).length), color: "text-emerald-400", pct: auctions.length > 0 ? (auctions.filter(a => a.buyNowPrice).length / auctions.length) * 100 : 0, barColor: "#34d399" },
+                  { label: "Tổng người theo dõi", value: auctions.reduce((s, a) => s + a.watchers, 0).toLocaleString(), color: "text-blue-400", pct: 80, barColor: "#60a5fa" },
                 ].map(row => (
                   <div key={row.label}>
                     <div className="flex items-center justify-between text-[9px] font-mono mb-1.5">
@@ -214,7 +216,7 @@ export default function MarketplaceAnalytics() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <ChartCard title="Top người bán" subtitle="Xếp hạng theo doanh thu" delay={0.35}>
               <div className="space-y-3 mt-1">
-                {TOP_SELLERS.map((seller, i) => (
+                {stats.topSellers.map((seller, i) => (
                   <motion.div key={seller.name} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + i * 0.07 }}
                     className="flex items-center gap-3">
                     <span className="text-[10px] font-mono text-muted-foreground/30 w-4 flex-shrink-0">#{i + 1}</span>
@@ -226,7 +228,7 @@ export default function MarketplaceAnalytics() {
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="flex-1 h-1 rounded-full bg-white/5 overflow-hidden">
-                          <motion.div initial={{ width: 0 }} animate={{ width: `${(seller.volume / TOP_SELLERS[0].volume) * 100}%` }} transition={{ delay: 0.5 + i * 0.07, duration: 0.8 }}
+                          <motion.div initial={{ width: 0 }} animate={{ width: `${stats.topSellers.length > 0 ? (seller.volume / stats.topSellers[0].volume) * 100 : 0}%` }} transition={{ delay: 0.5 + i * 0.07, duration: 0.8 }}
                             className="h-full rounded-full bg-emerald-400" />
                         </div>
                         <span className="text-[9px] font-mono text-muted-foreground/40">{seller.sales} GD</span>
@@ -242,19 +244,19 @@ export default function MarketplaceAnalytics() {
 
             <ChartCard title="Thống kê theo danh mục" subtitle="Số lượng niêm yết + giao dịch" delay={0.4}>
               <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={MARKET_CATEGORY_VOLUME} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+                <BarChart data={stats.categoryVolume} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                   <XAxis dataKey="name" {...AS} tick={{ ...AS.tick, fontSize: 8 }} />
                   <YAxis {...AS} width={24} />
                   <Tooltip {...TS} />
                   <Legend iconType="circle" iconSize={7} wrapperStyle={{ fontSize: 9, fontFamily: "monospace", color: "rgba(255,255,255,0.5)" }} />
                   <Bar dataKey="txCount" name="Giao dịch" radius={[4, 4, 0, 0]}>
-                    {MARKET_CATEGORY_VOLUME.map((c, i) => <Cell key={i} fill={c.color} />)}
+                    {stats.categoryVolume.map((c, i) => <Cell key={i} fill={c.color} />)}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
               <div className="mt-3 space-y-1">
-                {MARKET_CATEGORY_VOLUME.map(c => (
+                {stats.categoryVolume.map(c => (
                   <div key={c.name} className="flex items-center gap-2">
                     <span className="text-[9px] font-mono" style={{ color: c.color }}>{CATEGORY_META_MARKET[c.name === "Tài sản TG" ? "world-assets" : c.name === "Cầu thủ" ? "football" : c.name === "Thú cưng" ? "pets" : c.name === "Vật phẩm" ? "items" : "tickets"]?.icon ?? "•"}</span>
                     <span className="text-[9px] font-mono text-muted-foreground/40 flex-1">{c.name}</span>
