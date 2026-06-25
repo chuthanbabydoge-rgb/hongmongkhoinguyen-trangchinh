@@ -1,4 +1,4 @@
-import { eq, and, inArray, ilike } from "drizzle-orm";
+import { eq, and, inArray, ilike, or } from "drizzle-orm";
 import { db, socialRelationshipsTable, friendRequestsTable, userPresenceTable, userProfilesPublicTable } from "@workspace/db";
 import type {
   ISocialRepository,
@@ -242,7 +242,12 @@ export class DrizzleSocialRepository implements ISocialRepository {
     const rows = await db
       .select()
       .from(userProfilesPublicTable)
-      .where(ilike(userProfilesPublicTable.displayName, `%${query}%`))
+      .where(
+        or(
+          ilike(userProfilesPublicTable.displayName, `%${query}%`),
+          ilike(userProfilesPublicTable.userId, `%${query}%`),
+        ),
+      )
       .limit(limit);
     return rows.map(toProfile);
   }

@@ -1,0 +1,305 @@
+HUB-10 E2E Verification Sprint
+
+Mục tiêu:
+Không kiểm tra route tồn tại hay 401 auth nữa.
+
+Phải chứng minh toàn bộ Social Graph hoạt động end-to-end với dữ liệu thật.
+
+==================================================
+REQUIREMENT
+===========
+
+Tạo 2 user test:
+
+social-user-a
+social-user-b
+
+Có JWT riêng cho mỗi user.
+
+Tất cả proof phải chạy bằng dữ liệu thật trong DB.
+
+Không dùng mock.
+
+==================================================
+PROOF 1 — FRIEND REQUEST
+========================
+
+User A gửi lời mời kết bạn cho User B.
+
+POST /api/social/friends/request
+
+Expected:
+
+201 Created
+
+Response chứa:
+
+requestId
+fromUserId
+toUserId
+status=PENDING
+
+Sau đó:
+
+GET /api/social/friends/pending
+
+User B phải nhìn thấy request.
+
+==================================================
+PROOF 2 — ACCEPT FRIEND REQUEST
+===============================
+
+User B accept request.
+
+POST /api/social/friends/:requestId/accept
+
+Expected:
+
+200 OK
+
+Sau đó:
+
+GET /api/social/friends
+
+User A thấy User B.
+
+User B thấy User A.
+
+Kiểm tra DB:
+
+social_relationships
+
+phải tạo 2 bản ghi FRIEND.
+
+==================================================
+PROOF 3 — DECLINE FRIEND REQUEST
+================================
+
+Tạo request mới.
+
+User B decline.
+
+POST /api/social/friends/:requestId/decline
+
+Expected:
+
+status=DECLINED
+
+Không tạo FRIEND relationship.
+
+==================================================
+PROOF 4 — FOLLOW USER
+=====================
+
+User A follow User B.
+
+POST /api/social/follow/:userId
+
+Expected:
+
+200 OK
+
+Sau đó:
+
+GET /api/social/following
+
+User A thấy User B.
+
+GET /api/social/followers
+
+User B thấy User A.
+
+==================================================
+PROOF 5 — UNFOLLOW USER
+=======================
+
+DELETE /api/social/follow/:userId
+
+Expected:
+
+200 OK
+
+Sau đó:
+
+followers giảm.
+
+following giảm.
+
+==================================================
+PROOF 6 — USER SEARCH
+=====================
+
+GET /api/social/search?q=social-user
+
+Expected:
+
+trả về cả User A và User B.
+
+Search phải đọc dữ liệu thật.
+
+==================================================
+PROOF 7 — PUBLIC PROFILE
+========================
+
+GET /api/social/profile/:userId
+
+Expected:
+
+userId
+displayName
+followers
+following
+friends
+reputation
+achievements
+joinDate
+
+Tất cả field phải có dữ liệu hợp lệ.
+
+==================================================
+PROOF 8 — PRESENCE
+==================
+
+POST /api/social/presence
+
+ONLINE
+
+GET /api/social/presence/:userId
+
+=> ONLINE
+
+Tiếp tục:
+
+AWAY
+
+=> AWAY
+
+OFFLINE
+
+=> OFFLINE
+
+==================================================
+PROOF 9 — NOTIFICATION GENERATION
+=================================
+
+Sau Friend Request:
+
+User B nhận notification:
+
+type = social
+
+title = Friend Request
+
+Sau Accept:
+
+User A nhận notification:
+
+type = social
+
+title = Friend Request Accepted
+
+Sau Follow:
+
+User B nhận notification:
+
+type = social
+
+title = New Follower
+
+Phải chứng minh bằng:
+
+GET /api/notifications
+
+==================================================
+PROOF 10 — ACTIVITY GENERATION
+==============================
+
+Sau Friend Request:
+
+FRIEND_REQUEST_SENT
+
+Sau Accept:
+
+FRIEND_REQUEST_ACCEPTED
+
+Sau Follow:
+
+USER_FOLLOWED
+
+Phải xuất hiện trong:
+
+GET /api/activities
+
+==================================================
+PROOF 11 — DASHBOARD COUNTS
+===========================
+
+GET /api/social/counts
+
+Expected:
+
+friendsCount
+followersCount
+followingCount
+onlineFriends
+
+Sau mỗi hành động:
+
+Friend
+Follow
+Unfollow
+
+Các số phải thay đổi chính xác.
+
+==================================================
+PROOF 12 — LAUNCHER
+===================
+
+GET /api/apps
+
+social phải có:
+
+slug = social
+
+status = ACTIVE
+
+category = SOCIAL
+
+url tồn tại
+
+Launcher hiển thị card Social.
+
+==================================================
+ACCEPTANCE
+==========
+
+HUB-10 chỉ được xem là COMPLETE khi:
+
+✓ Friend Request hoạt động
+✓ Accept hoạt động
+✓ Decline hoạt động
+✓ Follow hoạt động
+✓ Unfollow hoạt động
+✓ Search hoạt động
+✓ Public Profile hoạt động
+✓ Presence hoạt động
+✓ Notifications sinh ra
+✓ Activities sinh ra
+✓ Dashboard counts cập nhật đúng
+✓ Social xuất hiện trong Launcher
+✓ Tất cả proof dùng dữ liệu thật từ DB
+✓ Không mock data
+✓ Không chỉ chứng minh 401 Unauthorized
+
+Deliver:
+
+* Files created
+* Files modified
+* DB evidence
+* Curl commands
+* Curl responses
+* Notification evidence
+* Activity evidence
+* Dashboard evidence
+* Launcher evidence
+* Final acceptance checklist

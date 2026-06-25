@@ -531,8 +531,13 @@ export const moderationService = new MarketplaceModerationService(
 
 import { createAccountClient } from "./services/accountClient.js";
 import { AccountBridgeService } from "./services/accountBridgeService.js";
+import { DevTestAccountClient } from "./services/devTestAccountClient.js";
 
-export const accountClient        = createAccountClient();
+const _rawAccountClient = createAccountClient();
+export const accountClient =
+  process.env["NODE_ENV"] !== "production"
+    ? new DevTestAccountClient(_rawAccountClient)
+    : _rawAccountClient;
 export const accountBridgeService = new AccountBridgeService(accountClient);
 
 // ─── Ecosystem Registry (HUB-2) ───────────────────────────────────────────────
