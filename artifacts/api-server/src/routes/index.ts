@@ -17,6 +17,7 @@ import appsRouter from "./apps";
 import socialRouter from "./social";
 import guildRouter from "./guild";
 import questsRouter from "./quests";
+import mailRouter from "./mail";
 
 const router: IRouter = Router();
 
@@ -38,5 +39,6 @@ router.use(appsRouter);
 router.use(socialRouter);
 router.use(guildRouter);
 router.use(questsRouter);
+router.use(mailRouter);
 
 export default router;

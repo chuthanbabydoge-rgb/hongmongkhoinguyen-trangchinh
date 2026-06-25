@@ -15,6 +15,7 @@ import {
   type MarketplaceEvent,
   type MarketplaceEventType,
 } from "./marketplaceEventBus";
+import { mailEventBus, type MailEvent } from "./mailEventBus";
 
 // ─── Metrics ──────────────────────────────────────────────────────────────────
 
@@ -45,17 +46,14 @@ export function attachWebSocketServer(server: Server): WebSocketServer {
   const wss     = new WebSocketServer({ server, path: "/ws/marketplace" });
   const clients = new Map<WebSocket, ClientState>();
 
-  // Broadcast every bus event to matching clients
-  marketplaceEventBus.subscribe((event: MarketplaceEvent) => {
+  function broadcast(event: MarketplaceEvent | MailEvent): void {
     for (const [, state] of clients) {
       if (state.ws.readyState !== WebSocket.OPEN) continue;
-
-      const matchesUser  = !!(event.userId && state.userIds.has(event.userId));
-      const matchesType  = state.eventTypes.has(event.type);
-      const matchesAll   = state.subscribeAll;
-
+      const userId = "userId" in event ? event.userId : undefined;
+      const matchesUser = !!(userId && state.userIds.has(userId));
+      const matchesType = state.eventTypes.has(event.type as MarketplaceEventType);
+      const matchesAll  = state.subscribeAll;
       if (!matchesUser && !matchesType && !matchesAll) continue;
-
       try {
         state.ws.send(JSON.stringify(event));
         _messagesSent++;
@@ -63,7 +61,13 @@ export function attachWebSocketServer(server: Server): WebSocketServer {
         logger.warn({ err }, "[WS:marketplace] send failed");
       }
     }
-  });
+  }
+
+  // Broadcast marketplace bus events to matching clients
+  marketplaceEventBus.subscribe((event: MarketplaceEvent) => broadcast(event));
+
+  // Broadcast mail bus events — routed by userId
+  mailEventBus.subscribe((event: MailEvent) => broadcast(event));
 
   wss.on("connection", (ws) => {
     _connectedClients++;

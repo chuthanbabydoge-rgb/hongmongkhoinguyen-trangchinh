@@ -664,3 +664,30 @@ import { QuestProgressEngine } from "./services/questProgressEngine.js";
 export const questProgressEngine = new QuestProgressEngine(questService);
 questProgressEngine.start();
 logger.info("Container: quest progress engine → active");
+
+// ─── Mail & Inbox System (HUB-13) ────────────────────────────────────────────
+
+import { DrizzleMailRepository } from "./repositories/drizzle/DrizzleMailRepository.js";
+import { MailService }           from "./services/mailService.js";
+
+const mailRepo = new DrizzleMailRepository();
+logger.info("Container: mail system → Drizzle");
+
+export const mailService = new MailService(
+  mailRepo,
+  notificationsService,
+  activitiesService,
+  userReputationService,
+);
+
+// Seed "mail" app into ecosystem registry
+appRegistryService.registerApp({
+  slug:        "mail",
+  name:        "Universe Mail",
+  description: "Hộp thư, phần thưởng và thông báo của Universe Platform",
+  icon:        "📬",
+  url:         "/mail",
+  category:    "UTILITY",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});

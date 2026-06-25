@@ -35,6 +35,7 @@ import {
   Users,
   Shield,
   Sword,
+  MailOpen,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -172,6 +173,7 @@ export function Sidebar() {
             Nhiệm vụ
           </p>
           <NavItem icon={Sword} label="Quest &amp; Nhiệm vụ" path="/quests" />
+          <NavItem icon={MailOpen} label="Universe Mail" path="/mail" />
         </div>
 
         <div className="pt-1 pb-1">
