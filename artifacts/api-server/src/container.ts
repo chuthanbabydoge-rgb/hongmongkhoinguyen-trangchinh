@@ -361,6 +361,8 @@ logger.info(`Container: seller reputation → ${useSupabase ? "Supabase" : useDr
 
 export const sellerReputationService = new MarketplaceReputationService(marketplaceReputationRepo, undefined, marketplaceRealtimeService);
 
+export { inventoryMutationRepo };
+
 export const marketplaceService = new MarketplaceService(
   listingsRepo,
   transactionsRepo,

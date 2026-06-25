@@ -10,10 +10,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface InventoryItemRecord {
-  id:     string;
-  userId: string;
-  status: string;
-  name:   string;
+  id:       string;
+  userId:   string;
+  status:   string;
+  name:     string;
+  category: string;
+  rarity:   string;
 }
 
 export interface IInventoryItemsMutationRepository {

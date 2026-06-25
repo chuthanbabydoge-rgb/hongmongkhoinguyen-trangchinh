@@ -5,7 +5,7 @@ import type { IInventoryItemsMutationRepository, InventoryItemRecord } from "../
 export class DrizzleInventoryItemsMutationRepository implements IInventoryItemsMutationRepository {
   async getById(id: string): Promise<InventoryItemRecord | null> {
     const rows = await db
-      .select({ id: inventoryItemsTable.id, userId: inventoryItemsTable.userId, status: inventoryItemsTable.status, name: inventoryItemsTable.name })
+      .select({ id: inventoryItemsTable.id, userId: inventoryItemsTable.userId, status: inventoryItemsTable.status, name: inventoryItemsTable.name, category: inventoryItemsTable.category, rarity: inventoryItemsTable.rarity })
       .from(inventoryItemsTable)
       .where(eq(inventoryItemsTable.id, id))
       .limit(1);

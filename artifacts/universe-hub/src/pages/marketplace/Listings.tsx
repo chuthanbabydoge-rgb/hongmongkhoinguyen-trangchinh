@@ -1,19 +1,61 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import {
-  LISTINGS, RARITY_COLORS, RARITY_LABELS, CATEGORY_META_MARKET,
+  RARITY_COLORS, RARITY_LABELS, CATEGORY_META_MARKET,
   type Listing, type MarketRarity, type ListingCategory, type ListingStatus,
 } from "@/lib/marketplaceMockData";
+import { apiFetch } from "@/lib/apiClient";
+import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import {
   Search, SlidersHorizontal, LayoutGrid, List, X, Heart, Eye,
   ShoppingCart, TrendingDown, Clock, ChevronDown, ChevronUp,
   CheckCircle2, Package, ArrowUpDown, ArrowUp, ArrowDown,
-  Coins, Star, Flame, Tag,
+  Coins, Star, Flame, Tag, Loader2, RefreshCw, Store, History,
 } from "lucide-react";
+
+// ─── API ↔ Listing adapter ────────────────────────────────────────────────────
+
+interface ApiListing {
+  id: string;
+  sellerId: string;
+  itemId: string;
+  itemName: string;
+  category: string;
+  rarity: string;
+  price: number;
+  currency: string;
+  status: string;
+  createdAt: string;
+  expiresAt?: string;
+}
+
+const CATEGORY_EMOJI: Record<string, string> = {
+  pets: "🐾", football: "⚽", "world-assets": "🌍", tickets: "🎫", items: "⚔️",
+  weapon: "🗡️", armor: "🛡️", consumable: "🧪", cosmetic: "✨", mount: "🐴",
+};
+
+function adaptApiListing(l: ApiListing): Listing {
+  const cat = (["pets","football","world-assets","tickets","items"].includes(l.category) ? l.category : "items") as ListingCategory;
+  const rar = (["common","rare","epic","legendary","mythic"].includes(l.rarity) ? l.rarity : "common") as MarketRarity;
+  const stat = (["active","sold","expired","cancelled"].includes(l.status) ? l.status : "active") as ListingStatus;
+  return {
+    id: l.id, itemId: l.itemId, itemName: l.itemName, name: l.itemName,
+    image: CATEGORY_EMOJI[l.category] ?? "📦",
+    category: cat, rarity: rar, status: stat,
+    seller: l.sellerId, sellerAvatar: l.sellerId.slice(0, 2).toUpperCase(),
+    price: l.price, currency: (l.currency ?? "CR").toUpperCase() as any,
+    originalValue: l.price,
+    quantity: 1, description: `${l.itemName} — niêm yết bởi ${l.sellerId}`,
+    listedAt: l.createdAt, createdAt: l.createdAt,
+    views: 0, favorites: 0, tags: [],
+  };
+}
+
+type PageTab = "browse" | "my-listings" | "history";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -37,7 +79,7 @@ const PRICE_PRESETS = [
   { label: "> 1M",     min: 1_000_000, max: Infinity },
 ];
 
-const MAX_PRICE = Math.max(...LISTINGS.map(l => l.price));
+const MAX_PRICE = 10_000_000; // dynamic upper bound for price filter
 const fmtCR = (v: number) =>
   v >= 1_000_000 ? `${(v / 1_000_000).toFixed(2)}M CR`
   : v >= 1_000   ? `${(v / 1_000).toFixed(0)}K CR`
@@ -56,20 +98,29 @@ const BG = () => (
 
 // ─── Buy Modal ────────────────────────────────────────────────────────────────
 
-function BuyModal({ listing, onClose }: { listing: Listing; onClose: () => void }) {
+function BuyModal({ listing, onClose, onPurchased }: { listing: Listing; onClose: () => void; onPurchased?: (id: string) => void }) {
   const rc = RARITY_COLORS[listing.rarity];
   const cm = CATEGORY_META_MARKET[listing.category];
   const discount = Math.round((1 - listing.price / listing.originalValue) * 100);
-  const [phase, setPhase] = useState<"detail" | "confirm" | "buying" | "done">("detail");
+  const [phase, setPhase] = useState<"detail" | "confirm" | "buying" | "done" | "error">("detail");
+  const [errMsg, setErrMsg] = useState("");
 
   const handleBuy = useCallback(() => {
     setPhase("confirm");
   }, []);
 
-  const handleConfirm = useCallback(() => {
+  const handleConfirm = useCallback(async () => {
     setPhase("buying");
-    setTimeout(() => setPhase("done"), 1400);
-  }, []);
+    try {
+      await apiFetch(`/marketplace/listings/${listing.id}/buy`, { method: "POST" });
+      setPhase("done");
+      onPurchased?.(listing.id);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Giao dịch thất bại.";
+      setErrMsg(msg);
+      setPhase("error");
+    }
+  }, [listing.id, onPurchased]);
 
   const isActive = listing.status === "active";
 
@@ -232,6 +283,26 @@ function BuyModal({ listing, onClose }: { listing: Listing; onClose: () => void 
               <button onClick={onClose} className="px-6 py-2 rounded-xl border border-emerald-400/30 bg-emerald-400/10 text-emerald-400 text-xs font-mono font-bold uppercase tracking-wider hover:bg-emerald-400/20 transition-all">
                 Đóng
               </button>
+            </motion.div>
+          )}
+
+          {phase === "error" && (
+            <motion.div key="error" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="p-8 flex flex-col items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-red-400/15 border border-red-400/30 flex items-center justify-center">
+                <X className="w-8 h-8 text-red-400" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-bold text-white">Giao dịch thất bại</p>
+                <p className="text-[10px] font-mono text-muted-foreground/40 mt-1">{errMsg}</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => setPhase("detail")} className="px-5 py-2 rounded-xl border border-white/10 text-muted-foreground/50 text-xs font-mono font-bold uppercase tracking-wider hover:text-white transition-all">
+                  Quay lại
+                </button>
+                <button onClick={onClose} className="px-5 py-2 rounded-xl border border-red-400/30 bg-red-400/10 text-red-400 text-xs font-mono font-bold uppercase tracking-wider hover:bg-red-400/20 transition-all">
+                  Đóng
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -465,15 +536,123 @@ const EMPTY_FILTERS: Filters = {
   search: "", cat: "all", rarity: "all", status: "all", priceMin: 0, priceMax: Infinity,
 };
 
+interface ApiTx {
+  id: string; itemId?: string; itemName?: string; buyerId?: string;
+  sellerId?: string; amount?: number; price?: number; currency?: string;
+  status?: string; createdAt?: string; updatedAt?: string;
+}
+
+function PurchaseHistory({ userId }: { userId?: string }) {
+  const [txs, setTxs]       = useState<ApiTx[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]    = useState("");
+
+  useEffect(() => {
+    const q = userId ? `?userId=${encodeURIComponent(userId)}` : "";
+    apiFetch<{ items?: ApiTx[]; data?: ApiTx[] } | ApiTx[]>(`/marketplace/transactions${q}`)
+      .then(d => {
+        const arr = Array.isArray(d) ? d : (d as any).items ?? (d as any).data ?? [];
+        setTxs(arr);
+      })
+      .catch(e => setError(e instanceof Error ? e.message : "Không tải được lịch sử."))
+      .finally(() => setLoading(false));
+  }, [userId]);
+
+  if (loading) return <div className="glass-panel rounded-xl border border-white/5 p-12 flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-emerald-400" /></div>;
+  if (error)   return <div className="glass-panel rounded-xl border border-red-400/20 p-12 text-center text-xs font-mono text-red-400">{error}</div>;
+  if (!txs.length) return (
+    <div className="glass-panel rounded-xl border border-white/5 p-12 text-center">
+      <History className="w-10 h-10 text-muted-foreground/20 mx-auto mb-3" />
+      <p className="text-xs font-mono text-muted-foreground/30 tracking-widest">CHƯA CÓ GIAO DỊCH NÀO</p>
+    </div>
+  );
+  return (
+    <div className="glass-panel rounded-xl border border-white/5 overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-white/8 bg-white/3">
+              {["Vật phẩm","Số tiền","Đối tác","Trạng thái","Ngày"].map(h => (
+                <th key={h} className="py-3 px-4 text-left text-[9px] font-mono text-muted-foreground/40 uppercase tracking-widest font-normal">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {txs.map(tx => (
+              <tr key={tx.id} className="border-b border-white/5 last:border-0 hover:bg-white/3 transition-colors">
+                <td className="py-3 px-4">
+                  <p className="text-[11px] font-bold text-white">{tx.itemName ?? tx.itemId ?? "—"}</p>
+                  <p className="text-[9px] font-mono text-muted-foreground/30">{tx.id}</p>
+                </td>
+                <td className="py-3 px-4">
+                  <span className="text-[11px] font-bold font-mono text-emerald-400">
+                    {(tx.amount ?? tx.price ?? 0).toLocaleString()} {(tx.currency ?? "CR").toUpperCase()}
+                  </span>
+                </td>
+                <td className="py-3 px-4">
+                  <span className="text-[10px] font-mono text-muted-foreground/40">
+                    {tx.buyerId === userId ? tx.sellerId : tx.buyerId}
+                  </span>
+                </td>
+                <td className="py-3 px-4">
+                  <span className={cn("text-[9px] font-mono font-bold",
+                    tx.status === "completed" ? "text-emerald-400" : tx.status === "failed" ? "text-red-400" : "text-amber-400"
+                  )}>
+                    {tx.status ?? "completed"}
+                  </span>
+                </td>
+                <td className="py-3 px-4 text-[9px] font-mono text-muted-foreground/35">
+                  {tx.createdAt ? new Date(tx.createdAt).toLocaleDateString("vi-VN") : "—"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 export default function Listings() {
+  const { user }                  = useAuth();
+  const [tab, setTab]             = useState<PageTab>("browse");
+  const [allListings, setAllListings] = useState<Listing[]>([]);
+  const [apiLoading, setApiLoading]   = useState(true);
+  const [apiError, setApiError]       = useState("");
   const [filters, setFilters]     = useState<Filters>(EMPTY_FILTERS);
-  const [sort, setSort]           = useState<SortKey>("views");
+  const [sort, setSort]           = useState<SortKey>("date");
   const [view, setView]           = useState<"grid" | "table">("grid");
   const [selected, setSelected]   = useState<Listing | null>(null);
   const [panelOpen, setPanelOpen] = useState(true);
   const [pricePreset, setPricePreset] = useState(0);
 
   const { isWatched, toggle } = useWatchlist();
+
+  // Fetch listings from API
+  const fetchListings = useCallback(async () => {
+    setApiLoading(true);
+    setApiError("");
+    try {
+      const params = tab === "my-listings" && user?.id
+        ? `?sellerId=${encodeURIComponent(user.id)}`
+        : "";
+      const res = await apiFetch<{ items?: ApiListing[]; data?: ApiListing[] } | ApiListing[]>(`/marketplace/listings${params}`);
+      const arr: ApiListing[] = Array.isArray(res) ? res : (res as any).items ?? (res as any).data ?? [];
+      setAllListings(arr.map(adaptApiListing));
+    } catch (e) {
+      setApiError(e instanceof Error ? e.message : "Không tải được danh sách niêm yết.");
+    } finally {
+      setApiLoading(false);
+    }
+  }, [tab, user?.id]);
+
+  useEffect(() => {
+    if (tab !== "history") void fetchListings();
+  }, [tab, fetchListings]);
+
+  const handlePurchased = useCallback((listingId: string) => {
+    setAllListings(prev => prev.map(l => l.id === listingId ? { ...l, status: "sold" as ListingStatus } : l));
+  }, []);
 
   const handleWatchToggle = useCallback((listing: Listing, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -510,7 +689,7 @@ export default function Listings() {
 
   const filtered = useMemo(() => {
     const q = filters.search.toLowerCase().trim();
-    let items = LISTINGS.filter(l => {
+    let items = allListings.filter(l => {
       if (filters.cat !== "all" && l.category !== filters.cat) return false;
       if (filters.rarity !== "all" && l.rarity !== filters.rarity) return false;
       if (filters.status !== "all" && l.status !== filters.status) return false;
@@ -563,10 +742,10 @@ export default function Listings() {
             <div>
               <h1 className="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
                 <span className="w-2 h-6 bg-emerald-400 rounded-sm shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
-                Khám phá niêm yết
+                Marketplace
               </h1>
               <p className="text-[10px] font-mono text-muted-foreground/30 mt-1">
-                {filtered.length} / {LISTINGS.length} SẢN PHẨM
+                {apiLoading ? "Đang tải..." : `${filtered.length} / ${allListings.length} SẢN PHẨM`}
                 {activeBadges.length > 0 && " · BỘ LỌC ĐANG HOẠT ĐỘNG"}
               </p>
             </div>
@@ -581,13 +760,44 @@ export default function Listings() {
                 </button>
               </div>
               {/* Filter toggle */}
-              <button onClick={() => setPanelOpen(o => !o)} className={cn("flex items-center gap-1.5 px-3 py-2 rounded-lg border text-[10px] font-mono font-bold uppercase transition-all", panelOpen ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-400" : "border-white/10 text-muted-foreground/40 hover:text-white hover:border-white/20")}>
-                <SlidersHorizontal className="w-3.5 h-3.5" />
-                Bộ lọc
-                {activeBadges.length > 0 && <span className="w-4 h-4 rounded-full bg-emerald-400 text-black text-[8px] font-bold flex items-center justify-center">{activeBadges.length}</span>}
-                {panelOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              </button>
+              {tab !== "history" && (
+                <button onClick={() => setPanelOpen(o => !o)} className={cn("flex items-center gap-1.5 px-3 py-2 rounded-lg border text-[10px] font-mono font-bold uppercase transition-all", panelOpen ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-400" : "border-white/10 text-muted-foreground/40 hover:text-white hover:border-white/20")}>
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  Bộ lọc
+                  {activeBadges.length > 0 && <span className="w-4 h-4 rounded-full bg-emerald-400 text-black text-[8px] font-bold flex items-center justify-center">{activeBadges.length}</span>}
+                  {panelOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                </button>
+              )}
+              {/* Refresh */}
+              {tab !== "history" && (
+                <button onClick={() => void fetchListings()} disabled={apiLoading} className="p-2 rounded-lg border border-white/10 text-muted-foreground/40 hover:text-white hover:border-white/20 transition-all disabled:opacity-30">
+                  <RefreshCw className={cn("w-4 h-4", apiLoading && "animate-spin")} />
+                </button>
+              )}
             </div>
+          </div>
+
+          {/* ── Tabs ─────────────────────────────────────────────────────── */}
+          <div className="flex items-center gap-1 glass-panel border border-white/8 rounded-xl p-1 w-fit">
+            {([
+              { key: "browse",      label: "Khám phá",       icon: Store   },
+              { key: "my-listings", label: "Niêm yết của tôi", icon: Package },
+              { key: "history",     label: "Lịch sử giao dịch", icon: History },
+            ] as const).map(t => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider transition-all",
+                  tab === t.key
+                    ? "bg-emerald-400/15 border border-emerald-400/30 text-emerald-400"
+                    : "text-muted-foreground/40 hover:text-white border border-transparent",
+                )}
+              >
+                <t.icon className="w-3.5 h-3.5" />
+                {t.label}
+              </button>
+            ))}
           </div>
 
           {/* ── Filter panel ────────────────────────────────────────────── */}
@@ -717,18 +927,35 @@ export default function Listings() {
           </AnimatePresence>
 
           {/* ── Results ──────────────────────────────────────────────────── */}
-          {filtered.length === 0 ? (
+          {tab === "history" ? (
+            <PurchaseHistory userId={user?.id} />
+          ) : apiLoading ? (
+            <div className="glass-panel rounded-xl border border-white/5 p-16 flex items-center justify-center">
+              <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+            </div>
+          ) : apiError ? (
+            <div className="glass-panel rounded-xl border border-red-400/20 p-12 text-center">
+              <p className="text-xs font-mono text-red-400 mb-3">{apiError}</p>
+              <button onClick={() => void fetchListings()} className="text-[10px] font-mono text-emerald-400 border border-emerald-400/20 px-4 py-1.5 rounded-lg hover:bg-emerald-400/10 transition-all uppercase tracking-wider">
+                Thử lại
+              </button>
+            </div>
+          ) : filtered.length === 0 ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-panel rounded-xl border border-white/5 p-16 text-center">
               <Package className="w-10 h-10 text-muted-foreground/20 mx-auto mb-3" />
-              <p className="text-xs font-mono text-muted-foreground/30 tracking-widest">KHÔNG TÌM THẤY SẢN PHẨM PHÙ HỢP</p>
-              <button onClick={clearAll} className="mt-4 text-[10px] font-mono text-emerald-400 hover:text-emerald-300 border border-emerald-400/20 hover:border-emerald-400/40 px-4 py-1.5 rounded-lg transition-all uppercase tracking-wider">
-                Xóa bộ lọc
-              </button>
+              <p className="text-xs font-mono text-muted-foreground/30 tracking-widest">
+                {allListings.length === 0 ? "CHƯA CÓ NIÊM YẾT NÀO" : "KHÔNG TÌM THẤY SẢN PHẨM PHÙ HỢP"}
+              </p>
+              {allListings.length > 0 && (
+                <button onClick={clearAll} className="mt-4 text-[10px] font-mono text-emerald-400 hover:text-emerald-300 border border-emerald-400/20 hover:border-emerald-400/40 px-4 py-1.5 rounded-lg transition-all uppercase tracking-wider">
+                  Xóa bộ lọc
+                </button>
+              )}
             </motion.div>
           ) : view === "grid" ? (
             <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
               <AnimatePresence>
-                {filtered.map((l, i) => (
+                {filtered.map((l) => (
                   <GridCard
                     key={l.id}
                     listing={l}
@@ -770,7 +997,13 @@ export default function Listings() {
 
       {/* ── Detail / Buy Modal ──────────────────────────────────────────── */}
       <AnimatePresence>
-        {selected && <BuyModal listing={selected} onClose={() => setSelected(null)} />}
+        {selected && (
+          <BuyModal
+            listing={selected}
+            onClose={() => setSelected(null)}
+            onPurchased={handlePurchased}
+          />
+        )}
       </AnimatePresence>
     </div>
   );

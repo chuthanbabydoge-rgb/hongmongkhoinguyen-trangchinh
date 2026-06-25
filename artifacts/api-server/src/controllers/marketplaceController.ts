@@ -1,5 +1,5 @@
 import { type Request, type Response } from "express";
-import { marketplaceService } from "../container";
+import { marketplaceService, inventoryMutationRepo } from "../container";
 import type {
   ListingStatus,
   AuctionStatus,
@@ -7,8 +7,51 @@ import type {
   ItemCategory,
   ItemRarity,
 } from "../repositories/marketplaceRepository";
+import { accountBridgeService } from "../container";
+import { AccountUnauthorizedError, AccountServiceUnavailableError } from "../services/accountClient";
 
-const MOCK_USER_ID = "user-001";
+// ─── Auth helpers (same pattern as inventoryController) ───────────────────────
+
+function extractUserIdFromJwt(authHeader: string): string | null {
+  try {
+    const token  = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+    const parts  = token.split(".");
+    if (parts.length !== 3) return null;
+    const raw    = Buffer.from(parts[1]!, "base64url").toString("utf8");
+    const payload = JSON.parse(raw) as Record<string, unknown>;
+    const id      = payload["sub"] ?? payload["userId"] ?? payload["id"];
+    return typeof id === "string" && id.length > 0 ? id : null;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveUserId(req: Request): Promise<string> {
+  const auth = req.headers["authorization"] as string | undefined;
+  if (!auth || !auth.startsWith("Bearer ")) {
+    throw Object.assign(new Error("Chưa xác thực."), { status: 401 });
+  }
+  const jwtUserId = extractUserIdFromJwt(auth);
+  if (jwtUserId) return jwtUserId;
+  try {
+    const profile = await accountBridgeService.getProfileCached(auth);
+    return profile.userId || profile.id;
+  } catch {
+    throw Object.assign(new Error("Chưa xác thực. Token không hợp lệ."), { status: 401 });
+  }
+}
+
+function handleAuthError(res: Response, err: unknown): boolean {
+  if (err instanceof AccountUnauthorizedError || (err as { status?: number }).status === 401) {
+    res.status(401).json({ ok: false, error: "Chưa xác thực. Vui lòng đăng nhập." });
+    return true;
+  }
+  if (err instanceof AccountServiceUnavailableError) {
+    res.status(503).json({ ok: false, error: "Không thể kết nối Account service." });
+    return true;
+  }
+  return false;
+}
 
 const VALID_LISTING_STATUSES:  ListingStatus[]       = ["active", "sold", "cancelled", "expired"];
 const VALID_AUCTION_STATUSES:  AuctionStatus[]        = ["live", "ended", "cancelled"];
@@ -88,46 +131,60 @@ export async function handleGetListing(req: Request, res: Response): Promise<voi
 
 export async function handleCreateListing(req: Request, res: Response): Promise<void> {
   try {
+    const sellerId = await resolveUserId(req);
     const body = req.body as Record<string, unknown>;
 
-    const sellerId  = (body["sellerId"]  as string | undefined) ?? MOCK_USER_ID;
-    const itemId    = body["itemId"]   as string | undefined;
-    const itemName  = body["itemName"] as string | undefined;
-    const category  = body["category"] as string | undefined;
-    const rarity    = body["rarity"]   as string | undefined;
+    // Accept inventoryItemId (AC-1 spec) or legacy itemId
+    const itemId    = (body["inventoryItemId"] ?? body["itemId"]) as string | undefined;
     const price     = body["price"]    != null ? Number(body["price"]) : NaN;
-    const currency  = body["currency"] as string | undefined;
+    const rawCur    = body["currency"] as string | undefined;
     const expiresAt = body["expiresAt"] as string | undefined;
 
-    if (!itemId)    { res.status(400).json({ ok: false, error: "itemId là bắt buộc." }); return; }
-    if (!itemName)  { res.status(400).json({ ok: false, error: "itemName là bắt buộc." }); return; }
-    if (!category || !VALID_CATEGORIES.includes(category as ItemCategory)) {
-      res.status(400).json({ ok: false, error: `category không hợp lệ. Giá trị: ${VALID_CATEGORIES.join(", ")}` }); return;
-    }
-    if (!rarity || !VALID_RARITIES.includes(rarity as ItemRarity)) {
-      res.status(400).json({ ok: false, error: `rarity không hợp lệ. Giá trị: ${VALID_RARITIES.join(", ")}` }); return;
-    }
+    if (!itemId) { res.status(400).json({ ok: false, error: "inventoryItemId là bắt buộc." }); return; }
     if (isNaN(price) || price <= 0) { res.status(400).json({ ok: false, error: "price phải lớn hơn 0." }); return; }
+
+    // Normalize currency: accept CREDITS/credits/stars/eth
+    const currency = rawCur ? rawCur.toLowerCase() : undefined;
     if (!currency || !VALID_CURRENCIES.includes(currency as MarketplaceCurrency)) {
       res.status(400).json({ ok: false, error: `currency không hợp lệ. Giá trị: ${VALID_CURRENCIES.join(", ")}` }); return;
+    }
+
+    // Look up item from inventory to get name/category/rarity (AC-2)
+    const invItem = await inventoryMutationRepo.getById(itemId);
+    if (!invItem) {
+      res.status(404).json({ ok: false, error: `Vật phẩm ${itemId} không tồn tại trong kho hàng.` }); return;
+    }
+
+    // Allow caller to override itemName/category/rarity if provided (backward compat)
+    const itemName = (body["itemName"] as string | undefined) ?? invItem.name;
+    const category = (body["category"] as string | undefined) ?? invItem.category;
+    const rarity   = (body["rarity"]   as string | undefined) ?? invItem.rarity;
+
+    if (!VALID_CATEGORIES.includes(category as ItemCategory)) {
+      res.status(400).json({ ok: false, error: `category không hợp lệ: ${category}` }); return;
+    }
+    if (!VALID_RARITIES.includes(rarity as ItemRarity)) {
+      res.status(400).json({ ok: false, error: `rarity không hợp lệ: ${rarity}` }); return;
     }
 
     const listing = await marketplaceService.createListing({
       sellerId,
       itemId,
       itemName,
-      category:  category  as ItemCategory,
-      rarity:    rarity    as ItemRarity,
+      category: category as ItemCategory,
+      rarity:   rarity   as ItemRarity,
       price,
-      currency:  currency  as MarketplaceCurrency,
+      currency: currency as MarketplaceCurrency,
       expiresAt,
     });
 
-    res.status(201).json({ ok: true, data: listing });
+    res.status(201).json({ ok: true, data: { listingId: listing.id, status: listing.status, ...listing } });
   } catch (err) {
+    if (handleAuthError(res, err)) return;
     const msg = err instanceof Error ? err.message : String(err);
     req.log.error({ err }, `marketplaceController.createListing: ${msg}`);
-    const httpStatus = msg.includes("không sở hữu") || msg.includes("không tồn tại") ? 403 : 500;
+    const httpStatus = msg.includes("không sở hữu") || msg.includes("không tồn tại") ? 403
+      : (err as { status?: number }).status === 401 ? 401 : 500;
     res.status(httpStatus).json({ ok: false, error: msg });
   }
 }
@@ -135,9 +192,18 @@ export async function handleCreateListing(req: Request, res: Response): Promise<
 export async function handleDeleteListing(req: Request, res: Response): Promise<void> {
   try {
     const id = req.params["id"] as string;
+    const userId = await resolveUserId(req).catch(() => null);
+
+    const listing = await marketplaceService.getListing(id);
+    if (!listing) { res.status(404).json({ ok: false, error: "Không tìm thấy niêm yết." }); return; }
+    if (userId && listing.sellerId !== userId) {
+      res.status(403).json({ ok: false, error: "Bạn không có quyền xóa niêm yết này." }); return;
+    }
+
     await marketplaceService.deleteListing(id);
     res.json({ ok: true, message: "Niêm yết đã được xoá." });
   } catch (err) {
+    if (handleAuthError(res, err)) return;
     const msg = err instanceof Error ? err.message : String(err);
     req.log.error({ err }, `marketplaceController.deleteListing: ${msg}`);
     const status = msg.includes("không tìm thấy") ? 404 : 500;
@@ -149,18 +215,17 @@ export async function handleDeleteListing(req: Request, res: Response): Promise<
 
 export async function handlePurchaseListing(req: Request, res: Response): Promise<void> {
   try {
-    const id = req.params["id"] as string;
-    const body = req.body as Record<string, unknown>;
-
-    const buyerId = (body["buyerId"] as string | undefined) ?? MOCK_USER_ID;
+    const id      = req.params["id"] as string;
+    const buyerId = await resolveUserId(req);
 
     const result = await marketplaceService.purchaseListing(id, { buyerId });
-    res.status(201).json({ ok: true, data: result });
+    res.status(200).json({ ok: true, data: result });
   } catch (err) {
+    if (handleAuthError(res, err)) return;
     const msg = err instanceof Error ? err.message : String(err);
     req.log.error({ err }, `marketplaceController.purchaseListing: ${msg}`);
     const httpStatus = msg.includes("không tìm thấy") ? 404
-      : msg.includes("không còn hoạt động") || msg.includes("không thể mua") ? 400
+      : msg.includes("không còn hoạt động") || msg.includes("không thể mua") || msg.includes("Số dư") ? 400
       : 500;
     res.status(httpStatus).json({ ok: false, error: msg });
   }
@@ -221,9 +286,8 @@ export async function handleGetAuctions(req: Request, res: Response): Promise<vo
 
 export async function handleCreateAuction(req: Request, res: Response): Promise<void> {
   try {
+    const sellerId = await resolveUserId(req);
     const body = req.body as Record<string, unknown>;
-
-    const sellerId      = (body["sellerId"] as string | undefined) ?? MOCK_USER_ID;
     const itemId        = body["itemId"]        as string | undefined;
     const itemName      = body["itemName"]      as string | undefined;
     const category      = body["category"]      as string | undefined;
@@ -261,6 +325,7 @@ export async function handleCreateAuction(req: Request, res: Response): Promise<
 
     res.status(201).json({ ok: true, data: auction });
   } catch (err) {
+    if (handleAuthError(res, err)) return;
     const msg = err instanceof Error ? err.message : String(err);
     req.log.error({ err }, `marketplaceController.createAuction: ${msg}`);
     res.status(400).json({ ok: false, error: msg });
@@ -311,10 +376,10 @@ export async function handleSettleExpiredAuctions(req: Request, res: Response): 
 export async function handlePlaceBid(req: Request, res: Response): Promise<void> {
   try {
     const auctionId = req.params["id"] as string;
+    const bidderId  = await resolveUserId(req);
     const body = req.body as Record<string, unknown>;
 
-    const bidderId = (body["bidderId"] as string | undefined) ?? MOCK_USER_ID;
-    const amount   = body["amount"] != null ? Number(body["amount"]) : NaN;
+    const amount = body["amount"] != null ? Number(body["amount"]) : NaN;
 
     if (isNaN(amount) || amount <= 0) {
       res.status(400).json({ ok: false, error: "amount phải lớn hơn 0." }); return;

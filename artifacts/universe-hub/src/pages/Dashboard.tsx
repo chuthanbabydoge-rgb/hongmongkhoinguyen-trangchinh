@@ -6,6 +6,7 @@ import { InventorySummary } from "@/components/dashboard/InventorySummary";
 import { UniverseModules } from "@/components/dashboard/UniverseModules";
 import { RecentApps } from "@/components/dashboard/RecentApps";
 import { FavoriteApps } from "@/components/dashboard/FavoriteApps";
+import { MarketplaceStats } from "@/components/dashboard/MarketplaceStats";
 import { useDashboard } from "@/hooks/useDashboard";
 
 export default function Dashboard() {
@@ -35,6 +36,7 @@ export default function Dashboard() {
             <UserProfile />
             <WalletOverview wallet={wallet} loading={loading} />
             <InventorySummary />
+            <MarketplaceStats />
             <RecentApps />
             <FavoriteApps />
             <div className="pt-4">

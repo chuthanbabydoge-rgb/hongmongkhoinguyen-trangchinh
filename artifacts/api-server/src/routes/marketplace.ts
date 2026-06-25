@@ -93,6 +93,7 @@ router.post(   "/marketplace/listings",              handleCreateListing);
 router.get(    "/marketplace/listings/:id",          handleGetListing);
 router.delete( "/marketplace/listings/:id",          handleDeleteListing);
 router.post(   "/marketplace/listings/:id/purchase", handlePurchaseListing);
+router.post(   "/marketplace/listings/:id/buy",      handlePurchaseListing);
 
 // ─── Transactions ─────────────────────────────────────────────────────────────
 router.get("/marketplace/transactions", handleGetTransactions);
