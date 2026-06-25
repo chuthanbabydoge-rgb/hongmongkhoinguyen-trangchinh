@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { fetchApps, type EcosystemApp, type AppStatus } from "@/services/appRegistryService";
 import { useLauncherStore } from "@/hooks/useLauncherStore";
+import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import {
   ExternalLink, AlertTriangle, RefreshCw, Rocket, Search, Star,
@@ -115,6 +116,7 @@ function AppIcon({ app }: { app: EcosystemApp }) {
 function AppCard({ app, index }: { app: EcosystemApp; index: number }) {
   const [, navigate] = useLocation();
   const { isFavorite, toggleFavorite, recordLaunch } = useLauncherStore();
+  const { accessToken } = useAuth();
 
   const isActive   = app.status === "ACTIVE";
   const isExternal = isActive && !!app.url;
@@ -135,7 +137,12 @@ function AppCard({ app, index }: { app: EcosystemApp; index: number }) {
 
   const handleLaunch = () => {
     recordLaunch({ slug: app.slug, name: app.name, icon: app.icon, category: app.category, openedAt: new Date().toISOString() });
-    if (app.url) window.open(app.url, "_blank", "noopener,noreferrer");
+    if (app.url) {
+      const launchUrl = accessToken
+        ? `${app.url}${app.url.includes("?") ? "&" : "?"}hub_token=${encodeURIComponent(accessToken)}`
+        : app.url;
+      window.open(launchUrl, "_blank", "noopener,noreferrer");
+    }
   };
 
   const inner = (

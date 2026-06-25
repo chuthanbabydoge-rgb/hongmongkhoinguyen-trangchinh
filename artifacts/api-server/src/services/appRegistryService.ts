@@ -113,7 +113,7 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     name:        "Universe Account",
     description: "Quản lý danh tính, hồ sơ và xác thực trong toàn hệ sinh thái Universe",
     icon:        "https://cdn.universe.io/icons/account.png",
-    url:         (process.env.UNIVERSE_ACCOUNT_API_URL ?? "https://e0a5bb76-7d5a-4d51-a6e5-949d1e03c9d9-00-1h8q91j3vx3h4.pike.replit.dev").replace(/\/$/, ""),
+    url:         `${(process.env.UNIVERSE_ACCOUNT_API_URL ?? "https://e0a5bb76-7d5a-4d51-a6e5-949d1e03c9d9-00-1h8q91j3vx3h4.pike.replit.dev").replace(/\/$/, "")}/account-center`,
     category:    "SECURITY",
     status:      "ACTIVE",
     version:     "1.0.0",
