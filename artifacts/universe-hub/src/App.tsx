@@ -77,7 +77,7 @@ function Router() {
   );
 }
 
-function AuthGuard({ children }: { children: React.ReactNode }) {
+function AppContent() {
   const { isAuthenticated } = useAuth();
   const [path, navigate] = useLocation();
 
@@ -88,9 +88,10 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [isAuthenticated, path, navigate]);
 
   if (!isAuthenticated) {
-    return path === "/register" ? <RegisterPage /> : <LoginPage />;
+    if (path === "/register") return <RegisterPage key="register" />;
+    return <LoginPage key="login" />;
   }
-  return <>{children}</>;
+  return <Router key="app" />;
 }
 
 function App() {
@@ -106,9 +107,7 @@ function App() {
             <InventoryProvider>
               <MarketplaceProvider>
                 <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-                  <AuthGuard>
-                    <Router />
-                  </AuthGuard>
+                  <AppContent />
                 </WouterRouter>
                 <Toaster />
               </MarketplaceProvider>
