@@ -3,9 +3,25 @@ import { walletService, accountBridgeService } from "../container";
 import type { EntryDirection, EntryStatus } from "../services/walletService";
 import { AccountUnauthorizedError, AccountServiceUnavailableError } from "../services/accountClient";
 
+function extractUserIdFromJwt(authHeader: string): string | null {
+  try {
+    const token  = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+    const parts  = token.split(".");
+    if (parts.length !== 3) return null;
+    const raw    = Buffer.from(parts[1]!, "base64url").toString("utf8");
+    const payload = JSON.parse(raw) as Record<string, unknown>;
+    const id      = payload["sub"] ?? payload["userId"] ?? payload["id"];
+    return typeof id === "string" && id.length > 0 ? id : null;
+  } catch {
+    return null;
+  }
+}
+
 async function resolveUserId(req: Request): Promise<string> {
   const auth = req.headers["authorization"] as string | undefined;
-  if (!auth) throw Object.assign(new Error("Chưa xác thực."), { status: 401 });
+  if (!auth || !auth.startsWith("Bearer ")) throw Object.assign(new Error("Chưa xác thực."), { status: 401 });
+  const jwtUserId = extractUserIdFromJwt(auth);
+  if (jwtUserId) return jwtUserId;
   const profile = await accountBridgeService.getProfileCached(auth);
   return profile.userId || profile.id;
 }
