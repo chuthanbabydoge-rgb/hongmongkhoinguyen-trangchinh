@@ -1,0 +1,119 @@
+Continue HUB-6 implementation.
+
+The verification audit failed.
+
+Current status:
+
+* Mock cleanup completed
+* Inventory UI partially connected
+* HUB-6 acceptance criteria NOT satisfied
+
+Implement the remaining missing requirements.
+
+=====================================
+BACKEND
+=======
+
+Create routes:
+
+GET    /api/inventory/me
+GET    /api/inventory/items
+GET    /api/inventory/items/:id
+GET    /api/inventory/summary
+
+POST   /api/inventory/items
+PUT    /api/inventory/items/:id
+DELETE /api/inventory/items/:id
+
+Requirements:
+
+* Bearer auth required
+* Resolve userId from JWT
+* No user-001 anywhere
+* No hardcoded inventory owner
+* Repository + Service + Controller layers
+
+=====================================
+INVENTORY SUMMARY
+=================
+
+GET /api/inventory/summary
+
+Response:
+
+{
+totalAssets,
+pets,
+items,
+tickets,
+worldAssets,
+collectibles
+}
+
+Dashboard inventory widget must consume this endpoint.
+
+=====================================
+FRONTEND DETAIL PAGE
+====================
+
+Create:
+
+/inventory/:id
+
+Display:
+
+* name
+* description
+* rarity
+* quantity
+* metadata
+* createdAt
+
+=====================================
+APP REGISTRY
+============
+
+Register:
+
+slug: inventory
+name: Universe Inventory
+category: ASSET
+status: ACTIVE
+
+Inventory must appear automatically in:
+
+GET /api/apps
+Launcher page
+
+=====================================
+CLEANUP
+=======
+
+Remove every remaining occurrence of:
+
+user-001
+
+including:
+
+* inventoryData.ts
+* inventoryRepository.ts
+
+=====================================
+ACCEPTANCE EVIDENCE REQUIRED
+============================
+
+Do not mark complete until showing:
+
+1. curl GET /api/inventory/me
+2. curl GET /api/inventory/items
+3. curl GET /api/inventory/items/:id
+4. curl GET /api/inventory/summary
+5. curl POST inventory item
+6. curl PUT inventory item
+7. curl DELETE inventory item
+8. curl GET /api/apps showing inventory ACTIVE
+9. Screenshot Launcher showing Inventory card
+10. Screenshot /inventory/:id page
+11. grep -R "user-001" . => 0 results
+
+Only after all 11 proofs pass can HUB-6 be accepted.

@@ -25,21 +25,7 @@ export interface IInventoryRepository {
 
 // ─── Seed data ────────────────────────────────────────────────────────────────
 
-const SEED_INVENTORIES: InventoryReference[] = [
-  {
-    userId: "user-001",
-    inventoryId: "inventory-001",
-    itemCounts: {
-      pets: 12,
-      players: 47,
-      tickets: 8,
-      digitalAssets: 234,
-      items: 156,
-      total: 457,
-    },
-    lastSyncedAt: "2024-12-01T10:00:00Z",
-  },
-];
+const SEED_INVENTORIES: InventoryReference[] = [];
 
 // ─── Mock implementation ──────────────────────────────────────────────────────
 
