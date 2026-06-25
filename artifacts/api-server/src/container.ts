@@ -43,8 +43,34 @@ import { MockAvatarRepository }             from "./repositories/avatarRepositor
 import { MockReputationRepository }         from "./repositories/reputationRepository";
 import { MockWalletRepository }             from "./repositories/walletRepository";
 import { MockWalletTransactionRepository }  from "./repositories/walletTransactionRepository";
-import { DrizzleWalletRepository }          from "./repositories/drizzle/DrizzleWalletRepository";
-import { DrizzleWalletTransactionRepository } from "./repositories/drizzle/DrizzleWalletTransactionRepository";
+import { DrizzleWalletRepository }                    from "./repositories/drizzle/DrizzleWalletRepository";
+import { DrizzleWalletTransactionRepository }          from "./repositories/drizzle/DrizzleWalletTransactionRepository";
+import { DrizzleUserRepository }                       from "./repositories/drizzle/DrizzleUserRepository";
+import { DrizzleAvatarRepository }                     from "./repositories/drizzle/DrizzleAvatarRepository";
+import { DrizzleReputationRepository }                 from "./repositories/drizzle/DrizzleReputationRepository";
+import { DrizzleInventoryRepository }                  from "./repositories/drizzle/DrizzleInventoryRepository";
+import { DrizzleInventoryItemsRepository }             from "./repositories/drizzle/DrizzleInventoryItemsRepository";
+import { DrizzleInventoryItemsMutationRepository }     from "./repositories/drizzle/DrizzleInventoryItemsMutationRepository";
+import { DrizzleMarketplaceListingsRepository }        from "./repositories/drizzle/DrizzleMarketplaceListingsRepository";
+import { DrizzleMarketplaceTransactionsRepository }    from "./repositories/drizzle/DrizzleMarketplaceTransactionsRepository";
+import { DrizzleMarketplaceAuctionsRepository }        from "./repositories/drizzle/DrizzleMarketplaceAuctionsRepository";
+import { DrizzleMarketplaceBidsRepository }            from "./repositories/drizzle/DrizzleMarketplaceBidsRepository";
+import { DrizzleMarketplaceStatsRepository }           from "./repositories/drizzle/DrizzleMarketplaceStatsRepository";
+import { DrizzlePaymentRepository }                    from "./repositories/drizzle/DrizzlePaymentRepository";
+import { DrizzleMarketplaceNotificationRepository }    from "./repositories/drizzle/DrizzleMarketplaceNotificationRepository";
+import { DrizzleMarketplaceReputationRepository }      from "./repositories/drizzle/DrizzleMarketplaceReputationRepository";
+import { DrizzleTreasuryRepository }                   from "./repositories/drizzle/DrizzleTreasuryRepository";
+import { DrizzleMarketplaceAnalyticsRepository }       from "./repositories/drizzle/DrizzleMarketplaceAnalyticsRepository";
+import { DrizzleWatchlistRepository }                  from "./repositories/drizzle/DrizzleWatchlistRepository";
+import { DrizzleSavedSearchRepository }                from "./repositories/drizzle/DrizzleSavedSearchRepository";
+import { DrizzlePricingRepository }                    from "./repositories/drizzle/DrizzlePricingRepository";
+import { DrizzleRecommendationRepository }             from "./repositories/drizzle/DrizzleRecommendationRepository";
+import { DrizzleModerationRepository }                 from "./repositories/drizzle/DrizzleModerationRepository";
+import { DrizzleAppRegistryRepository }                from "./repositories/drizzle/DrizzleAppRegistryRepository";
+import { DrizzleAppLauncherRepository }                from "./repositories/drizzle/DrizzleAppLauncherRepository";
+import { DrizzleNotificationSyncRepository }           from "./repositories/drizzle/DrizzleNotificationSyncRepository";
+import { DrizzleApplicationRegistryRepository }        from "./repositories/drizzle/DrizzleApplicationRegistryRepository";
+import { DrizzleUserAppRepository }                    from "./repositories/drizzle/DrizzleUserAppRepository";
 import { MockInventoryRepository }          from "./repositories/inventoryRepository";
 import { MockInventoryItemsRepository }     from "./repositories/inventoryItemsRepository";
 import { SupabaseInventoryItemsRepository } from "./repositories/supabase/SupabaseInventoryItemsRepository";
@@ -223,6 +249,16 @@ if (useSupabase) {
   inventoryItemsRepo    = new SupabaseInventoryItemsRepository();
   logger.info("Container: marketplace → Supabase (6 repositories, inventory sync enabled)");
   logger.info("Container: inventory items → Supabase (SupabaseInventoryItemsRepository)");
+} else if (useDrizzle) {
+  listingsRepo          = new DrizzleMarketplaceListingsRepository();
+  transactionsRepo      = new DrizzleMarketplaceTransactionsRepository();
+  auctionsRepo          = new DrizzleMarketplaceAuctionsRepository();
+  bidsRepo              = new DrizzleMarketplaceBidsRepository();
+  statsRepo             = new DrizzleMarketplaceStatsRepository();
+  inventoryMutationRepo = new DrizzleInventoryItemsMutationRepository();
+  inventoryItemsRepo    = new DrizzleInventoryItemsRepository();
+  logger.info("Container: marketplace → Drizzle/PostgreSQL (6 repositories, inventory sync enabled)");
+  logger.info("Container: inventory items → Drizzle/PostgreSQL (DrizzleInventoryItemsRepository)");
 } else {
   listingsRepo          = new MockListingsRepository();
   transactionsRepo      = new MockTransactionsRepository();
@@ -244,13 +280,13 @@ if (useSupabase) {
   walletTransactionRepo = new FallbackWalletTransactionRepository(new SupabaseWalletTransactionRepository(), new MockWalletTransactionRepository());
   inventoryRepo         = new SupabaseInventoryRepository();
 } else if (useDrizzle) {
-  logger.info("Container: using Drizzle (PostgreSQL) repositories for wallet; Mock for others");
-  userRepo              = new InMemoryUserRepository();
-  avatarRepo            = new MockAvatarRepository();
-  reputationRepo        = new MockReputationRepository();
+  logger.info("Container: using Drizzle (PostgreSQL) repositories for all entities");
+  userRepo              = new DrizzleUserRepository();
+  avatarRepo            = new DrizzleAvatarRepository();
+  reputationRepo        = new DrizzleReputationRepository();
   walletRepo            = new DrizzleWalletRepository();
   walletTransactionRepo = new DrizzleWalletTransactionRepository();
-  inventoryRepo         = new MockInventoryRepository();
+  inventoryRepo         = new DrizzleInventoryRepository();
 } else {
   logger.info("Container: using Mock repositories (SUPABASE_URL / SUPABASE_ANON_KEY not set)");
   userRepo              = new InMemoryUserRepository();
@@ -289,15 +325,17 @@ export const walletService = new WalletService(
 
 export const inventoryService = new InventoryService(inventoryItemsRepo);
 
-const marketplacePaymentRepo          = new MockMarketplacePaymentRepository();
+const marketplacePaymentRepo          = useDrizzle || useSupabase ? new DrizzlePaymentRepository() : new MockMarketplacePaymentRepository();
 export const marketplacePaymentService = new MarketplacePaymentService(walletRepo, marketplacePaymentRepo);
 
 // ─── Marketplace Notifications (V1.7) ─────────────────────────────────────────
 
 const notificationRepo = useSupabase
   ? new SupabaseMarketplaceNotificationRepository()
-  : new MockMarketplaceNotificationRepository();
-logger.info(`Container: marketplace notifications → ${useSupabase ? "Supabase" : "Mock"}`);
+  : useDrizzle
+    ? new DrizzleMarketplaceNotificationRepository()
+    : new MockMarketplaceNotificationRepository();
+logger.info(`Container: marketplace notifications → ${useSupabase ? "Supabase" : useDrizzle ? "Drizzle" : "Mock"}`);
 
 export const marketplaceNotificationService = new MarketplaceNotificationService(notificationRepo, marketplaceRealtimeService);
 
@@ -305,8 +343,10 @@ export const marketplaceNotificationService = new MarketplaceNotificationService
 
 const marketplaceReputationRepo = useSupabase
   ? new SupabaseMarketplaceReputationRepository()
-  : new MockMarketplaceReputationRepository();
-logger.info(`Container: seller reputation → ${useSupabase ? "Supabase" : "Mock"}`);
+  : useDrizzle
+    ? new DrizzleMarketplaceReputationRepository()
+    : new MockMarketplaceReputationRepository();
+logger.info(`Container: seller reputation → ${useSupabase ? "Supabase" : useDrizzle ? "Drizzle" : "Mock"}`);
 
 export const sellerReputationService = new MarketplaceReputationService(marketplaceReputationRepo, undefined, marketplaceRealtimeService);
 
@@ -327,8 +367,10 @@ export const marketplaceService = new MarketplaceService(
 
 const treasuryRepo = useSupabase
   ? new SupabaseTreasuryRepository()
-  : new MockTreasuryRepository();
-logger.info(`Container: treasury → ${useSupabase ? "Supabase" : "Mock"}`);
+  : useDrizzle
+    ? new DrizzleTreasuryRepository()
+    : new MockTreasuryRepository();
+logger.info(`Container: treasury → ${useSupabase ? "Supabase" : useDrizzle ? "Drizzle" : "Mock"}`);
 
 export const marketplaceTreasuryService = new MarketplaceTreasuryService(treasuryRepo);
 
@@ -336,8 +378,10 @@ export const marketplaceTreasuryService = new MarketplaceTreasuryService(treasur
 
 const analyticsRepo = useSupabase
   ? new SupabaseMarketplaceAnalyticsRepository()
-  : new MockMarketplaceAnalyticsRepository();
-logger.info(`Container: marketplace analytics → ${useSupabase ? "Supabase" : "Mock"}`);
+  : useDrizzle
+    ? new DrizzleMarketplaceAnalyticsRepository()
+    : new MockMarketplaceAnalyticsRepository();
+logger.info(`Container: marketplace analytics → ${useSupabase ? "Supabase" : useDrizzle ? "Drizzle" : "Mock"}`);
 
 export const marketplaceStatsService = new MarketplaceStatsService(analyticsRepo);
 
@@ -345,8 +389,10 @@ export const marketplaceStatsService = new MarketplaceStatsService(analyticsRepo
 
 const watchlistRepo = useSupabase
   ? new SupabaseMarketplaceWatchlistRepository()
-  : new MockMarketplaceWatchlistRepository();
-logger.info(`Container: marketplace watchlist → ${useSupabase ? "Supabase" : "Mock"}`);
+  : useDrizzle
+    ? new DrizzleWatchlistRepository()
+    : new MockMarketplaceWatchlistRepository();
+logger.info(`Container: marketplace watchlist → ${useSupabase ? "Supabase" : useDrizzle ? "Drizzle" : "Mock"}`);
 
 export const marketplaceWatchlistService = new MarketplaceWatchlistService(
   watchlistRepo,
@@ -372,8 +418,10 @@ marketplacePricePoller.start();
 
 const savedSearchRepo = useSupabase
   ? new SupabaseMarketplaceSavedSearchRepository()
-  : new MockSavedSearchRepository();
-logger.info(`Container: saved searches → ${useSupabase ? "Supabase" : "Mock"}`);
+  : useDrizzle
+    ? new DrizzleSavedSearchRepository()
+    : new MockSavedSearchRepository();
+logger.info(`Container: saved searches → ${useSupabase ? "Supabase" : useDrizzle ? "Drizzle" : "Mock"}`);
 
 export const savedSearchService = new MarketplaceSavedSearchService(savedSearchRepo);
 
@@ -392,8 +440,10 @@ savedSearchPoller.start();
 
 const pricingRepo = useSupabase
   ? new SupabaseMarketplacePricingRepository()
-  : new MockMarketplacePricingRepository();
-logger.info(`Container: pricing → ${useSupabase ? "Supabase" : "Mock"}`);
+  : useDrizzle
+    ? new DrizzlePricingRepository()
+    : new MockMarketplacePricingRepository();
+logger.info(`Container: pricing → ${useSupabase ? "Supabase" : useDrizzle ? "Drizzle" : "Mock"}`);
 
 export const pricingService = new MarketplacePricingService(pricingRepo);
 
@@ -401,8 +451,10 @@ export const pricingService = new MarketplacePricingService(pricingRepo);
 
 const recommendationRepo = useSupabase
   ? new SupabaseMarketplaceRecommendationRepository()
-  : new MockMarketplaceRecommendationRepository();
-logger.info(`Container: recommendations → ${useSupabase ? "Supabase" : "Mock"}`);
+  : useDrizzle
+    ? new DrizzleRecommendationRepository()
+    : new MockMarketplaceRecommendationRepository();
+logger.info(`Container: recommendations → ${useSupabase ? "Supabase" : useDrizzle ? "Drizzle" : "Mock"}`);
 
 export const recommendationService = new MarketplaceRecommendationService(recommendationRepo);
 
@@ -410,8 +462,10 @@ export const recommendationService = new MarketplaceRecommendationService(recomm
 
 const moderationRepo = useSupabase
   ? new SupabaseMarketplaceModerationRepository()
-  : new MockModerationRepository();
-logger.info(`Container: moderation → ${useSupabase ? "Supabase" : "Mock"}`);
+  : useDrizzle
+    ? new DrizzleModerationRepository()
+    : new MockModerationRepository();
+logger.info(`Container: moderation → ${useSupabase ? "Supabase" : useDrizzle ? "Drizzle" : "Mock"}`);
 
 export const moderationService = new MarketplaceModerationService(
   moderationRepo,
@@ -437,8 +491,10 @@ import { AppRegistryService }            from "./services/appRegistryService.js"
 
 const appRegistryRepo = useSupabase
   ? new SupabaseAppRegistryRepository()
-  : new InMemoryAppRegistryRepository();
-logger.info(`Container: ecosystem registry → ${useSupabase ? "Supabase" : "InMemory"}`);
+  : useDrizzle
+    ? new DrizzleAppRegistryRepository()
+    : new InMemoryAppRegistryRepository();
+logger.info(`Container: ecosystem registry → ${useSupabase ? "Supabase" : useDrizzle ? "Drizzle" : "InMemory"}`);
 
 export const appRegistryService = new AppRegistryService(appRegistryRepo);
 
@@ -454,8 +510,10 @@ import { AppLauncherService }             from "./services/appLauncherService.js
 
 const appLauncherRepo = useSupabase
   ? new SupabaseAppLauncherRepository()
-  : new InMemoryAppLauncherRepository();
-logger.info(`Container: app launcher → ${useSupabase ? "Supabase" : "InMemory"}`);
+  : useDrizzle
+    ? new DrizzleAppLauncherRepository()
+    : new InMemoryAppLauncherRepository();
+logger.info(`Container: app launcher → ${useSupabase ? "Supabase" : useDrizzle ? "Drizzle" : "InMemory"}`);
 
 export const appLauncherService = new AppLauncherService(appLauncherRepo, appRegistryService);
 
@@ -467,8 +525,10 @@ import { NotificationSyncService }             from "./services/notificationSync
 
 const notificationSyncRepo = useSupabase
   ? new SupabaseNotificationSyncRepository()
-  : new InMemoryNotificationSyncRepository();
-logger.info(`Container: notification sync → ${useSupabase ? "Supabase" : "InMemory"}`);
+  : useDrizzle
+    ? new DrizzleNotificationSyncRepository()
+    : new InMemoryNotificationSyncRepository();
+logger.info(`Container: notification sync → ${useSupabase ? "Supabase" : useDrizzle ? "Drizzle" : "InMemory"}`);
 
 export const notificationSyncService = new NotificationSyncService(notificationSyncRepo, accountClient);
 
@@ -481,13 +541,17 @@ import { ApplicationRegistryService } from "./services/applicationRegistryServic
 
 const applicationRegistryRepo = useSupabase
   ? new SupabaseApplicationRegistryRepository()
-  : new InMemoryApplicationRegistryRepository();
+  : useDrizzle
+    ? new DrizzleApplicationRegistryRepository()
+    : new InMemoryApplicationRegistryRepository();
 
 const userAppRepo = useSupabase
   ? new SupabaseUserAppRepository()
-  : new InMemoryUserAppRepository();
+  : useDrizzle
+    ? new DrizzleUserAppRepository()
+    : new InMemoryUserAppRepository();
 
-logger.info(`Container: application registry (HUB-5) → ${useSupabase ? "Supabase" : "InMemory"}`);
+logger.info(`Container: application registry (HUB-5) → ${useSupabase ? "Supabase" : useDrizzle ? "Drizzle" : "InMemory"}`);
 
 export const applicationRegistryService = new ApplicationRegistryService(
   applicationRegistryRepo,
