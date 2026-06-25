@@ -1,0 +1,303 @@
+# HUB-12.5 — Automatic Quest Progress Engine (NO MOCK)
+
+Mục tiêu:
+
+Hiện tại Quest chỉ có CRUD.
+
+Xây dựng Quest Event Engine để mọi hành động trong hệ sinh thái tự động cập nhật progress quest.
+
+Không được dùng polling.
+
+Không được dùng cron.
+
+Không được scan database.
+
+Phải dùng Event Bus hoặc Observer Pattern.
+
+==================================================
+
+EVENT BUS
+
+==================================================
+
+Tạo QuestEventBus.
+
+QuestService subscribe toàn bộ event.
+
+Các service khác chỉ fire event.
+
+Không service nào gọi QuestService trực tiếp.
+
+Ví dụ:
+
+WalletService
+
+↓
+
+QuestEventBus.emit(WALLET_TRANSFER)
+
+MarketplaceService
+
+↓
+
+QuestEventBus.emit(MARKETPLACE_PURCHASE)
+
+InventoryService
+
+↓
+
+QuestEventBus.emit(INVENTORY_ACQUIRED)
+
+GuildService
+
+↓
+
+QuestEventBus.emit(GUILD_JOIN)
+
+SocialService
+
+↓
+
+QuestEventBus.emit(FRIEND_ACCEPTED)
+
+ReputationService
+
+↓
+
+QuestEventBus.emit(REPUTATION_GAINED)
+
+Account Login
+
+↓
+
+QuestEventBus.emit(USER_LOGIN)
+
+==================================================
+
+SUPPORTED EVENTS
+
+==================================================
+
+USER_LOGIN
+
+OPEN_APP
+
+WALLET_TRANSFER
+
+MARKETPLACE_LISTING
+
+MARKETPLACE_PURCHASE
+
+MARKETPLACE_SALE
+
+INVENTORY_ACQUIRED
+
+INVENTORY_COLLECTED
+
+FRIEND_ADDED
+
+FOLLOW_USER
+
+JOIN_GUILD
+
+CREATE_GUILD
+
+GUILD_CONTRIBUTION
+
+REPUTATION_GAINED
+
+QUEST_COMPLETED
+
+ACHIEVEMENT_UNLOCKED
+
+==================================================
+
+QUEST OBJECTIVES
+
+==================================================
+
+Quest Objective phải tự map với event.
+
+Ví dụ:
+
+LOGIN 1 lần
+
+↓
+
+progress +1
+
+Transfer 10 lần
+
+↓
+
+progress +1 mỗi transfer
+
+Mua 20 item
+
+↓
+
+progress +1 mỗi purchase
+
+Đạt 500 Reputation
+
+↓
+
+set currentValue = reputation hiện tại
+
+Join Guild
+
+↓
+
+complete ngay
+
+Add Friend
+
+↓
+
+progress
+
+Create Listing
+
+↓
+
+progress
+
+==================================================
+
+PROGRESS UPDATE
+
+==================================================
+
+QuestEngine phải:
+
+load user active quests
+
+lọc objective liên quan
+
+update progress
+
+kiểm tra complete
+
+nếu complete
+
+↓
+
+status = COMPLETED
+
+↓
+
+Notification
+
+↓
+
+Activity
+
+↓
+
+Không claim reward tự động
+
+==================================================
+
+REWARD CLAIM
+
+==================================================
+
+Chỉ khi người dùng bấm Claim.
+
+Sau Claim:
+
+Wallet
+
+Inventory
+
+Reputation
+
+Achievement
+
+Notification
+
+Activity
+
+đều được cập nhật.
+
+==================================================
+
+PERFORMANCE
+
+==================================================
+
+Không query toàn bộ quest.
+
+Chỉ lấy active quests của user.
+
+Update đúng objective.
+
+Batch update nếu có nhiều quest.
+
+Transaction nếu nhiều reward.
+
+==================================================
+
+FRONTEND
+
+==================================================
+
+Quest progress phải realtime sau khi:
+
+mua item
+
+bán item
+
+transfer wallet
+
+join guild
+
+add friend
+
+login
+
+không cần refresh trang.
+
+==================================================
+
+ACCEPTANCE
+
+==================================================
+
+Chứng minh:
+
+✓ Login → quest progress +1
+
+✓ Wallet transfer → progress
+
+✓ Marketplace listing → progress
+
+✓ Marketplace purchase → progress
+
+✓ Inventory item → progress
+
+✓ Add friend → progress
+
+✓ Join guild → progress
+
+✓ Reputation đạt mốc → progress
+
+✓ Quest complete tự động
+
+✓ Notification sinh
+
+✓ Activity sinh
+
+✓ Claim reward
+
+✓ Wallet tăng
+
+✓ Reputation tăng
+
+✓ Achievement unlock
+
+✓ PostgreSQL lưu đúng progress
+
+✓ Không mock
+
+✓ Có curl proof toàn bộ
