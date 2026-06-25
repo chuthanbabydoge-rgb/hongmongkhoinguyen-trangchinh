@@ -1,0 +1,277 @@
+HUB-10: Social Graph Foundation
+
+Goal:
+Transform Universe from a collection of apps into a connected social ecosystem.
+
+========================================
+BACKEND
+=======
+
+1. Social Relationship System
+
+Create tables:
+
+social_relationships
+friend_requests
+user_profiles_public
+
+Relationship Types:
+
+FRIEND
+FOLLOWING
+BLOCKED
+
+Friend Request Status:
+
+PENDING
+ACCEPTED
+DECLINED
+CANCELLED
+
+========================================
+2. Friend Requests
+==================
+
+Endpoints:
+
+POST   /api/social/friends/request
+POST   /api/social/friends/:id/accept
+POST   /api/social/friends/:id/decline
+
+GET    /api/social/friends
+GET    /api/social/friends/pending
+GET    /api/social/friends/sent
+
+Rules:
+
+* cannot friend self
+* cannot duplicate request
+* accepting creates FRIEND relationship both ways
+* notification generated automatically
+
+========================================
+3. Follow System
+================
+
+Endpoints:
+
+POST   /api/social/follow/:userId
+DELETE /api/social/follow/:userId
+
+GET    /api/social/followers
+GET    /api/social/following
+
+Rules:
+
+* one-way relationship
+* notification generated on follow
+
+========================================
+4. Public Profiles
+==================
+
+Endpoints:
+
+GET /api/social/profile/:userId
+GET /api/social/profile/me
+
+Response:
+
+{
+userId,
+displayName,
+avatar,
+reputation,
+level,
+achievements,
+followers,
+following,
+friends,
+joinDate
+}
+
+Data sources:
+
+* Reputation Service
+* Achievement Service
+* Account Profile
+* Social Graph
+
+========================================
+5. Online Presence
+==================
+
+Create:
+
+user_presence
+
+Status:
+
+ONLINE
+AWAY
+OFFLINE
+
+Endpoints:
+
+POST /api/social/presence
+GET  /api/social/presence/:userId
+
+Auto update:
+
+* login => ONLINE
+* logout => OFFLINE
+
+========================================
+6. Activity Feed Integration
+============================
+
+Generate activity events:
+
+FRIEND_REQUEST_SENT
+FRIEND_REQUEST_ACCEPTED
+USER_FOLLOWED
+PROFILE_UPDATED
+
+Visible in:
+
+GET /api/activities
+
+========================================
+7. Notification Integration
+===========================
+
+Generate notifications:
+
+Friend request received
+Friend request accepted
+New follower
+Profile mention (future ready)
+
+Must use HUB-8 notification service.
+
+========================================
+FRONTEND
+========
+
+1. Social App
+
+Create:
+
+/social
+
+Pages:
+
+/social
+/social/friends
+/social/followers
+/social/following
+/social/profile/:userId
+
+========================================
+2. Social Dashboard Widget
+==========================
+
+Create:
+
+SocialOverviewCard
+
+Display:
+
+Friends Count
+Followers
+Following
+Online Friends
+
+Dashboard placement:
+
+below ReputationCard
+
+========================================
+3. User Search
+==============
+
+Endpoint:
+
+GET /api/social/search?q=
+
+Search by:
+
+displayName
+username
+email (internal only)
+
+Features:
+
+* Add Friend
+* Follow
+* View Profile
+
+========================================
+4. Public Profile Page
+======================
+
+Display:
+
+Avatar
+Display Name
+Reputation Level
+Achievements
+Recent Activities
+Friends Count
+Followers Count
+
+Actions:
+
+Add Friend
+Follow
+Message (disabled placeholder)
+
+========================================
+5. Launcher Integration
+=======================
+
+Register app:
+
+slug: social
+
+status: ACTIVE
+
+category: SOCIAL
+
+Add URL to launcher.
+
+========================================
+ACCEPTANCE CRITERIA
+===================
+
+1. Send friend request.
+2. Accept friend request.
+3. Decline friend request.
+4. Follow user.
+5. Unfollow user.
+6. Notifications generated.
+7. Activity feed generated.
+8. Public profile page works.
+9. Social search works.
+10. Presence status works.
+11. Dashboard Social widget works.
+12. Social app registered in App Registry.
+13. Social app visible in Launcher.
+14. No MOCK_SOCIAL_DATA.
+15. Curl proof required for all social flows.
+
+DELIVERABLE
+
+Provide:
+
+* files created
+* files modified
+* database schema
+* API list
+* curl proofs
+* launcher proof
+* dashboard proof
+* notification proof
+* activity proof
+* social graph proof
+* acceptance checklist
