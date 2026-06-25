@@ -138,9 +138,12 @@ function AppCard({ app, index }: { app: EcosystemApp; index: number }) {
   const handleLaunch = () => {
     recordLaunch({ slug: app.slug, name: app.name, icon: app.icon, category: app.category, openedAt: new Date().toISOString() });
     if (app.url) {
-      const launchUrl = accessToken
-        ? `${app.url}${app.url.includes("?") ? "&" : "?"}hub_token=${encodeURIComponent(accessToken)}`
-        : app.url;
+      let launchUrl = app.url;
+      if (accessToken) {
+        const sep = launchUrl.includes("?") ? "&" : "?";
+        const hubApi = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ""}`;
+        launchUrl = `${launchUrl}${sep}hub_token=${encodeURIComponent(accessToken)}&hub_api=${encodeURIComponent(`${hubApi}/api`)}`;
+      }
       window.open(launchUrl, "_blank", "noopener,noreferrer");
     }
   };

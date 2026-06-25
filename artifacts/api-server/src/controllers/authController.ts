@@ -1,9 +1,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // AuthController — proxies login/refresh to Universe Account API
 //
-// POST /api/auth/login    → { ok, data: { accessToken, refreshToken, expiresIn, user } }
-// POST /api/auth/refresh  → { ok, data: { accessToken, expiresIn } }
-// POST /api/auth/logout   → { ok: true }
+// POST /api/auth/register         → { ok, data: { accessToken, refreshToken, expiresIn, user } }
+// POST /api/auth/login            → { ok, data: { accessToken, refreshToken, expiresIn, user } }
+// POST /api/auth/refresh          → { ok, data: { accessToken, expiresIn } }
+// POST /api/auth/logout           → { ok: true }
+// GET  /api/auth/sso/validate     → { ok, data: { user } }  — validates hub_token for SSO
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { type Request, type Response } from "express";
@@ -124,6 +126,84 @@ export async function handleRefresh(req: Request, res: Response): Promise<void> 
   } catch (err) {
     const e = err as Error & { status?: number };
     res.status(401).json({ ok: false, error: e.message ?? "Phiên đăng nhập hết hạn." });
+  }
+}
+
+// ─── GET /api/auth/sso/validate ──────────────────────────────────────────────
+// SSO token validation endpoint — called by external apps (e.g. Universe Account)
+// to verify a hub_token passed via query param or Authorization header.
+//
+// Flow:
+//   1. External app receives ?hub_token=<token> in its URL
+//   2. External app calls GET /api/auth/sso/validate with Authorization: Bearer <token>
+//   3. Hub forwards to Account API /api/auth/me to verify the token
+//   4. Returns user profile so external app can create its own session
+//
+// Returns: { ok: true, data: { user: { id, email, username } } }
+
+export async function handleSsoValidate(req: Request, res: Response): Promise<void> {
+  // Accept token from Authorization header or ?token= query param
+  const authHeader = req.headers["authorization"];
+  const queryToken = typeof req.query["token"] === "string" ? req.query["token"] : null;
+
+  let token: string | null = null;
+  if (typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
+    token = authHeader.slice(7);
+  } else if (queryToken) {
+    token = queryToken;
+  }
+
+  if (!token) {
+    res.status(401).json({ ok: false, error: "Token không hợp lệ." });
+    return;
+  }
+
+  if (!ACCOUNT_URL) {
+    res.status(503).json({ ok: false, error: "Account service chưa được cấu hình." });
+    return;
+  }
+
+  try {
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+    let meRes: Response | globalThis.Response;
+    try {
+      meRes = await fetch(`${ACCOUNT_URL}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+        signal:  ctrl.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+
+    if (!meRes.ok) {
+      res.status(401).json({ ok: false, error: "Token hết hạn hoặc không hợp lệ." });
+      return;
+    }
+
+    const profile = await (meRes as globalThis.Response).json() as unknown;
+    // Account API may return { user: {...} } or { data: { user: {...} } } or the user directly
+    const raw = profile as Record<string, unknown>;
+    const user = (raw["user"] ?? raw["data"] ?? raw) as Record<string, unknown>;
+
+    res.json({
+      ok:   true,
+      data: {
+        user: {
+          id:       user["id"]       ?? user["userId"],
+          email:    user["email"],
+          username: user["username"] ?? user["name"],
+        },
+        token,
+      },
+    });
+  } catch (err) {
+    const e = err as Error;
+    const isTimeout = e.name === "AbortError";
+    res.status(isTimeout ? 504 : 502).json({
+      ok:    false,
+      error: isTimeout ? "Account service timeout." : "Không thể xác thực token.",
+    });
   }
 }
 
