@@ -15,6 +15,7 @@ import launcherRouter from "./launcher";
 import notificationSyncRouter from "./notificationSync";
 import appsRouter from "./apps";
 import socialRouter from "./social";
+import guildRouter from "./guild";
 
 const router: IRouter = Router();
 
@@ -34,5 +35,6 @@ router.use(launcherRouter);
 router.use(notificationSyncRouter);
 router.use(appsRouter);
 router.use(socialRouter);
+router.use(guildRouter);
 
 export default router;

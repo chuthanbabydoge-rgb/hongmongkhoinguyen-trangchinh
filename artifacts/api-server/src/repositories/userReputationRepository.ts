@@ -4,7 +4,13 @@ export type ReputationEventType =
   | "MARKETPLACE_SALE"
   | "MARKETPLACE_PURCHASE"
   | "WALLET_TRANSFER"
-  | "INVENTORY_ACQUIRED";
+  | "INVENTORY_ACQUIRED"
+  | "GUILD_CREATED"
+  | "GUILD_JOINED"
+  | "GUILD_EVENT"
+  | "GUILD_CONTRIBUTION"
+  | "GUILD_ANNOUNCEMENT"
+  | "GUILD_RECRUIT";
 
 export const REPUTATION_RULES: Record<ReputationEventType, number> = {
   LOGIN:                 5,
@@ -13,6 +19,12 @@ export const REPUTATION_RULES: Record<ReputationEventType, number> = {
   MARKETPLACE_PURCHASE: 15,
   WALLET_TRANSFER:      5,
   INVENTORY_ACQUIRED:   5,
+  GUILD_CREATED:        50,
+  GUILD_JOINED:         20,
+  GUILD_EVENT:          30,
+  GUILD_CONTRIBUTION:   10,
+  GUILD_ANNOUNCEMENT:   5,
+  GUILD_RECRUIT:        25,
 };
 
 export const LEVEL_THRESHOLDS: Array<{ level: string; min: number; max: number | null }> = [

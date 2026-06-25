@@ -627,3 +627,13 @@ const socialRepo = useDrizzle
 logger.info(`Container: social graph → ${useDrizzle ? "Drizzle" : "InMemory"}`);
 
 export const socialService = new SocialService(socialRepo, notificationsService, activitiesService);
+
+// ─── Guild System (HUB-11) ────────────────────────────────────────────────────
+
+import { DrizzleGuildRepository } from "./repositories/drizzle/DrizzleGuildRepository.js";
+import { GuildService }           from "./services/guildService.js";
+
+const guildRepo = new DrizzleGuildRepository();
+logger.info("Container: guild system → Drizzle");
+
+export const guildService = new GuildService(guildRepo, notificationsService, activitiesService, userReputationService);

@@ -33,6 +33,7 @@ import {
   Medal,
   Star,
   Users,
+  Shield,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -162,6 +163,7 @@ export function Sidebar() {
             Mạng xã hội
           </p>
           <NavItem icon={Users} label="Universe Social" path="/social" />
+          <NavItem icon={Shield} label="Universe Guild" path="/guild" />
         </div>
 
         <div className="pt-1 pb-1">

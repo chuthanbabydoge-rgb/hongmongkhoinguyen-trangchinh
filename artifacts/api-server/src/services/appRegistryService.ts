@@ -149,6 +149,16 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     version:     "1.0.0",
   },
   {
+    slug:        "guild",
+    name:        "Universe Guild",
+    description: "Tạo và quản lý guild, chiến đoàn, sự kiện, kho báu và bảng xếp hạng trong hệ sinh thái Universe",
+    icon:        "https://cdn.universe.io/icons/guild.png",
+    url:         `${REPLIT_HUB_URL}/guild`,
+    category:    "SOCIAL",
+    status:      "ACTIVE",
+    version:     "1.0.0",
+  },
+  {
     slug:        "worlds",
     name:        "Universe Worlds",
     description: "Xây dựng và khám phá các thế giới ảo trong vũ trụ số",

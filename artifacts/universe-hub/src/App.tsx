@@ -41,6 +41,16 @@ import Leaderboard from "@/pages/Leaderboard";
 import AchievementsPage from "@/pages/Achievements";
 import Social from "@/pages/Social";
 import SocialProfile from "@/pages/SocialProfile";
+import GuildDashboard from "@/pages/guild/GuildDashboard";
+import GuildList from "@/pages/guild/GuildList";
+import GuildCreate from "@/pages/guild/GuildCreate";
+import GuildDetail from "@/pages/guild/GuildDetail";
+import GuildMembers from "@/pages/guild/GuildMembers";
+import GuildBank from "@/pages/guild/GuildBank";
+import GuildEvents from "@/pages/guild/GuildEvents";
+import GuildRankings from "@/pages/guild/GuildRankings";
+import GuildLogs from "@/pages/guild/GuildLogs";
+import GuildSettings from "@/pages/guild/GuildSettings";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -82,6 +92,16 @@ function Router() {
       <Route path="/social/profile/:userId" component={SocialProfile} />
       <Route path="/social/:rest*" component={Social} />
       <Route path="/social" component={Social} />
+      <Route path="/guild" component={GuildDashboard} />
+      <Route path="/guild/list" component={GuildList} />
+      <Route path="/guild/create" component={GuildCreate} />
+      <Route path="/guild/rankings" component={GuildRankings} />
+      <Route path="/guild/:id/members" component={GuildMembers} />
+      <Route path="/guild/:id/bank" component={GuildBank} />
+      <Route path="/guild/:id/events" component={GuildEvents} />
+      <Route path="/guild/:id/logs" component={GuildLogs} />
+      <Route path="/guild/:id/settings" component={GuildSettings} />
+      <Route path="/guild/:id" component={GuildDetail} />
       <Route component={NotFound} />
     </Switch>
   );
