@@ -75,6 +75,12 @@ import { NotificationsService }                        from "./services/notifica
 import { InMemoryActivitiesRepository }                from "./repositories/activitiesRepository";
 import { DrizzleActivitiesRepository }                 from "./repositories/drizzle/DrizzleActivitiesRepository";
 import { ActivitiesService }                           from "./services/activitiesService";
+import { InMemoryUserReputationRepository }            from "./repositories/userReputationRepository";
+import { DrizzleUserReputationRepository }             from "./repositories/drizzle/DrizzleUserReputationRepository";
+import { UserReputationService }                       from "./services/userReputationService";
+import { InMemoryAchievementsRepository }              from "./repositories/achievementsRepository";
+import { DrizzleAchievementsRepository }               from "./repositories/drizzle/DrizzleAchievementsRepository";
+import { AchievementService }                          from "./services/achievementService";
 import { DrizzleApplicationRegistryRepository }        from "./repositories/drizzle/DrizzleApplicationRegistryRepository";
 import { DrizzleUserAppRepository }                    from "./repositories/drizzle/DrizzleUserAppRepository";
 import { MockInventoryRepository }          from "./repositories/inventoryRepository";
@@ -340,15 +346,31 @@ const activitiesRepo = useDrizzle || useSupabase
 logger.info(`Container: activities → ${useDrizzle || useSupabase ? "Drizzle" : "InMemory"}`);
 export const activitiesService = new ActivitiesService(activitiesRepo);
 
+// ─── User Reputation + Achievements (HUB-9) ──────────────────────────────────
+
+const userReputationRepo = useDrizzle || useSupabase
+  ? new DrizzleUserReputationRepository()
+  : new InMemoryUserReputationRepository();
+logger.info(`Container: user reputation → ${useDrizzle || useSupabase ? "Drizzle" : "InMemory"}`);
+export const userReputationService = new UserReputationService(userReputationRepo);
+
+const achievementsRepo = useDrizzle || useSupabase
+  ? new DrizzleAchievementsRepository()
+  : new InMemoryAchievementsRepository();
+logger.info(`Container: achievements → ${useDrizzle || useSupabase ? "Drizzle" : "InMemory"}`);
+export const achievementService = new AchievementService(achievementsRepo, notificationsService);
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const walletService = new WalletService(
   walletRepo,
   walletTransactionRepo,
   notificationsService,
+  userReputationService,
+  achievementService,
 );
 
-export const inventoryService = new InventoryService(inventoryItemsRepo, activitiesService);
+export const inventoryService = new InventoryService(inventoryItemsRepo, activitiesService, userReputationService, achievementService);
 
 const marketplacePaymentRepo          = useDrizzle || useSupabase ? new DrizzlePaymentRepository() : new MockMarketplacePaymentRepository();
 export const marketplacePaymentService = new MarketplacePaymentService(walletRepo, marketplacePaymentRepo);
@@ -389,6 +411,8 @@ export const marketplaceService = new MarketplaceService(
   sellerReputationService,
   marketplaceRealtimeService,
   notificationsService,
+  userReputationService,
+  achievementService,
 );
 
 // ─── Treasury ─────────────────────────────────────────────────────────────────

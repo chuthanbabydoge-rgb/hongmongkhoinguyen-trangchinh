@@ -31,6 +31,8 @@ import type { IMarketplaceNotificationService }   from "./marketplaceNotificatio
 import type { MarketplaceReputationService }       from "./marketplaceReputationService";
 import type { MarketplaceRealtimeService }         from "./marketplaceRealtimeService";
 import type { NotificationsService }               from "./notificationsService";
+import type { UserReputationService }              from "./userReputationService";
+import type { AchievementService }                 from "./achievementService";
 
 const STATUS_ACTIVE   = "đang hoạt động";
 const STATUS_TRADING  = "đang giao dịch";
@@ -65,6 +67,8 @@ export class MarketplaceService {
     private readonly reputation:     MarketplaceReputationService | null = null,
     private readonly realtime:       MarketplaceRealtimeService | null = null,
     private readonly userNotif:      NotificationsService | null = null,
+    private readonly userReputation: UserReputationService | null = null,
+    private readonly achievements:   AchievementService | null = null,
   ) {}
 
   // ─── Stats ──────────────────────────────────────────────────────────────────
@@ -116,6 +120,13 @@ export class MarketplaceService {
     const listing = await this.listings.create(input);
     this.notif?.onListingCreated(listing.sellerId, listing).catch(() => {});
     this.realtime?.emit("LISTING_CREATED", { listingId: listing.id, itemName: listing.itemName, price: listing.price, currency: listing.currency, sellerId: listing.sellerId }, listing.sellerId);
+
+    if (this.userReputation) {
+      const repResult = await this.userReputation.addEvent(listing.sellerId, "MARKETPLACE_LISTING", { listingId: listing.id, itemName: listing.itemName }).catch(() => null);
+      if (repResult && this.achievements) {
+        this.achievements.checkAndUnlockAsync(listing.sellerId, "MARKETPLACE_LISTING", { totalPoints: repResult.reputation.totalPoints });
+      }
+    }
     return listing;
   }
 
@@ -197,6 +208,17 @@ export class MarketplaceService {
       `Bán thành công: ${listing.itemName}`,
       `${listing.itemName} của bạn đã được bán với giá ${listing.price} ${listing.currency}.`,
     );
+
+    if (this.userReputation) {
+      const [buyerRep, sellerRep] = await Promise.all([
+        this.userReputation.addEvent(input.buyerId, "MARKETPLACE_PURCHASE", { listingId, itemName: listing.itemName, price: listing.price }).catch(() => null),
+        this.userReputation.addEvent(listing.sellerId, "MARKETPLACE_SALE", { listingId, itemName: listing.itemName, price: listing.price }).catch(() => null),
+      ]);
+      if (this.achievements) {
+        if (buyerRep) this.achievements.checkAndUnlockAsync(input.buyerId, "MARKETPLACE_PURCHASE", { totalPoints: buyerRep.reputation.totalPoints });
+        if (sellerRep) this.achievements.checkAndUnlockAsync(listing.sellerId, "MARKETPLACE_SALE", { totalPoints: sellerRep.reputation.totalPoints });
+      }
+    }
 
     return { transaction, listing: updatedListing ?? listing };
   }

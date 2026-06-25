@@ -2,3 +2,4 @@
 - [HUB-5 App Registry](hub5-app-registry.md) — ApplicationRegistryService tách biệt hoàn toàn với HUB-2 EcosystemApp; dùng IApplicationRegistryRepository + IUserAppRepository; route prefix /api/apps (đã bị HUB-2 thay thế).
 - [HUB-5 SSO](hub5-sso.md) — AuthProvider (AuthContext.tsx), requireAuth middleware, InMemoryUserRepository (MockUserRepository đã xóa), logout sync qua Account API.
 - [HUB-4.2 Auth userId pattern](hub4-auth-userid.md) — profile/wallet/inventory controllers resolve userId từ Bearer token qua accountBridgeService.getProfileCached(auth); không hardcode user-001.
+- [HUB-9 Reputation system](hub9-reputation.md) — user_reputation + reputation_events + hub_achievements + user_achievements tables; REPUTATION_RULES hardcoded in repo; middleware path is `middlewares/` (plural); unique constraint on user_achievements(userId, achievementKey) uses onConflictDoNothing.

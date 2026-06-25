@@ -7,10 +7,23 @@ import { UniverseModules } from "@/components/dashboard/UniverseModules";
 import { RecentApps } from "@/components/dashboard/RecentApps";
 import { FavoriteApps } from "@/components/dashboard/FavoriteApps";
 import { MarketplaceStats } from "@/components/dashboard/MarketplaceStats";
+import { ReputationCard } from "@/components/dashboard/ReputationCard";
+import { AchievementShowcase } from "@/components/dashboard/AchievementShowcase";
 import { useDashboard } from "@/hooks/useDashboard";
+import { useAddReputationEvent } from "@/hooks/useReputation";
+import { useEffect, useRef } from "react";
 
 export default function Dashboard() {
   const { wallet, loading } = useDashboard();
+  const addEvent = useAddReputationEvent();
+  const loginEventFired = useRef(false);
+
+  useEffect(() => {
+    if (!loginEventFired.current) {
+      loginEventFired.current = true;
+      addEvent.mutate("LOGIN");
+    }
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-background text-foreground scanline">
@@ -34,7 +47,11 @@ export default function Dashboard() {
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
           <div className="max-w-6xl mx-auto space-y-8">
             <UserProfile />
-            <WalletOverview wallet={wallet} loading={loading} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <ReputationCard />
+              <WalletOverview wallet={wallet} loading={loading} />
+            </div>
+            <AchievementShowcase />
             <InventorySummary />
             <MarketplaceStats />
             <RecentApps />

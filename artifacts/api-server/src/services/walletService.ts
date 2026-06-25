@@ -2,6 +2,8 @@ import type { IWalletRepository } from "../repositories/walletRepository";
 import type { IWalletTransactionRepository } from "../repositories/walletTransactionRepository";
 import type { WalletData, Transaction, Currency } from "../data/walletData";
 import type { NotificationsService } from "./notificationsService";
+import type { UserReputationService } from "./userReputationService";
+import type { AchievementService } from "./achievementService";
 
 export type EntryDirection = "credit" | "debit";
 export type EntryStatus    = "completed" | "pending" | "failed";
@@ -11,6 +13,8 @@ export class WalletService {
     private readonly wallets: IWalletRepository,
     private readonly transactions: IWalletTransactionRepository,
     private readonly notifications: NotificationsService | null = null,
+    private readonly reputation: UserReputationService | null = null,
+    private readonly achievements: AchievementService | null = null,
   ) {}
 
   async getWallet(userId: string): Promise<WalletData> {
@@ -96,6 +100,13 @@ export class WalletService {
       `Chuyển ví: ${amount} ${from} → ${to}`,
       `${description}. Số dư ${from} còn: ${currency[from]}.`,
     );
+
+    const repResult = this.reputation
+      ? await this.reputation.addEvent(userId, "WALLET_TRANSFER", { from, to, amount }).catch(() => null)
+      : null;
+    if (repResult && this.achievements) {
+      this.achievements.checkAndUnlockAsync(userId, "WALLET_TRANSFER", { totalPoints: repResult.reputation.totalPoints });
+    }
 
     const updatedWallet = await this.getWallet(userId);
     return { debit: debitTx, credit: creditTx, wallet: updatedWallet };

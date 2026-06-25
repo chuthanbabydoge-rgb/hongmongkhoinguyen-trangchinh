@@ -14,6 +14,8 @@ import type {
   UpdateInventoryItemInput,
 } from "../repositories/inventoryItemsRepository";
 import type { ActivitiesService } from "./activitiesService";
+import type { UserReputationService } from "./userReputationService";
+import type { AchievementService } from "./achievementService";
 
 export interface InventoryData {
   userId:  string;
@@ -41,6 +43,8 @@ export class InventoryService {
   constructor(
     private readonly repo: IInventoryItemsRepository,
     private readonly activities: ActivitiesService | null = null,
+    private readonly reputation: UserReputationService | null = null,
+    private readonly achievements: AchievementService | null = null,
   ) {}
 
   async getInventory(userId: string): Promise<InventoryData> {
@@ -83,6 +87,17 @@ export class InventoryService {
       metadata:    { itemId: item.id, name: item.name, rarity: item.rarity, category: item.category },
       sourceApp:   "universe-hub",
     });
+
+    if (this.reputation) {
+      const repResult = await this.reputation.addEvent(userId, "INVENTORY_ACQUIRED", { itemId: item.id, name: item.name }).catch(() => null);
+      if (repResult && this.achievements) {
+        const summary = await this.repo.getSummary(userId).catch(() => null);
+        this.achievements.checkAndUnlockAsync(userId, "INVENTORY_ACQUIRED", {
+          totalPoints: repResult.reputation.totalPoints,
+          itemCount:   summary?.total ?? 0,
+        });
+      }
+    }
     return item;
   }
 

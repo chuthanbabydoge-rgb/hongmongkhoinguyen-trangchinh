@@ -30,6 +30,8 @@ import {
   Radio,
   Rocket,
   LogOut,
+  Medal,
+  Star,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -152,6 +154,14 @@ export function Sidebar() {
             Launcher
           </p>
           <NavItem icon={Rocket} label="App Launcher" path="/launcher" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Danh tiếng
+          </p>
+          <NavItem icon={Star}   label="Thành tựu"        path="/achievements" />
+          <NavItem icon={Medal}  label="Bảng xếp hạng"   path="/leaderboard" />
         </div>
 
         <div className="pt-1 pb-1">

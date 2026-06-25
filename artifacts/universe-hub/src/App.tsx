@@ -37,6 +37,8 @@ import WatchlistPage from "@/pages/marketplace/Watchlist";
 import ActivityFeed from "@/pages/marketplace/ActivityFeed";
 import Launcher from "@/pages/Launcher";
 import AppDetail from "@/pages/AppDetail";
+import Leaderboard from "@/pages/Leaderboard";
+import AchievementsPage from "@/pages/Achievements";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -73,6 +75,8 @@ function Router() {
       <Route path="/marketplace/activity" component={ActivityFeed} />
       <Route path="/launcher" component={Launcher} />
       <Route path="/apps/:slug" component={AppDetail} />
+      <Route path="/leaderboard" component={Leaderboard} />
+      <Route path="/achievements" component={AchievementsPage} />
       <Route component={NotFound} />
     </Switch>
   );
