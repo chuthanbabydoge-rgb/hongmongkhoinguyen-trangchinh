@@ -14,6 +14,7 @@ import ecosystemRouter from "./ecosystem";
 import launcherRouter from "./launcher";
 import notificationSyncRouter from "./notificationSync";
 import appsRouter from "./apps";
+import socialRouter from "./social";
 
 const router: IRouter = Router();
 
@@ -32,5 +33,6 @@ router.use(ecosystemRouter);
 router.use(launcherRouter);
 router.use(notificationSyncRouter);
 router.use(appsRouter);
+router.use(socialRouter);
 
 export default router;

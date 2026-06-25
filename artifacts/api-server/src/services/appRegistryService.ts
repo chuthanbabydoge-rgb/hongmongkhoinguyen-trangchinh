@@ -143,9 +143,10 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     name:        "Universe Social",
     description: "Mạng xã hội nội bộ — kết nối người chơi, chia sẻ thành tích và hoạt động",
     icon:        "https://cdn.universe.io/icons/social.png",
+    url:         `${REPLIT_HUB_URL}/social`,
     category:    "SOCIAL",
-    status:      "INACTIVE",
-    version:     "0.1.0",
+    status:      "ACTIVE",
+    version:     "1.0.0",
   },
   {
     slug:        "worlds",
@@ -209,6 +210,11 @@ export class AppRegistryService {
           createdAt: now,
           updatedAt: now,
         });
+      } else {
+        const existing = await this.repo.findBySlug(seed.slug);
+        if (existing) {
+          await this.repo.update({ ...existing, ...seed, updatedAt: now });
+        }
       }
     }
   }

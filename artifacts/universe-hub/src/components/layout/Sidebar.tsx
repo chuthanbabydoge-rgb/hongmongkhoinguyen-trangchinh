@@ -32,6 +32,7 @@ import {
   LogOut,
   Medal,
   Star,
+  Users,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -154,6 +155,13 @@ export function Sidebar() {
             Launcher
           </p>
           <NavItem icon={Rocket} label="App Launcher" path="/launcher" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Mạng xã hội
+          </p>
+          <NavItem icon={Users} label="Universe Social" path="/social" />
         </div>
 
         <div className="pt-1 pb-1">

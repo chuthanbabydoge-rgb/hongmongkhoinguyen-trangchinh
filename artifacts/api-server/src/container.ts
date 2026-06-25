@@ -609,3 +609,16 @@ export const applicationRegistryService = new ApplicationRegistryService(
   applicationRegistryRepo,
   userAppRepo,
 );
+
+// ─── Social Graph (HUB-10) ────────────────────────────────────────────────────
+
+import { InMemorySocialRepository } from "./repositories/socialRepository.js";
+import { DrizzleSocialRepository }  from "./repositories/drizzle/DrizzleSocialRepository.js";
+import { SocialService }            from "./services/socialService.js";
+
+const socialRepo = useDrizzle
+  ? new DrizzleSocialRepository()
+  : new InMemorySocialRepository();
+logger.info(`Container: social graph → ${useDrizzle ? "Drizzle" : "InMemory"}`);
+
+export const socialService = new SocialService(socialRepo, notificationsService, activitiesService);

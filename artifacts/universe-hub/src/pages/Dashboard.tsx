@@ -8,6 +8,7 @@ import { RecentApps } from "@/components/dashboard/RecentApps";
 import { FavoriteApps } from "@/components/dashboard/FavoriteApps";
 import { MarketplaceStats } from "@/components/dashboard/MarketplaceStats";
 import { ReputationCard } from "@/components/dashboard/ReputationCard";
+import { SocialOverviewCard } from "@/components/dashboard/SocialOverviewCard";
 import { AchievementShowcase } from "@/components/dashboard/AchievementShowcase";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useAddReputationEvent } from "@/hooks/useReputation";
@@ -51,6 +52,7 @@ export default function Dashboard() {
               <ReputationCard />
               <WalletOverview wallet={wallet} loading={loading} />
             </div>
+            <SocialOverviewCard />
             <AchievementShowcase />
             <InventorySummary />
             <MarketplaceStats />

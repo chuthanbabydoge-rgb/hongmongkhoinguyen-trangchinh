@@ -27,3 +27,4 @@ export * from "./marketplaceTreasury";
 export * from "./marketplaceModeration";
 export * from "./marketplacePricing";
 export * from "./marketplacePayments";
+export * from "./social";

@@ -2,7 +2,7 @@ import { type Request, type Response } from "express";
 import { accountBridgeService, activitiesService } from "../container";
 import type { ActivityType } from "../repositories/activitiesRepository";
 
-const VALID_TYPES: ActivityType[] = ["marketplace", "wallet", "inventory", "launcher", "system"];
+const VALID_TYPES: ActivityType[] = ["marketplace", "wallet", "inventory", "launcher", "system", "social"];
 
 async function resolveUserId(req: Request): Promise<string | null> {
   const auth = req.headers["authorization"] as string | undefined;

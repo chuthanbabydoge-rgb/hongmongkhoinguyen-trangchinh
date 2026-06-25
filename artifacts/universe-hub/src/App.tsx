@@ -39,6 +39,8 @@ import Launcher from "@/pages/Launcher";
 import AppDetail from "@/pages/AppDetail";
 import Leaderboard from "@/pages/Leaderboard";
 import AchievementsPage from "@/pages/Achievements";
+import Social from "@/pages/Social";
+import SocialProfile from "@/pages/SocialProfile";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -77,6 +79,9 @@ function Router() {
       <Route path="/apps/:slug" component={AppDetail} />
       <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/achievements" component={AchievementsPage} />
+      <Route path="/social/profile/:userId" component={SocialProfile} />
+      <Route path="/social/:rest*" component={Social} />
+      <Route path="/social" component={Social} />
       <Route component={NotFound} />
     </Switch>
   );
