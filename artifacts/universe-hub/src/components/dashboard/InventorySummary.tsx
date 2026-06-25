@@ -1,18 +1,42 @@
-import { Package, Users, Ticket, Globe, Box, Loader2 } from "lucide-react";
-import type { InventorySnapshot } from "@/services/accountBridgeTypes";
+import { useEffect, useState } from "react";
+import { Package, Users, Ticket, Globe, Box, Loader2, AlertTriangle } from "lucide-react";
+import { apiFetch, ApiError } from "@/lib/apiClient";
 
-interface Props {
-  inventory: InventorySnapshot | null;
-  loading:   boolean;
+interface InventorySummaryResponse {
+  totalAssets:  number;
+  pets:         number;
+  items:        number;
+  tickets:      number;
+  worldAssets:  number;
+  collectibles: number;
 }
 
-export function InventorySummary({ inventory, loading }: Props) {
-  const items = [
-    { label: "Thú cưng",   value: inventory?.pets            ?? 0, icon: Package },
-    { label: "Cầu thủ",    value: inventory?.footballPlayers ?? 0, icon: Users   },
-    { label: "Vé",         value: inventory?.tickets         ?? 0, icon: Ticket  },
-    { label: "Tài sản TG", value: inventory?.worldAssets     ?? 0, icon: Globe   },
-    { label: "Vật phẩm",   value: inventory?.items           ?? 0, icon: Box     },
+export function InventorySummary() {
+  const [summary,   setSummary]   = useState<InventorySummaryResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error,     setError]     = useState<string | null>(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+    setError(null);
+    apiFetch<InventorySummaryResponse>("/inventory/summary")
+      .then(data => setSummary(data))
+      .catch(err => {
+        if (err instanceof ApiError && err.status === 401) {
+          setError("Vui lòng đăng nhập để xem kho đồ.");
+        } else {
+          setError(err instanceof Error ? err.message : "Không thể tải kho đồ.");
+        }
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const displayItems = [
+    { label: "Thú cưng",   value: summary?.pets         ?? 0, icon: Package },
+    { label: "Cầu thủ",    value: summary?.collectibles ?? 0, icon: Users   },
+    { label: "Vé",         value: summary?.tickets      ?? 0, icon: Ticket  },
+    { label: "Tài sản TG", value: summary?.worldAssets  ?? 0, icon: Globe   },
+    { label: "Vật phẩm",   value: summary?.items        ?? 0, icon: Box     },
   ];
 
   return (
@@ -22,13 +46,18 @@ export function InventorySummary({ inventory, loading }: Props) {
         Tổng quan Kho đồ
       </h3>
 
-      {loading ? (
+      {isLoading ? (
         <div className="flex items-center justify-center h-20">
           <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
         </div>
+      ) : error ? (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground/60 py-4">
+          <AlertTriangle className="w-4 h-4 text-rose-400/60 flex-shrink-0" />
+          <span>{error}</span>
+        </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-          {items.map((item) => (
+          {displayItems.map((item) => (
             <div
               key={item.label}
               className="flex flex-col items-center justify-center p-4 rounded-lg bg-black/40 border border-white/5 hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 group"

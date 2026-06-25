@@ -9,7 +9,7 @@ import { FavoriteApps } from "@/components/dashboard/FavoriteApps";
 import { useDashboard } from "@/hooks/useDashboard";
 
 export default function Dashboard() {
-  const { wallet, inventory, loading } = useDashboard();
+  const { wallet, loading } = useDashboard();
 
   return (
     <div className="flex min-h-screen bg-background text-foreground scanline">
@@ -34,7 +34,7 @@ export default function Dashboard() {
           <div className="max-w-6xl mx-auto space-y-8">
             <UserProfile />
             <WalletOverview wallet={wallet} loading={loading} />
-            <InventorySummary inventory={inventory} loading={loading} />
+            <InventorySummary />
             <RecentApps />
             <FavoriteApps />
             <div className="pt-4">

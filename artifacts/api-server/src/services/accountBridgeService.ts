@@ -131,7 +131,7 @@ export class AccountBridgeService {
     return { profile, avatar, reputation, settings };
   }
 
-  async getHubDashboard(token?: string): Promise<HubDashboardResponse> {
+  async getHubDashboard(token?: string): Promise<Omit<HubDashboardResponse, "wallet" | "inventory">> {
     const [profile, avatar, reputation, achievementCount, unreadNotifications, latestActivities] =
       await Promise.all([
         this.getProfileCached(token),

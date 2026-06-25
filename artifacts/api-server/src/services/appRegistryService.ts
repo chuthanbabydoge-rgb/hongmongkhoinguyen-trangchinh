@@ -177,6 +177,16 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     status:      "ACTIVE",
     version:     "1.0.0",
   },
+  {
+    slug:        "inventory",
+    name:        "Kho đồ Universe",
+    description: "Quản lý toàn bộ tài sản, vật phẩm, thú cưng, vé và tài sản thế giới của bạn trong hệ sinh thái Universe",
+    icon:        "https://cdn.universe.io/icons/inventory.png",
+    url:         `${REPLIT_HUB_URL}/inventory`,
+    category:    "UTILITY",
+    status:      "ACTIVE",
+    version:     "1.0.0",
+  },
 ];
 
 // ─── Service ──────────────────────────────────────────────────────────────────

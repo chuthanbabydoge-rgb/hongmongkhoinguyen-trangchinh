@@ -45,14 +45,14 @@ const ITEMS: InventoryItem[] = [
 ];
 
 export const INVENTORY: InventoryData = {
-  userId: "user-001",
+  userId: "",
   summary: {
-    pets: 12,
-    footballPlayers: 47,
-    tickets: 8,
-    worldAssets: 234,
-    items: 156,
-    total: 457,
+    pets: 0,
+    footballPlayers: 0,
+    tickets: 0,
+    worldAssets: 0,
+    items: 0,
+    total: 0,
   },
   items: ITEMS,
 };
