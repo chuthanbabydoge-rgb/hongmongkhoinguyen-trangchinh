@@ -23,6 +23,7 @@ import worldsRouter from "./worlds";
 import aiRouter from "./ai";
 import craftingRouter from "./crafting";
 import characterRouter from "./character";
+import combatRouter from "./combat";
 
 const router: IRouter = Router();
 
@@ -50,5 +51,6 @@ router.use(worldsRouter);
 router.use(aiRouter);
 router.use(craftingRouter);
 router.use(characterRouter);
+router.use(combatRouter);
 
 export default router;

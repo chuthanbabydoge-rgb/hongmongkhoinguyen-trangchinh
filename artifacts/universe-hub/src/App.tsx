@@ -70,6 +70,13 @@ import AiMemory from "@/pages/ai/AiMemory";
 import AiSuggestions from "@/pages/ai/AiSuggestions";
 import AiSettings from "@/pages/ai/AiSettings";
 import CharacterDashboard from "@/pages/character/CharacterDashboard";
+import CombatDashboard from "@/pages/combat/CombatDashboard";
+import BattleArena     from "@/pages/combat/BattleArena";
+import BattleRoom      from "@/pages/combat/BattleRoom";
+import BattleHistory   from "@/pages/combat/BattleHistory";
+import BossBattle      from "@/pages/combat/BossBattle";
+import ArenaRanking    from "@/pages/combat/ArenaRanking";
+import CombatStatistics from "@/pages/combat/CombatStatistics";
 import CharacterProfile  from "@/pages/character/CharacterProfile";
 import CharacterStats    from "@/pages/character/CharacterStats";
 import EquipmentPage     from "@/pages/character/EquipmentPage";
@@ -179,6 +186,13 @@ function Router() {
       <Route path="/shops" component={NPCShop} />
       <Route path="/economy" component={EconomyDashboard} />
       <Route path="/economy/prices" component={MarketPrices} />
+      <Route path="/combat" component={CombatDashboard} />
+      <Route path="/combat/arena" component={BattleArena} />
+      <Route path="/combat/boss" component={BossBattle} />
+      <Route path="/combat/ranking" component={ArenaRanking} />
+      <Route path="/combat/history" component={BattleHistory} />
+      <Route path="/combat/statistics" component={CombatStatistics} />
+      <Route path="/combat/room/:id" component={BattleRoom} />
       <Route component={NotFound} />
     </Switch>
   );

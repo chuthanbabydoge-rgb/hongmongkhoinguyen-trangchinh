@@ -36,3 +36,4 @@ export * from "./worlds";
 export * from "./ai";
 export * from "./crafting";
 export * from "./character";
+export * from "./combat";

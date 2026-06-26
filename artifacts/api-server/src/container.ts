@@ -883,4 +883,29 @@ appRegistryService.registerApp({
   version:     "1.0.0",
 }).catch(() => {});
 
+// ─── HUB-19: Combat Engine ────────────────────────────────────────────────────
+import { DrizzleCombatRepository } from "./repositories/drizzle/DrizzleCombatRepository.js";
+import { CombatService }           from "./services/combatService.js";
+
+const combatRepo = new DrizzleCombatRepository();
+logger.info("Container: combat system → Drizzle");
+
+export const combatService = new CombatService(
+  combatRepo, notificationsService, activitiesService, userReputationRepo, characterService,
+);
+
+combatRepo.seedBosses().catch(() => {});
+combatRepo.seedSkills().catch(() => {});
+
+appRegistryService.registerApp({
+  slug:        "combat",
+  name:        "Universe Combat",
+  description: "Hệ thống chiến đấu — PVP, PVE, Boss, Arena và Dungeon trong Universe Ecosystem",
+  icon:        "⚔️",
+  url:         "/combat",
+  category:    "OTHER",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
+
 

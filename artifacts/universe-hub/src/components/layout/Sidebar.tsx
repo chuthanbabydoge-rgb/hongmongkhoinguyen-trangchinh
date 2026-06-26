@@ -44,6 +44,8 @@ import {
   Pickaxe,
   Sparkles,
   Crown,
+  Swords,
+  Skull,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -211,6 +213,9 @@ export function Sidebar() {
           <NavItem icon={Pickaxe} label="Tài nguyên"        path="/resources" />
           <NavItem icon={Store}   label="Cửa hàng NPC"      path="/shops" />
           <NavItem icon={BarChart} label="Universe Economy" path="/economy" />
+          <NavItem icon={Swords}  label="Universe Combat"   path="/combat" />
+          <NavItem icon={Skull}   label="Boss Battle"       path="/combat/boss" />
+          <NavItem icon={Trophy}  label="Arena PVP"         path="/combat/ranking" />
         </div>
 
         <div className="pt-1 pb-1">
