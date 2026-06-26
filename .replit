@@ -110,3 +110,5 @@ packages = ["lsof"]
 PORT = "5000"
 BASE_PATH = "/"
 UNIVERSE_ACCOUNT_API_URL = "https://hongmongkhoinguyen-taikhoanvutru--manifestanhthu3.replit.app"
+API_PORT = "3001"
+NODE_ENV = "development"

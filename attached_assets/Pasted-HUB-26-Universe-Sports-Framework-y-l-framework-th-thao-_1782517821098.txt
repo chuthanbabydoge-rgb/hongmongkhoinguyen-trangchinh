@@ -1,0 +1,476 @@
+HUB-26 — Universe Sports Framework
+
+Đây là framework thể thao dùng chung cho toàn bộ Universe.
+
+KHÔNG build Football Universe.
+KHÔNG build Baseball Universe.
+KHÔNG hardcode football.
+
+Football Universe sẽ chỉ là một project sử dụng Sports Framework này.
+
+==================================================
+MỤC TIÊU
+==================================================
+
+Xây Universe Sports Framework.
+
+Framework này sẽ phục vụ:
+
+- Football Universe
+- Baseball Universe
+- Basketball Universe
+- Volleyball Universe
+- Tennis Universe
+- Martial Arts Universe
+- Esports Universe
+
+Toàn bộ dùng chung backend.
+
+==================================================
+DATABASE (PostgreSQL + Drizzle)
+==================================================
+
+Tạo schema:
+
+sports.ts
+
+Enums:
+
+SportType
+MatchStatus
+TournamentStatus
+LeagueType
+SeasonStatus
+VenueType
+AwardType
+
+Khoảng 20 bảng.
+
+sports
+id
+name
+slug
+icon
+description
+
+leagues
+
+seasons
+
+clubs
+
+teams
+
+players
+
+coaches
+
+stadiums
+
+matches
+
+match_events
+
+match_statistics
+
+tournaments
+
+tournament_rounds
+
+fixtures
+
+rankings
+
+awards
+
+player_statistics
+
+team_statistics
+
+transfers
+
+contracts
+
+==================================================
+REPOSITORY
+==================================================
+
+ISportsRepository
+
+DrizzleSportsRepository
+
+Không mock.
+
+==================================================
+SERVICE
+==================================================
+
+SportsService
+
+Hỗ trợ:
+
+Create Sport
+
+Create League
+
+Create Season
+
+Create Club
+
+Create Team
+
+Add Player
+
+Assign Coach
+
+Create Stadium
+
+Schedule Match
+
+Update Match
+
+Generate Rankings
+
+Tournament Bracket
+
+Award Champion
+
+Statistics
+
+Dashboard
+
+==================================================
+EVENT BUS
+==================================================
+
+sportsEventBus
+
+Events:
+
+SPORT_CREATED
+
+LEAGUE_CREATED
+
+SEASON_CREATED
+
+TEAM_CREATED
+
+MATCH_CREATED
+
+MATCH_STARTED
+
+MATCH_FINISHED
+
+GOAL_SCORED
+
+POINT_SCORED
+
+TOURNAMENT_CREATED
+
+TOURNAMENT_FINISHED
+
+CHAMPION_CROWNED
+
+PLAYER_TRANSFERRED
+
+AWARD_GRANTED
+
+==================================================
+API
+==================================================
+
+/api/sports
+
+Ít nhất 40 endpoints.
+
+Ví dụ
+
+GET /sports
+
+POST /sports
+
+GET /sports/dashboard
+
+GET /sports/leagues
+
+POST /sports/leagues
+
+GET /sports/seasons
+
+POST /sports/seasons
+
+GET /sports/clubs
+
+POST /sports/clubs
+
+GET /sports/teams
+
+POST /sports/teams
+
+GET /sports/players
+
+POST /sports/players
+
+GET /sports/coaches
+
+POST /sports/coaches
+
+GET /sports/stadiums
+
+POST /sports/stadiums
+
+GET /sports/matches
+
+POST /sports/matches
+
+POST /sports/matches/:id/start
+
+POST /sports/matches/:id/finish
+
+GET /sports/tournaments
+
+POST /sports/tournaments
+
+GET /sports/rankings
+
+GET /sports/statistics
+
+GET /sports/awards
+
+...
+
+==================================================
+FRONTEND
+==================================================
+
+Trang:
+
+SportsDashboard
+
+SportsBrowser
+
+LeagueCenter
+
+SeasonCenter
+
+ClubCenter
+
+TeamCenter
+
+PlayerCenter
+
+CoachCenter
+
+MatchCenter
+
+TournamentCenter
+
+RankingCenter
+
+StatisticsCenter
+
+AwardCenter
+
+StadiumCenter
+
+==================================================
+HOOKS
+==================================================
+
+useSports()
+
+useLeagues()
+
+useTeams()
+
+usePlayers()
+
+useMatches()
+
+useRankings()
+
+useStatistics()
+
+==================================================
+SIDEBAR
+==================================================
+
+Universe Sports
+
+├ Dashboard
+
+├ Sports
+
+├ Leagues
+
+├ Teams
+
+├ Players
+
+├ Matches
+
+├ Tournaments
+
+├ Rankings
+
+├ Statistics
+
+├ Awards
+
+==================================================
+DASHBOARD
+==================================================
+
+Sports Widget
+
+Hiển thị:
+
+Sports
+
+Leagues
+
+Teams
+
+Players
+
+Matches Today
+
+Live Matches
+
+==================================================
+INTEGRATION
+==================================================
+
+App Registry
+
+slug:
+
+sports
+
+category:
+
+SPORTS
+
+status:
+
+ACTIVE
+
+Launcher phải thấy Universe Sports.
+
+==================================================
+INTEGRATION HUB
+==================================================
+
+Notification
+
+Activity
+
+Quest
+
+Reputation
+
+Wallet
+
+Character
+
+Guild
+
+Social
+
+World
+
+==================================================
+SEED
+==================================================
+
+Seed dữ liệu:
+
+5 Sports
+
+Football
+
+Baseball
+
+Basketball
+
+Volleyball
+
+Martial Arts
+
+5 Leagues
+
+5 Seasons
+
+20 Teams
+
+200 Players
+
+30 Coaches
+
+15 Stadiums
+
+20 Matches
+
+5 Tournaments
+
+==================================================
+RULES
+==================================================
+
+Không mock.
+
+Toàn bộ PostgreSQL.
+
+Drizzle ORM.
+
+Không phá code cũ.
+
+Không sửa unrelated files.
+
+Không tạo type errors mới.
+
+==================================================
+VERIFY
+==================================================
+
+Sau khi build xong phải tự:
+
+- db push
+
+- build api
+
+- restart server
+
+- chạy curl
+
+- chứng minh dữ liệu PostgreSQL
+
+- typecheck
+
+==================================================
+OUTPUT
+==================================================
+
+Trả về Sprint Report giống các HUB trước.
+
+Bao gồm:
+
+Files Created
+
+Files Modified
+
+Database
+
+API
+
+Frontend
+
+Seed
+
+Curl Proof
+
+Launcher Proof
+
+Acceptance Checklist
+
+Zero HUB-26 type errors.
