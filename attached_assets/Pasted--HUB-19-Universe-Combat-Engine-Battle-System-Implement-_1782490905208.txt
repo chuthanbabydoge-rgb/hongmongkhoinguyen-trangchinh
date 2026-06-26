@@ -1,0 +1,613 @@
+# HUB-19 — Universe Combat Engine & Battle System
+
+Implement the complete HUB-19 Combat Engine.
+
+IMPORTANT
+
+This is NOT a demo.
+
+Everything must integrate with HUB-1 through HUB-18.
+
+Use ONLY
+
+- PostgreSQL
+- Drizzle ORM
+- Existing DI Container
+- Existing WebSocket
+- Existing EventBus
+- Existing NotificationService
+- Existing ActivitiesService
+
+Never create mock repositories.
+
+====================================================
+PART 1 — DATABASE
+====================================================
+
+Create Drizzle schema.
+
+Tables
+
+combat_battles
+
+combat_participants
+
+combat_turns
+
+combat_skills
+
+combat_effects
+
+combat_damage_logs
+
+combat_rewards
+
+combat_history
+
+combat_matchmaking
+
+combat_arena
+
+combat_pvp_rank
+
+combat_bosses
+
+combat_instances
+
+combat_wave_progress
+
+combat_statistics
+
+Enums
+
+BattleType
+
+PVE
+
+PVP
+
+ARENA
+
+BOSS
+
+DUNGEON
+
+RAID
+
+Training
+
+BattleStatus
+
+WAITING
+
+ACTIVE
+
+FINISHED
+
+CANCELLED
+
+ParticipantStatus
+
+ALIVE
+
+DEAD
+
+DISCONNECTED
+
+SkillTarget
+
+SELF
+
+ALLY
+
+ENEMY
+
+AREA
+
+====================================================
+PART 2 — REPOSITORY
+====================================================
+
+Create
+
+ICombatRepository
+
+DrizzleCombatRepository
+
+Methods
+
+createBattle()
+
+joinBattle()
+
+leaveBattle()
+
+startBattle()
+
+finishBattle()
+
+getBattle()
+
+attack()
+
+castSkill()
+
+applyEffect()
+
+removeEffect()
+
+recordDamage()
+
+recordReward()
+
+history()
+
+leaderboard()
+
+====================================================
+PART 3 — SERVICES
+====================================================
+
+CombatService
+
+BattleEngine
+
+DamageCalculator
+
+CriticalCalculator
+
+DefenseCalculator
+
+StatusEffectEngine
+
+RewardEngine
+
+ArenaService
+
+BossService
+
+DungeonService
+
+Features
+
+Turn based combat
+
+Real-time combat mode
+
+Critical hit
+
+Miss
+
+Dodge
+
+Block
+
+Shield
+
+Buff
+
+Debuff
+
+Poison
+
+Burn
+
+Freeze
+
+Stun
+
+Silence
+
+Heal
+
+Mana
+
+Energy
+
+Cooldown
+
+Aggro
+
+Combo
+
+Chain skills
+
+====================================================
+PART 4 — EVENT BUS
+====================================================
+
+CombatEventBus
+
+Events
+
+BATTLE_CREATED
+
+BATTLE_STARTED
+
+TURN_STARTED
+
+TURN_FINISHED
+
+PLAYER_ATTACKED
+
+SKILL_CAST
+
+CRITICAL_HIT
+
+PLAYER_DIED
+
+PLAYER_REVIVED
+
+BATTLE_FINISHED
+
+REWARD_GRANTED
+
+LEVEL_GAINED
+
+====================================================
+PART 5 — INTEGRATION
+====================================================
+
+Character
+
+Stats
+
+Equipment
+
+Skill Tree
+
+Titles
+
+Power Score
+
+Inventory
+
+Durability
+
+Loot
+
+Drops
+
+Wallet
+
+Battle rewards
+
+Quest
+
+Kill monster
+
+Arena quest
+
+Boss quest
+
+Guild
+
+Guild wars
+
+Guild raids
+
+World
+
+World boss
+
+Dungeon
+
+Marketplace
+
+Tradable loot
+
+AI
+
+Nova battle analysis
+
+Recommended skills
+
+Recommended equipment
+
+Notifications
+
+Victory
+
+Defeat
+
+Loot
+
+Activities
+
+Combat logs
+
+Achievements
+
+First Kill
+
+Arena Champion
+
+Boss Slayer
+
+Reputation
+
+Combat reputation
+
+====================================================
+PART 6 — API
+====================================================
+
+GET
+
+/api/combat
+
+POST
+
+/api/combat
+
+GET
+
+/api/combat/:id
+
+POST
+
+/api/combat/:id/join
+
+POST
+
+/api/combat/:id/start
+
+POST
+
+/api/combat/:id/attack
+
+POST
+
+/api/combat/:id/skill
+
+POST
+
+/api/combat/:id/surrender
+
+POST
+
+/api/combat/:id/finish
+
+GET
+
+/api/combat/history
+
+GET
+
+/api/combat/leaderboard
+
+GET
+
+/api/combat/bosses
+
+POST
+
+/api/combat/bosses/:id/start
+
+GET
+
+/api/combat/arena
+
+POST
+
+/api/combat/arena/queue
+
+====================================================
+PART 7 — WEBSOCKET
+====================================================
+
+Realtime
+
+BattleCreated
+
+BattleStarted
+
+TurnStarted
+
+Damage
+
+Critical
+
+Skill
+
+Death
+
+Reward
+
+BattleFinished
+
+====================================================
+PART 8 — FRONTEND
+====================================================
+
+Create pages
+
+/pages/combat
+
+CombatDashboard
+
+BattleArena
+
+BattleRoom
+
+BattleHistory
+
+BossBattle
+
+DungeonBattle
+
+ArenaRanking
+
+CombatStatistics
+
+CombatReplay
+
+Create hooks
+
+useCombat
+
+Create widgets
+
+CombatWidget
+
+ArenaWidget
+
+BossWidget
+
+BattleHistoryWidget
+
+Sidebar
+
+Universe Combat
+
+====================================================
+PART 9 — APP REGISTRY
+====================================================
+
+Register
+
+slug
+
+combat
+
+status
+
+ACTIVE
+
+category
+
+GAME
+
+====================================================
+PART 10 — ACCEPTANCE
+====================================================
+
+Everything must use PostgreSQL.
+
+No mock data.
+
+JWT authentication.
+
+Zero HUB-19 type errors.
+
+Integrate with
+
+Character
+
+Inventory
+
+Quest
+
+Guild
+
+World
+
+Marketplace
+
+Wallet
+
+AI
+
+Notifications
+
+Activities
+
+Achievements
+
+Launcher
+
+====================================================
+END TO END PROOF
+====================================================
+
+Provide curl evidence for
+
+1.
+
+Create battle
+
+2.
+
+Join battle
+
+3.
+
+Start battle
+
+4.
+
+Normal attack
+
+5.
+
+Critical hit
+
+6.
+
+Skill cast
+
+7.
+
+Status effect
+
+8.
+
+Battle victory
+
+9.
+
+Reward distribution
+
+10.
+
+Quest progress updated
+
+11.
+
+Inventory loot
+
+12.
+
+XP gained
+
+13.
+
+Character level updated
+
+14.
+
+Notification generated
+
+15.
+
+Activity generated
+
+16.
+
+Achievement unlocked
+
+17.
+
+Arena ranking updated
+
+18.
+
+Boss defeated
+
+19.
+
+WebSocket realtime
+
+20.
+
+Launcher shows Universe Combat
+
+21.
+
+Database verification
+
+22.
+
+Sprint report with every created and modified file.
+
+Do not stop until every acceptance criterion passes.
