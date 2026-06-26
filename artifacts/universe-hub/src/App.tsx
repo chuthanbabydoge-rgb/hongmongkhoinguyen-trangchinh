@@ -69,6 +69,14 @@ import AiChat from "@/pages/ai/AiChat";
 import AiMemory from "@/pages/ai/AiMemory";
 import AiSuggestions from "@/pages/ai/AiSuggestions";
 import AiSettings from "@/pages/ai/AiSettings";
+import CharacterDashboard from "@/pages/character/CharacterDashboard";
+import CharacterProfile  from "@/pages/character/CharacterProfile";
+import CharacterStats    from "@/pages/character/CharacterStats";
+import EquipmentPage     from "@/pages/character/EquipmentPage";
+import SkillTree         from "@/pages/character/SkillTree";
+import CharacterTitles   from "@/pages/character/CharacterTitles";
+import Appearance        from "@/pages/character/Appearance";
+import Loadouts          from "@/pages/character/Loadouts";
 import CraftDashboard   from "@/pages/crafting/CraftDashboard";
 import RecipeBrowser    from "@/pages/crafting/RecipeBrowser";
 import CraftQueue       from "@/pages/crafting/CraftQueue";
@@ -151,6 +159,14 @@ function Router() {
       <Route path="/ai/memory" component={AiMemory} />
       <Route path="/ai/suggestions" component={AiSuggestions} />
       <Route path="/ai/settings" component={AiSettings} />
+      <Route path="/character" component={CharacterDashboard} />
+      <Route path="/character/profile" component={CharacterProfile} />
+      <Route path="/character/stats" component={CharacterStats} />
+      <Route path="/character/equipment" component={EquipmentPage} />
+      <Route path="/character/skills" component={SkillTree} />
+      <Route path="/character/titles" component={CharacterTitles} />
+      <Route path="/character/appearance" component={Appearance} />
+      <Route path="/character/loadouts" component={Loadouts} />
       <Route path="/crafting" component={CraftDashboard} />
       <Route path="/crafting/recipes" component={RecipeBrowser} />
       <Route path="/crafting/queue" component={CraftQueue} />

@@ -42,6 +42,8 @@ import {
   Hammer,
   BarChart,
   Pickaxe,
+  Sparkles,
+  Crown,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -189,6 +191,16 @@ export function Sidebar() {
             AI
           </p>
           <NavItem icon={Bot} label="Universe AI" path="/ai" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Nhân vật
+          </p>
+          <NavItem icon={Users}  label="Universe Character" path="/character" />
+          <NavItem icon={Sword}  label="Trang bị"          path="/character/equipment" />
+          <NavItem icon={Sparkles} label="Kỹ năng"         path="/character/skills" />
+          <NavItem icon={Crown}  label="Danh hiệu"         path="/character/titles" />
         </div>
 
         <div className="pt-1 pb-1">

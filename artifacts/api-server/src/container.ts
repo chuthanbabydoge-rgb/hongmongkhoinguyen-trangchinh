@@ -828,6 +828,31 @@ import { EconomyService }            from "./services/economyService.js";
 const craftingRepo = new DrizzleCraftingRepository();
 logger.info("Container: crafting system → Drizzle");
 
+// ─── HUB-18: Character System ─────────────────────────────────────────────────
+import { DrizzleCharacterRepository } from "./repositories/drizzle/DrizzleCharacterRepository.js";
+import { CharacterService }           from "./services/characterService.js";
+
+const characterRepo = new DrizzleCharacterRepository();
+logger.info("Container: character system → Drizzle");
+
+export const characterService = new CharacterService(
+  characterRepo, notificationsService, activitiesService, userReputationRepo,
+);
+
+characterRepo.seedLevelTable().catch(() => {});
+characterRepo.seedSkillTrees().catch(() => {});
+
+appRegistryService.registerApp({
+  slug:        "character",
+  name:        "Universe Character",
+  description: "Quản lý nhân vật, kỹ năng, trang bị và tiến trình trong Universe Ecosystem",
+  icon:        "🧙",
+  url:         "/character",
+  category:    "UTILITY",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
+
 export const craftingService = new CraftingService(
   craftingRepo, notificationsService, activitiesService, userReputationRepo,
 );

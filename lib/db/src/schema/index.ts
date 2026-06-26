@@ -35,3 +35,4 @@ export * from "./chat";
 export * from "./worlds";
 export * from "./ai";
 export * from "./crafting";
+export * from "./character";

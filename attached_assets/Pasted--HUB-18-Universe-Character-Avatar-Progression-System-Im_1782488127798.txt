@@ -1,0 +1,530 @@
+# HUB-18 — Universe Character / Avatar / Progression System
+
+Implement the complete HUB-18 Character System.
+
+IMPORTANT
+
+This is NOT a demo.
+
+Everything must integrate with the existing HUB-1 → HUB-17 ecosystem.
+
+Use:
+
+- PostgreSQL
+- Drizzle ORM
+- Existing Container DI
+- WalletService
+- InventoryService
+- QuestService
+- GuildService
+- ReputationService
+- AchievementService
+- SocialService
+- MarketplaceService
+- WorldService
+- AI Service (Nova)
+- NotificationService
+- ActivitiesService
+- WebSocket infrastructure
+
+Never create mock repositories.
+
+--------------------------------------------------
+PART 1 — DATABASE
+--------------------------------------------------
+
+Create Drizzle schema.
+
+Tables
+
+characters
+
+character_stats
+
+character_attributes
+
+character_levels
+
+character_skills
+
+skill_trees
+
+character_equipment
+
+equipment_slots
+
+character_titles
+
+character_classes
+
+character_races
+
+character_factions
+
+character_experience_logs
+
+character_level_rewards
+
+character_presets
+
+character_customization
+
+Enums
+
+CharacterClass
+
+WARRIOR
+
+MAGE
+
+ARCHER
+
+ASSASSIN
+
+ENGINEER
+
+SUMMONER
+
+CharacterRace
+
+HUMAN
+
+ELF
+
+DWARF
+
+DEMON
+
+ANGEL
+
+BEAST
+
+EquipmentSlot
+
+HEAD
+
+CHEST
+
+LEGS
+
+BOOTS
+
+GLOVES
+
+WEAPON
+
+OFFHAND
+
+RING
+
+NECKLACE
+
+PET
+
+--------------------------------------------------
+PART 2 — REPOSITORY
+--------------------------------------------------
+
+Create
+
+ICharacterRepository
+
+DrizzleCharacterRepository
+
+Methods
+
+createCharacter()
+
+updateCharacter()
+
+deleteCharacter()
+
+getCharacter()
+
+getStats()
+
+gainExperience()
+
+levelUp()
+
+equipItem()
+
+unequipItem()
+
+learnSkill()
+
+upgradeSkill()
+
+getTitles()
+
+unlockTitle()
+
+savePreset()
+
+loadPreset()
+
+--------------------------------------------------
+PART 3 — SERVICES
+--------------------------------------------------
+
+CharacterService
+
+LevelService
+
+SkillService
+
+EquipmentService
+
+Features
+
+Experience
+
+Level
+
+Stats
+
+Attributes
+
+Equipment
+
+Skill Trees
+
+Titles
+
+Class
+
+Race
+
+Faction
+
+Loadouts
+
+Appearance
+
+Power Score
+
+--------------------------------------------------
+PART 4 — EVENT BUS
+--------------------------------------------------
+
+CharacterEventBus
+
+Events
+
+CHARACTER_CREATED
+
+LEVEL_UP
+
+EXPERIENCE_GAINED
+
+ITEM_EQUIPPED
+
+ITEM_UNEQUIPPED
+
+SKILL_UNLOCKED
+
+SKILL_UPGRADED
+
+TITLE_UNLOCKED
+
+CLASS_CHANGED
+
+--------------------------------------------------
+PART 5 — INTEGRATION
+--------------------------------------------------
+
+Inventory
+
+Equip items
+
+Unequip items
+
+Wallet
+
+Level rewards
+
+Quest
+
+Quest rewards XP
+
+Guild
+
+Guild bonuses
+
+Marketplace
+
+Equipment trading
+
+World
+
+Character presence
+
+AI
+
+Nova recommends builds
+
+Nova recommends equipment
+
+Nova analyzes stats
+
+Reputation
+
+Level achievements
+
+Notifications
+
+Level up
+
+Skill unlocked
+
+Activities
+
+Level up
+
+Equipment
+
+Skill upgrades
+
+--------------------------------------------------
+PART 6 — API
+--------------------------------------------------
+
+GET
+
+/api/characters/me
+
+POST
+
+/api/characters
+
+PUT
+
+/api/characters/me
+
+DELETE
+
+/api/characters/me
+
+GET
+
+/ api/characters/stats
+
+POST
+
+/api/characters/xp
+
+POST
+
+/api/characters/equip
+
+POST
+
+/api/characters/unequip
+
+GET
+
+/api/characters/skills
+
+POST
+
+/api/characters/skills/:id
+
+GET
+
+/api/characters/titles
+
+POST
+
+/api/characters/titles/:id/select
+
+GET
+
+/api/characters/presets
+
+POST
+
+/api/characters/presets
+
+--------------------------------------------------
+PART 7 — WEBSOCKET
+--------------------------------------------------
+
+Realtime
+
+LEVEL_UP
+
+XP_GAINED
+
+ITEM_EQUIPPED
+
+SKILL_UNLOCKED
+
+POWER_CHANGED
+
+--------------------------------------------------
+PART 8 — FRONTEND
+--------------------------------------------------
+
+Create pages
+
+/pages/character
+
+CharacterDashboard
+
+CharacterProfile
+
+Equipment
+
+InventoryEquipment
+
+SkillTree
+
+Titles
+
+Stats
+
+Appearance
+
+Loadouts
+
+Create hooks
+
+useCharacter
+
+Create widgets
+
+CharacterWidget
+
+LevelWidget
+
+PowerWidget
+
+Add Sidebar
+
+Universe Character
+
+--------------------------------------------------
+PART 9 — APP REGISTRY
+--------------------------------------------------
+
+Register
+
+slug
+
+character
+
+status
+
+ACTIVE
+
+category
+
+GAME
+
+--------------------------------------------------
+PART 10 — ACCEPTANCE
+--------------------------------------------------
+
+Everything must use PostgreSQL.
+
+No mock data.
+
+JWT authentication.
+
+Zero HUB-18 type errors.
+
+Integrate with Wallet.
+
+Inventory.
+
+Quest.
+
+Guild.
+
+Marketplace.
+
+World.
+
+AI.
+
+Notifications.
+
+Activities.
+
+Launcher.
+
+--------------------------------------------------
+END TO END PROOF
+--------------------------------------------------
+
+Provide curl evidence for
+
+1.
+
+Create character
+
+2.
+
+Gain experience
+
+3.
+
+Level up
+
+4.
+
+Equip weapon
+
+5.
+
+Unequip weapon
+
+6.
+
+Learn skill
+
+7.
+
+Upgrade skill
+
+8.
+
+Unlock title
+
+9.
+
+Save preset
+
+10.
+
+Quest gives XP
+
+11.
+
+Inventory equipment updates
+
+12.
+
+Notification generated
+
+13.
+
+Activity generated
+
+14.
+
+WebSocket realtime
+
+15.
+
+Launcher shows Universe Character
+
+16.
+
+Database verification
+
+17.
+
+Sprint report with every created and modified file.
+
+Do not stop until every acceptance criterion passes.

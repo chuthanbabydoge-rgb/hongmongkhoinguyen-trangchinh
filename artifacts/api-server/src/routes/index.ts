@@ -22,6 +22,7 @@ import chatRouter from "./chat";
 import worldsRouter from "./worlds";
 import aiRouter from "./ai";
 import craftingRouter from "./crafting";
+import characterRouter from "./character";
 
 const router: IRouter = Router();
 
@@ -48,5 +49,6 @@ router.use(chatRouter);
 router.use(worldsRouter);
 router.use(aiRouter);
 router.use(craftingRouter);
+router.use(characterRouter);
 
 export default router;
