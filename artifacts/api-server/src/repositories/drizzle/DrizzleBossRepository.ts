@@ -164,9 +164,9 @@ export class DrizzleBossRepository implements IBossRepository {
   async updateBossAI(bossId: string, state: Partial<{ currentTarget: string; lastSkillUsed: string; aiMode: string; threatTable: Record<string, number> }>): Promise<void> {
     const [existing] = await db.select().from(bossAiStates).where(eq(bossAiStates.bossId, bossId));
     if (existing) {
-      await db.update(bossAiStates).set({ ...state as never, updatedAt: new Date() }).where(eq(bossAiStates.bossId, bossId));
+      await db.update(bossAiStates).set({ ...(state as object), updatedAt: new Date() }).where(eq(bossAiStates.bossId, bossId));
     } else {
-      await db.insert(bossAiStates).values({ bossId, ...state as never }).onConflictDoNothing();
+      await db.insert(bossAiStates).values({ bossId, ...(state as object) }).onConflictDoNothing();
     }
   }
 

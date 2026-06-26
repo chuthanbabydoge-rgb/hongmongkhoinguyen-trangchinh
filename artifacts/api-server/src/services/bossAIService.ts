@@ -6,7 +6,7 @@
 import type { IBossRepository, WorldBoss, BossLootItem, BossType } from "../repositories/bossRepository.js";
 import type { NotificationsService } from "./notificationsService.js";
 import type { ActivitiesService } from "./activitiesService.js";
-import type { IUserReputationRepository } from "../repositories/reputationRepository.js";
+import type { IUserReputationRepository } from "../repositories/userReputationRepository.js";
 import { bossEventBus } from "./bossEventBus.js";
 
 export class BossAIError extends Error {
@@ -52,12 +52,13 @@ export class BossAIService {
     this.threatTables.set(bossId, new Map());
     bossEventBus.publish({ type: "BOSS_SPAWNED", bossId, userId: spawnedByUserId, payload: { bossId, bossName: boss.name, region: boss.region, type: boss.type } });
     // Notify all — broadcast-style notification (no specific userId = global)
-    await this.activitiesService.recordActivity(
-      spawnedByUserId ?? "system",
-      "BOSS_SPAWNED" as never,
-      `Boss "${boss.name}" đã xuất hiện tại ${boss.region ?? "Vũ trụ"}!`,
-      { bossId, bossName: boss.name },
-    );
+    await this.activitiesService.createActivity({
+      userId: spawnedByUserId ?? "system",
+      type: "system",
+      title: `Boss "${boss.name}" đã xuất hiện!`,
+      description: `Boss "${boss.name}" đã xuất hiện tại ${boss.region ?? "Vũ trụ"}!`,
+      metadata: { bossId, bossName: boss.name },
+    });
     return boss;
   }
 
@@ -76,7 +77,7 @@ export class BossAIService {
     if (!table.has(userId)) table.set(userId, 0);
     this.threatTables.set(bossId, table);
     bossEventBus.publish({ type: "BOSS_JOINED", bossId, userId, payload: { bossId, userId } });
-    await this.activitiesService.recordActivity(userId, "BOSS_JOINED" as never, `Tham gia chiến đấu với boss "${boss.name}"`, { bossId });
+    await this.activitiesService.createActivity({ userId, type: "system", title: `Tham gia boss battle`, description: `Tham gia chiến đấu với boss "${boss.name}"`, metadata: { bossId } });
     return boss;
   }
 
@@ -201,7 +202,7 @@ export class BossAIService {
       await this.repo.recordLoot(bossId, p.userId, boss.rewardCredits, boss.rewardXp, lootItems);
       await this.repo.upsertStatistics(p.userId, bossId, { kills: 1 });
       await this.notifService.fire(p.userId, "BOSS_DEFEATED" as never, `🏆 ${boss.name} đã bị đánh bại!`, `Chúc mừng! Bạn nhận được ${boss.rewardCredits} credits và ${boss.rewardXp} XP.`);
-      await this.activitiesService.recordActivity(p.userId, "BOSS_DEFEATED" as never, `Đánh bại boss "${boss.name}"`, { bossId, credits: boss.rewardCredits, xp: boss.rewardXp });
+      await this.activitiesService.createActivity({ userId: p.userId, type: "system", title: `Đánh bại boss`, description: `Đánh bại boss "${boss.name}"`, metadata: { bossId, credits: boss.rewardCredits, xp: boss.rewardXp } });
       await this.reputationRepo.upsert(p.userId, 20);
     }
     this.threatTables.delete(bossId);

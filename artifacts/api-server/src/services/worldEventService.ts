@@ -5,7 +5,7 @@
 import type { IWorldEventRepository, WorldEvent, WorldEventParticipant, WorldWeather, EventType, WeatherType } from "../repositories/bossRepository.js";
 import type { NotificationsService } from "./notificationsService.js";
 import type { ActivitiesService } from "./activitiesService.js";
-import type { IUserReputationRepository } from "../repositories/reputationRepository.js";
+import type { IUserReputationRepository } from "../repositories/userReputationRepository.js";
 import { bossEventBus } from "./bossEventBus.js";
 
 export class WorldEventError extends Error {
@@ -62,7 +62,7 @@ export class WorldEventService {
     const participants = await this.repo.getParticipants(eventId);
     if (participants.length >= event.maxParticipants) throw new WorldEventError("FULL", "Event đã đầy người tham gia");
     const participant = await this.repo.joinWorldEvent(eventId, userId);
-    await this.activitiesService.recordActivity(userId, "WORLD_EVENT_JOINED" as never, `Tham gia sự kiện "${event.name}"`, { eventId });
+    await this.activitiesService.createActivity({ userId, type: "system", title: `Tham gia sự kiện`, description: `Tham gia sự kiện "${event.name}"`, metadata: { eventId } });
     bossEventBus.publish({ type: "WORLD_EVENT_UPDATED", eventId, userId, payload: { participantCount: participants.length + 1 } });
     return participant;
   }
@@ -88,7 +88,7 @@ export class WorldEventService {
       await this.repo.distributeRewards(eventId, participants);
       for (const p of participants) {
         await this.notifService.fire(p.userId, "WORLD_EVENT_COMPLETED" as never, `🌍 Sự kiện "${event.name}" hoàn thành!`, `Phần thưởng đã được gửi vào hòm thư của bạn.`);
-        await this.activitiesService.recordActivity(p.userId, "WORLD_EVENT_COMPLETED" as never, `Hoàn thành sự kiện "${event.name}"`, { eventId, credits: event.rewardCredits });
+        await this.activitiesService.createActivity({ userId: p.userId, type: "system", title: `Hoàn thành sự kiện`, description: `Hoàn thành sự kiện "${event.name}"`, metadata: { eventId, credits: event.rewardCredits } });
         await this.reputationRepo.upsert(p.userId, 15);
       }
     }
@@ -123,7 +123,7 @@ export class WeatherService {
   async setWeather(userId: string, region: string, weather: string, intensity?: number, durationSec?: number): Promise<WorldWeather> {
     const w = await this.repo.setWeather(region, weather as WeatherType, intensity, durationSec);
     bossEventBus.publish({ type: "WEATHER_CHANGED", userId, payload: { region, weather, intensity } });
-    await this.activitiesService.recordActivity(userId, "WEATHER_CHANGED" as never, `Thời tiết tại ${region} chuyển sang ${weather}`, { region, weather });
+    await this.activitiesService.createActivity({ userId, type: "system", title: `Thời tiết thay đổi`, description: `Thời tiết tại ${region} chuyển sang ${weather}`, metadata: { region, weather } });
     return w;
   }
 }
