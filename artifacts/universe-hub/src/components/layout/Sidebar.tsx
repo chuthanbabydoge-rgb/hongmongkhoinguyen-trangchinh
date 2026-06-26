@@ -50,6 +50,9 @@ import {
   Footprints,
   Sword as DungeonSword,
   Castle,
+  ShieldAlert,
+  CloudLightning,
+  CloudSun,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -241,6 +244,16 @@ export function Sidebar() {
           <NavItem icon={Skull}        label="Dungeon Lịch sử"  path="/dungeons/history" />
           <NavItem icon={Castle}       label="Universe Raid"    path="/raids" />
           <NavItem icon={Trophy}       label="Raid Leaderboard" path="/raids/leaderboard" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Boss &amp; Sự kiện thế giới
+          </p>
+          <NavItem icon={ShieldAlert}    label="Universe Bosses"      path="/bosses" />
+          <NavItem icon={Skull}          label="Boss Leaderboard"     path="/bosses/leaderboard" />
+          <NavItem icon={CloudLightning} label="Universe World Events" path="/world-events" />
+          <NavItem icon={CloudSun}       label="Trung tâm Thời tiết"  path="/world-events/weather" />
         </div>
 
         <div className="pt-1 pb-1">

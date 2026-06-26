@@ -997,3 +997,51 @@ appRegistryService.registerApp({
   version:     "1.0.0",
 }).catch(() => {});
 
+// ─── HUB-22: Boss AI & Dynamic World Events ───────────────────────────────────
+import { DrizzleBossRepository }       from "./repositories/drizzle/DrizzleBossRepository.js";
+import { DrizzleWorldEventRepository } from "./repositories/drizzle/DrizzleWorldEventRepository.js";
+import { BossAIService }               from "./services/bossAIService.js";
+import { WorldEventService, WeatherService } from "./services/worldEventService.js";
+
+const bossRepo       = new DrizzleBossRepository();
+const worldEventRepo = new DrizzleWorldEventRepository();
+logger.info("Container: boss AI & world events → Drizzle");
+
+export const bossAIService = new BossAIService(
+  bossRepo, notificationsService, activitiesService, userReputationRepo,
+);
+export const worldEventService = new WorldEventService(
+  worldEventRepo, notificationsService, activitiesService, userReputationRepo,
+);
+export const weatherService = new WeatherService(
+  worldEventRepo, notificationsService, activitiesService,
+);
+
+bossRepo.seedBosses().catch(() => {});
+bossRepo.seedSkills().catch(() => {});
+bossRepo.seedPhases().catch(() => {});
+worldEventRepo.seedEvents().catch(() => {});
+worldEventRepo.seedWeather().catch(() => {});
+
+appRegistryService.registerApp({
+  slug:        "bosses",
+  name:        "Universe Bosses",
+  description: "Chiến đấu với boss thế giới — phần thưởng huyền thoại chờ đợi những anh hùng dũng cảm",
+  icon:        "💀",
+  url:         "/bosses",
+  category:    "OTHER",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
+
+appRegistryService.registerApp({
+  slug:        "world-events",
+  name:        "Universe World Events",
+  description: "Sự kiện thế giới động — cùng cộng đồng tham gia các sự kiện thời gian thực",
+  icon:        "🌍",
+  url:         "/world-events",
+  category:    "OTHER",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
+

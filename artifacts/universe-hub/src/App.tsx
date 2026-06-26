@@ -99,6 +99,15 @@ import RaidLobby         from "@/pages/raids/RaidLobby";
 import RaidBattle        from "@/pages/raids/RaidBattle";
 import RaidHistory       from "@/pages/raids/RaidHistory";
 import RaidLeaderboard   from "@/pages/raids/RaidLeaderboard";
+import BossDashboard     from "@/pages/bosses/BossDashboard";
+import BossBrowser_HUB22 from "@/pages/bosses/BossBrowser";
+import BossBattle_HUB22  from "@/pages/bosses/BossBattle";
+import BossLeaderboard   from "@/pages/bosses/BossLeaderboard";
+import BossHistory       from "@/pages/bosses/BossHistory";
+import WorldEventsPage   from "@/pages/world-events/WorldEvents";
+import WorldEventDetail  from "@/pages/world-events/WorldEventDetail";
+import WorldEventHistory from "@/pages/world-events/WorldEventHistory";
+import WeatherCenter     from "@/pages/world-events/WeatherCenter";
 import CharacterProfile  from "@/pages/character/CharacterProfile";
 import CharacterStats    from "@/pages/character/CharacterStats";
 import EquipmentPage     from "@/pages/character/EquipmentPage";
@@ -237,6 +246,15 @@ function Router() {
       <Route path="/raids/history" component={RaidHistory} />
       <Route path="/raids/leaderboard" component={RaidLeaderboard} />
       <Route path="/raids/:id" component={RaidBattle} />
+      <Route path="/bosses" component={BossDashboard} />
+      <Route path="/bosses/browse" component={BossBrowser_HUB22} />
+      <Route path="/bosses/history" component={BossHistory} />
+      <Route path="/bosses/leaderboard" component={BossLeaderboard} />
+      <Route path="/bosses/:id" component={BossBattle_HUB22} />
+      <Route path="/world-events" component={WorldEventsPage} />
+      <Route path="/world-events/history" component={WorldEventHistory} />
+      <Route path="/world-events/weather" component={WeatherCenter} />
+      <Route path="/world-events/:id" component={WorldEventDetail} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -1,0 +1,567 @@
+# HUB-22 — Universe Boss AI & Dynamic World Events
+
+Implement the complete HUB-22 Boss AI & Dynamic World Events.
+
+IMPORTANT
+
+This is NOT a demo.
+
+Everything must integrate with HUB-1 through HUB-21.
+
+Use ONLY
+
+- PostgreSQL
+- Drizzle ORM
+- Existing DI Container
+- Existing EventBus
+- Existing WebSocket
+- Existing NotificationService
+- Existing ActivitiesService
+
+Never create mock repositories.
+
+====================================================
+PART 1 — DATABASE
+====================================================
+
+Create Drizzle schema.
+
+Tables
+
+world_bosses
+
+boss_spawn_points
+
+boss_spawn_schedule
+
+boss_ai_states
+
+boss_skills
+
+boss_skill_rotation
+
+boss_phases
+
+boss_loot_tables
+
+boss_damage_logs
+
+boss_participants
+
+world_events
+
+world_event_objectives
+
+world_event_rewards
+
+world_event_progress
+
+world_event_participants
+
+world_weather
+
+world_disasters
+
+dynamic_regions
+
+boss_statistics
+
+boss_rankings
+
+Enums
+
+BossType
+
+WORLD
+
+DUNGEON
+
+RAID
+
+SEASONAL
+
+LEGENDARY
+
+BossState
+
+IDLE
+
+SPAWNING
+
+ACTIVE
+
+ENRAGED
+
+RETREAT
+
+DEAD
+
+EventType
+
+INVASION
+
+DEFENSE
+
+ESCORT
+
+TREASURE
+
+WORLD_BOSS
+
+SEASONAL
+
+WeatherType
+
+SUNNY
+
+RAIN
+
+SNOW
+
+STORM
+
+FOG
+
+MAGIC
+
+====================================================
+PART 2 — REPOSITORY
+====================================================
+
+Create
+
+IBossRepository
+
+IWorldEventRepository
+
+DrizzleBossRepository
+
+DrizzleWorldEventRepository
+
+Methods
+
+spawnBoss()
+
+despawnBoss()
+
+updateBossAI()
+
+castBossSkill()
+
+changeBossPhase()
+
+recordDamage()
+
+recordLoot()
+
+createWorldEvent()
+
+joinWorldEvent()
+
+completeWorldEvent()
+
+leaderboard()
+
+====================================================
+PART 3 — SERVICES
+====================================================
+
+BossAIService
+
+WorldEventService
+
+SpawnScheduler
+
+LootEngine
+
+ThreatEngine
+
+PhaseEngine
+
+WeatherService
+
+Features
+
+Dynamic AI
+
+Threat / Aggro
+
+Boss phases
+
+Skill rotation
+
+Random mechanics
+
+World events
+
+Weather effects
+
+Timed events
+
+Seasonal bosses
+
+Legendary bosses
+
+====================================================
+PART 4 — EVENT BUS
+====================================================
+
+BossEventBus
+
+Events
+
+BOSS_SPAWNED
+
+BOSS_PHASE_CHANGED
+
+BOSS_ENRAGED
+
+BOSS_SKILL_CAST
+
+BOSS_DEFEATED
+
+WORLD_EVENT_STARTED
+
+WORLD_EVENT_UPDATED
+
+WORLD_EVENT_COMPLETED
+
+WEATHER_CHANGED
+
+WORLD_DISASTER_STARTED
+
+====================================================
+PART 5 — INTEGRATION
+====================================================
+
+Character
+
+Power requirement
+
+Combat
+
+Use HUB-19 engine
+
+Dungeon
+
+World bosses
+
+Raid
+
+Raid bosses
+
+Pet
+
+Pet combat
+
+Mount
+
+Travel to boss
+
+Guild
+
+Guild boss raids
+
+Quest
+
+Boss quests
+
+World event quests
+
+Economy
+
+Boss rewards
+
+Marketplace
+
+Tradable drops
+
+Crafting
+
+Rare boss materials
+
+Mail
+
+Reward mail
+
+Notifications
+
+Boss spawned
+
+Boss defeated
+
+Activities
+
+Boss logs
+
+Achievements
+
+First World Boss
+
+Legend Slayer
+
+World Defender
+
+Reputation
+
+Boss reputation
+
+Event reputation
+
+AI
+
+Nova predicts mechanics
+
+Nova recommends builds
+
+====================================================
+PART 6 — API
+====================================================
+
+GET
+
+/api/bosses
+
+GET
+
+/api/bosses/active
+
+GET
+
+/api/bosses/:id
+
+POST
+
+/api/bosses/:id/join
+
+POST
+
+/api/bosses/:id/attack
+
+POST
+
+/api/bosses/:id/skill
+
+GET
+
+/api/bosses/:id/leaderboard
+
+GET
+
+/api/world-events
+
+POST
+
+/api/world-events/:id/join
+
+GET
+
+/api/world-events/:id
+
+GET
+
+/api/world-events/history
+
+GET
+
+/api/weather
+
+====================================================
+PART 7 — WEBSOCKET
+====================================================
+
+Realtime
+
+BossSpawned
+
+BossPhaseChanged
+
+BossHPUpdated
+
+BossSkillCast
+
+BossEnraged
+
+BossDefeated
+
+WorldEventStarted
+
+WorldEventProgress
+
+WorldEventCompleted
+
+WeatherChanged
+
+====================================================
+PART 8 — FRONTEND
+====================================================
+
+Create pages
+
+/pages/bosses
+
+BossDashboard
+
+BossBrowser
+
+BossBattle
+
+BossLeaderboard
+
+BossHistory
+
+/pages/world-events
+
+WorldEvents
+
+WorldEventDetail
+
+WorldEventHistory
+
+WeatherCenter
+
+Hooks
+
+useBosses
+
+useWorldEvents
+
+Widgets
+
+BossWidget
+
+WorldEventWidget
+
+WeatherWidget
+
+Sidebar
+
+Universe Bosses
+
+Universe World Events
+
+====================================================
+PART 9 — APP REGISTRY
+====================================================
+
+Register
+
+slug
+
+bosses
+
+ACTIVE
+
+GAME
+
+slug
+
+world-events
+
+ACTIVE
+
+GAME
+
+====================================================
+PART 10 — ACCEPTANCE
+====================================================
+
+Everything must use PostgreSQL.
+
+No mock data.
+
+JWT authentication.
+
+Zero HUB-22 type errors.
+
+Integrate with
+
+Character
+
+Combat
+
+Dungeon
+
+Raid
+
+Pet
+
+Mount
+
+Guild
+
+Quest
+
+World
+
+Marketplace
+
+Economy
+
+Crafting
+
+Mail
+
+Notifications
+
+Activities
+
+Achievements
+
+AI
+
+Launcher
+
+====================================================
+END TO END PROOF
+====================================================
+
+Provide curl evidence for
+
+1. Spawn world boss
+
+2. Join boss battle
+
+3. Boss AI attacks
+
+4. Boss changes phase
+
+5. Boss becomes enraged
+
+6. Boss defeated
+
+7. Loot distributed
+
+8. World event started
+
+9. Join world event
+
+10. Complete world event
+
+11. Weather changed
+
+12. Quest progress updated
+
+13. Character XP gained
+
+14. Pet XP gained
+
+15. Notification generated
+
+16. Activity generated
+
+17. Achievement unlocked
+
+18. Reputation updated
+
+19. WebSocket realtime verified
+
+20. Launcher shows Universe Bosses
+
+21. Launcher shows Universe World Events
+
+22. Database verification
+
+23. Sprint report listing every created and modified file.
+
+Do not stop until every acceptance criterion passes.

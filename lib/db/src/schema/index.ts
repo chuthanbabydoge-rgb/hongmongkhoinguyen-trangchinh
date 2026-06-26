@@ -39,3 +39,4 @@ export * from "./character";
 export * from "./combat";
 export * from "./pets";
 export * from "./dungeons";
+export * from "./bossEvents";
