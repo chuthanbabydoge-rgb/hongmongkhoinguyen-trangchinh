@@ -64,6 +64,11 @@ import FeaturedWorlds from "@/pages/worlds/FeaturedWorlds";
 import PopularWorlds from "@/pages/worlds/PopularWorlds";
 import WorldBookmarks from "@/pages/worlds/WorldBookmarks";
 import WorldTravelHistory from "@/pages/worlds/WorldTravelHistory";
+import AiDashboard from "@/pages/ai/AiDashboard";
+import AiChat from "@/pages/ai/AiChat";
+import AiMemory from "@/pages/ai/AiMemory";
+import AiSuggestions from "@/pages/ai/AiSuggestions";
+import AiSettings from "@/pages/ai/AiSettings";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -128,6 +133,12 @@ function Router() {
       <Route path="/worlds/create" component={WorldCreate} />
       <Route path="/worlds/:id/edit" component={WorldEdit} />
       <Route path="/worlds/:id" component={WorldDetail} />
+      <Route path="/ai" component={AiDashboard} />
+      <Route path="/ai/chat/:id" component={AiChat} />
+      <Route path="/ai/chat" component={AiChat} />
+      <Route path="/ai/memory" component={AiMemory} />
+      <Route path="/ai/suggestions" component={AiSuggestions} />
+      <Route path="/ai/settings" component={AiSettings} />
       <Route component={NotFound} />
     </Switch>
   );

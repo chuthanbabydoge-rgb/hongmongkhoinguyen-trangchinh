@@ -748,6 +748,57 @@ export const aiService = new AiService(
   notificationsService,
   activitiesService,
   userReputationService,
+  {
+    getWalletContext: async (userId) => {
+      try {
+        const w = await walletService.getWallet(userId);
+        return { credits: w.credits, coins: (w as any).coins ?? 0, tokens: (w as any).tokens ?? 0 };
+      } catch { return {}; }
+    },
+    getInventoryContext: async (userId) => {
+      try {
+        const s = await inventoryService.getInventorySummary(userId);
+        return { itemCount: (s as any).totalAssets ?? (s as any).totalItems ?? 0 };
+      } catch { return {}; }
+    },
+    getQuestContext: async (userId) => {
+      try {
+        const qs = await questService.getMyQuests(userId);
+        return qs.map(q => ({ id: q.quest.id, title: q.quest.title, status: q.userQuest.status }));
+      } catch { return []; }
+    },
+    getGuildContext: async (_userId) => {
+      // No direct userId→guild lookup without guildId; return empty and let guild section be absent
+      return {};
+    },
+    getWorldContext: async (_userId) => {
+      try {
+        const worlds = await worldService.getFeaturedWorlds(5);
+        return { featuredWorldCount: worlds.length };
+      } catch { return {}; }
+    },
+    getMailContext: async (userId) => {
+      try {
+        const count = await mailService.getUnreadCount(userId);
+        return { unreadCount: count };
+      } catch { return {}; }
+    },
+    getSocialContext: async (userId) => {
+      try {
+        const [friends, followers] = await Promise.all([
+          socialService.getFriends(userId),
+          socialService.getFollowers(userId),
+        ]);
+        return { friendCount: friends.length, followerCount: followers.length };
+      } catch { return {}; }
+    },
+    getMarketplaceContext: async (userId) => {
+      try {
+        const txns = await marketplaceService.getTransactionsByUser(userId, 10);
+        return { recentTransactions: txns.length };
+      } catch { return {}; }
+    },
+  },
 );
 
 // ─── Universe Worlds (HUB-15) ─────────────────────────────────────────────────

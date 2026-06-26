@@ -12,6 +12,7 @@ import { SocialOverviewCard } from "@/components/dashboard/SocialOverviewCard";
 import { MailOverviewCard } from "@/components/dashboard/MailOverviewCard";
 import { ChatWidget } from "@/components/dashboard/ChatWidget";
 import { WorldWidget } from "@/components/dashboard/WorldWidget";
+import { AiWidget } from "@/components/dashboard/AiWidget";
 import { AchievementShowcase } from "@/components/dashboard/AchievementShowcase";
 import { QuestWidget } from "@/components/dashboard/QuestWidget";
 import { useDashboard } from "@/hooks/useDashboard";
@@ -57,6 +58,7 @@ export default function Dashboard() {
               <WalletOverview wallet={wallet} loading={loading} />
             </div>
             <QuestWidget />
+            <AiWidget />
             <MailOverviewCard />
             <ChatWidget />
             <WorldWidget />

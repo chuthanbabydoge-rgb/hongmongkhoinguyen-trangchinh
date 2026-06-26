@@ -38,6 +38,7 @@ import {
   MailOpen,
   MessageSquare,
   Earth,
+  Bot,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -178,6 +179,13 @@ export function Sidebar() {
           <NavItem icon={MailOpen} label="Universe Mail" path="/mail" />
           <NavItem icon={MessageSquare} label="Universe Chat" path="/chat" />
           <NavItem icon={Earth} label="Universe Worlds" path="/worlds" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            AI
+          </p>
+          <NavItem icon={Bot} label="Universe AI" path="/ai" />
         </div>
 
         <div className="pt-1 pb-1">
