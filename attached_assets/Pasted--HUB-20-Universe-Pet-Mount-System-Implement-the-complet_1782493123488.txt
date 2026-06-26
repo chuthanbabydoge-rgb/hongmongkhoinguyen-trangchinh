@@ -1,0 +1,615 @@
+# HUB-20 — Universe Pet & Mount System
+
+Implement the complete HUB-20 Pet & Mount System.
+
+IMPORTANT
+
+This is NOT a demo.
+
+Everything must integrate with HUB-1 through HUB-19.
+
+Use ONLY
+
+- PostgreSQL
+- Drizzle ORM
+- Existing DI Container
+- Existing EventBus
+- Existing WebSocket
+- Existing NotificationService
+- Existing ActivitiesService
+
+Never create mock repositories.
+
+====================================================
+PART 1 — DATABASE
+====================================================
+
+Create Drizzle schema.
+
+Tables
+
+pets
+
+pet_species
+
+pet_skills
+
+pet_levels
+
+pet_equipment
+
+pet_training
+
+pet_evolution
+
+pet_bonds
+
+pet_inventory
+
+pet_logs
+
+mounts
+
+mount_types
+
+mount_levels
+
+mount_equipment
+
+mount_skills
+
+mount_training
+
+mount_routes
+
+mount_travel_logs
+
+mount_statistics
+
+mount_customization
+
+Enums
+
+PetRarity
+
+COMMON
+
+UNCOMMON
+
+RARE
+
+EPIC
+
+LEGENDARY
+
+MYTHIC
+
+PetType
+
+BEAST
+
+DRAGON
+
+SPIRIT
+
+MECHANICAL
+
+ELEMENTAL
+
+CELESTIAL
+
+MountType
+
+HORSE
+
+WOLF
+
+DRAGON
+
+PHOENIX
+
+TIGER
+
+MECH
+
+MountStatus
+
+ACTIVE
+
+RESTING
+
+TRAINING
+
+TRAVELING
+
+====================================================
+PART 2 — REPOSITORY
+====================================================
+
+Create
+
+IPetRepository
+
+IMountRepository
+
+DrizzlePetRepository
+
+DrizzleMountRepository
+
+Methods
+
+createPet()
+
+deletePet()
+
+feedPet()
+
+trainPet()
+
+levelPet()
+
+evolvePet()
+
+equipPet()
+
+unequipPet()
+
+learnPetSkill()
+
+summonPet()
+
+dismissPet()
+
+createMount()
+
+levelMount()
+
+trainMount()
+
+equipMount()
+
+travel()
+
+getStatistics()
+
+====================================================
+PART 3 — SERVICES
+====================================================
+
+PetService
+
+MountService
+
+PetBattleService
+
+PetTrainingService
+
+MountTravelService
+
+PetEvolutionService
+
+Features
+
+Pet leveling
+
+Pet evolution
+
+Pet happiness
+
+Pet hunger
+
+Pet loyalty
+
+Pet skills
+
+Pet equipment
+
+Pet combat assist
+
+Mount speed
+
+Mount travel
+
+Mount stamina
+
+Mount customization
+
+Bond system
+
+====================================================
+PART 4 — EVENT BUS
+====================================================
+
+PetEventBus
+
+Events
+
+PET_CREATED
+
+PET_LEVEL_UP
+
+PET_EVOLVED
+
+PET_SUMMONED
+
+PET_DISMISSED
+
+PET_SKILL_UNLOCKED
+
+PET_TRAINED
+
+MOUNT_CREATED
+
+MOUNT_LEVEL_UP
+
+MOUNT_TRAVEL
+
+====================================================
+PART 5 — INTEGRATION
+====================================================
+
+Character
+
+One active pet
+
+One active mount
+
+Combat
+
+Pet joins battle
+
+Pet skills
+
+Pet damage
+
+Pet healing
+
+Character stats boosted
+
+Inventory
+
+Pet equipment
+
+Pet food
+
+Mount gear
+
+Quest
+
+Pet quests
+
+Training quests
+
+Guild
+
+Guild pets
+
+Guild stables
+
+Marketplace
+
+Trade pets
+
+Trade mounts
+
+Trade eggs
+
+World
+
+Mount travel
+
+Fast travel
+
+Exploration bonus
+
+Wallet
+
+Training cost
+
+Stable fees
+
+AI
+
+Nova suggests builds
+
+Nova recommends pet skills
+
+Notifications
+
+Evolution
+
+Level up
+
+Activities
+
+Pet logs
+
+Mount logs
+
+Achievements
+
+First Pet
+
+First Mount
+
+Legendary Pet
+
+Dragon Rider
+
+Reputation
+
+Pet trainer
+
+Beast master
+
+====================================================
+PART 6 — API
+====================================================
+
+GET
+
+/api/pets
+
+POST
+
+/api/pets
+
+GET
+
+/api/pets/:id
+
+DELETE
+
+/api/pets/:id
+
+POST
+
+/api/pets/:id/feed
+
+POST
+
+/api/pets/:id/train
+
+POST
+
+/api/pets/:id/evolve
+
+POST
+
+/api/pets/:id/equip
+
+POST
+
+/api/pets/:id/unequip
+
+POST
+
+/api/pets/:id/skill
+
+POST
+
+/api/pets/:id/summon
+
+POST
+
+/api/pets/:id/dismiss
+
+GET
+
+/api/mounts
+
+POST
+
+/api/mounts
+
+GET
+
+/api/mounts/:id
+
+POST
+
+/api/mounts/:id/train
+
+POST
+
+/api/mounts/:id/equip
+
+POST
+
+/api/mounts/:id/travel
+
+GET
+
+/api/mounts/statistics
+
+====================================================
+PART 7 — WEBSOCKET
+====================================================
+
+Realtime
+
+PetLevelUp
+
+PetEvolution
+
+PetTraining
+
+PetSummoned
+
+MountTravel
+
+MountArrived
+
+====================================================
+PART 8 — FRONTEND
+====================================================
+
+Create
+
+/pages/pets
+
+PetDashboard
+
+PetCollection
+
+PetProfile
+
+PetTraining
+
+PetEvolution
+
+PetSkills
+
+PetEquipment
+
+/pages/mounts
+
+MountDashboard
+
+MountStable
+
+MountTravel
+
+MountCustomization
+
+MountStatistics
+
+Create hooks
+
+usePets
+
+useMounts
+
+Widgets
+
+PetWidget
+
+MountWidget
+
+TravelWidget
+
+Sidebar
+
+Universe Pets
+
+Universe Mounts
+
+====================================================
+PART 9 — APP REGISTRY
+====================================================
+
+Register
+
+slug
+
+pets
+
+ACTIVE
+
+GAME
+
+slug
+
+mounts
+
+ACTIVE
+
+GAME
+
+====================================================
+PART 10 — ACCEPTANCE
+====================================================
+
+Everything must use PostgreSQL.
+
+No mock data.
+
+JWT authentication.
+
+Zero HUB-20 type errors.
+
+Integrate with
+
+Character
+
+Combat
+
+Inventory
+
+Quest
+
+Guild
+
+Marketplace
+
+World
+
+Wallet
+
+AI
+
+Notifications
+
+Activities
+
+Achievements
+
+Launcher
+
+====================================================
+END TO END PROOF
+====================================================
+
+Provide curl evidence for
+
+1. Create pet
+
+2. Feed pet
+
+3. Train pet
+
+4. Gain pet XP
+
+5. Pet level up
+
+6. Pet evolution
+
+7. Learn pet skill
+
+8. Equip pet equipment
+
+9. Summon pet
+
+10. Create mount
+
+11. Train mount
+
+12. Equip mount
+
+13. Travel using mount
+
+14. Combat with active pet
+
+15. Quest progress updated
+
+16. Character stats updated
+
+17. Notification generated
+
+18. Activity generated
+
+19. Achievement unlocked
+
+20. Reputation updated
+
+21. WebSocket realtime
+
+22. Launcher shows Universe Pets
+
+23. Launcher shows Universe Mounts
+
+24. Database verification
+
+25. Sprint report with every created and modified file.
+
+Do not stop until every acceptance criterion passes.
