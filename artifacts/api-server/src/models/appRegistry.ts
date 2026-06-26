@@ -18,6 +18,7 @@ export const APP_CATEGORIES = [
   "AI",
   "UTILITY",
   "CREATOR",
+  "EDUCATION",
   "OTHER",
 ] as const;
 

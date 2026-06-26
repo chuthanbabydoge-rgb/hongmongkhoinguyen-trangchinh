@@ -117,6 +117,17 @@ import SeasonRewards     from "@/pages/pvp/SeasonRewards";
 import TournamentDashboard from "@/pages/tournaments/TournamentDashboard";
 import TournamentCreate  from "@/pages/tournaments/TournamentCreate";
 import TournamentDetail  from "@/pages/tournaments/TournamentDetail";
+import EducationDashboard  from "@/pages/education/EducationDashboard";
+import CourseBrowser        from "@/pages/education/CourseBrowser";
+import CourseDetail         from "@/pages/education/CourseDetail";
+import MyCourses            from "@/pages/education/MyCourses";
+import TeacherCenter        from "@/pages/education/TeacherCenter";
+import ExamCenter           from "@/pages/education/ExamCenter";
+import CertificateCenter    from "@/pages/education/CertificateCenter";
+import ClassroomPage        from "@/pages/education/ClassroomPage";
+import HomeworkCenter       from "@/pages/education/HomeworkCenter";
+import StudentProfile       from "@/pages/education/StudentProfile";
+import EducationStatistics  from "@/pages/education/EducationStatistics";
 import CreatorDashboard     from "@/pages/creator/CreatorDashboard";
 import CreatorProjects      from "@/pages/creator/CreatorProjects";
 import CreatorStudio        from "@/pages/creator/CreatorStudio";
@@ -281,6 +292,17 @@ function Router() {
       <Route path="/tournaments" component={TournamentDashboard} />
       <Route path="/tournaments/create" component={TournamentCreate} />
       <Route path="/tournaments/:id" component={TournamentDetail} />
+      <Route path="/education" component={EducationDashboard} />
+      <Route path="/education/courses/:id" component={CourseDetail} />
+      <Route path="/education/courses" component={CourseBrowser} />
+      <Route path="/education/my" component={MyCourses} />
+      <Route path="/education/teachers" component={TeacherCenter} />
+      <Route path="/education/exams" component={ExamCenter} />
+      <Route path="/education/certificates" component={CertificateCenter} />
+      <Route path="/education/classrooms" component={ClassroomPage} />
+      <Route path="/education/homework" component={HomeworkCenter} />
+      <Route path="/education/profile" component={StudentProfile} />
+      <Route path="/education/statistics" component={EducationStatistics} />
       <Route path="/creator" component={CreatorDashboard} />
       <Route path="/creator/projects" component={CreatorProjects} />
       <Route path="/creator/studio" component={CreatorStudio} />

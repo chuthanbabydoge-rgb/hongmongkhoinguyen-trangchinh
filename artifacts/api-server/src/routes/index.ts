@@ -29,6 +29,7 @@ import dungeonRouter from "./dungeons";
 import bossRouter from "./bosses";
 import pvpRouter from "./pvp";
 import creatorRouter from "./creator";
+import educationRouter from "./education";
 
 const router: IRouter = Router();
 
@@ -62,5 +63,6 @@ router.use(dungeonRouter);
 router.use(bossRouter);
 router.use(pvpRouter);
 router.use(creatorRouter);
+router.use(educationRouter);
 
 export default router;

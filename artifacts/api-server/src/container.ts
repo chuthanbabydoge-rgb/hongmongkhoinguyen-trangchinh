@@ -1094,3 +1094,27 @@ appRegistryService.registerApp({
   version:     "1.0.0",
 }).catch(() => {});
 
+// ─── HUB-25: Universe Education System ───────────────────────────────────────
+import { DrizzleEducationRepository } from "./repositories/drizzle/DrizzleEducationRepository.js";
+import { EducationService }           from "./services/educationService.js";
+
+const educationRepo = new DrizzleEducationRepository();
+logger.info("Container: education system → Drizzle");
+
+export const educationService = new EducationService(
+  educationRepo, notificationsService, activitiesService, userReputationRepo,
+);
+
+educationRepo.seedData().catch(() => {});
+
+appRegistryService.registerApp({
+  slug:        "education",
+  name:        "Universe Education",
+  description: "Nền tảng giáo dục Universe — khoá học, bài thi, chứng chỉ và lớp học trực tuyến",
+  icon:        "🎓",
+  url:         "/education",
+  category:    "EDUCATION",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
+

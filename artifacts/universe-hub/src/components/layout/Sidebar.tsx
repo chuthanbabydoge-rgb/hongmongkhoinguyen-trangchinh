@@ -59,6 +59,10 @@ import {
   BookTemplate,
   FolderOpen,
   BookMarked,
+  GraduationCap,
+  BookOpenCheck,
+  ClipboardList,
+  School,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -284,6 +288,20 @@ export function Sidebar() {
           <NavItem icon={BookTemplate} label="Templates"           path="/creator/templates" />
           <NavItem icon={Package}      label="Asset Library"       path="/creator/assets" />
           <NavItem icon={BookMarked}   label="Yêu thích"           path="/creator/favorites" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Education
+          </p>
+          <NavItem icon={GraduationCap}  label="Universe Education"  path="/education" />
+          <NavItem icon={BookOpen}       label="Khám phá Khoá học"   path="/education/courses" />
+          <NavItem icon={BookOpenCheck}  label="Khoá học của tôi"    path="/education/my" />
+          <NavItem icon={School}         label="Teacher Center"       path="/education/teachers" />
+          <NavItem icon={ClipboardList}  label="Trung tâm Bài thi"   path="/education/exams" />
+          <NavItem icon={Award}          label="Chứng chỉ"           path="/education/certificates" />
+          <NavItem icon={Users}          label="Lớp học"             path="/education/classrooms" />
+          <NavItem icon={BookMarked}     label="Bài tập"             path="/education/homework" />
         </div>
 
         <div className="pt-1 pb-1">
