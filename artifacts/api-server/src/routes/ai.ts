@@ -21,6 +21,7 @@ import {
 const router: IRouter = Router();
 
 router.get("/ai",                                         handleAiStatus);
+router.get("/ai/status",                                  handleAiStatus);
 router.get("/ai/dashboard",              requireAuth,     handleAiDashboard);
 
 // Conversations

@@ -1,0 +1,427 @@
+HUB-16 — Universe AI Assistant (Nova)
+Mục tiêu
+
+Xây dựng Universe AI (Nova) trở thành AI trung tâm của toàn bộ Universe Platform.
+
+Nova không chỉ là chatbot mà là AI Copilot có thể đọc context từ Wallet, Inventory, Marketplace, Guild, Quest, Mail, Social, Worlds... để hỗ trợ người dùng.
+
+Yêu cầu bắt buộc:
+
+PostgreSQL + Drizzle ORM
+Không mock data
+Không hardcode
+Không fake AI response
+Toàn bộ context lấy từ database/service thật
+JWT Authentication
+TypeScript strict
+Zero HUB-16 type errors
+Backend
+Database Schema
+
+Tạo
+
+lib/db/src/schema/ai.ts
+
+Bao gồm:
+
+ai_conversations
+id
+userId
+title
+model
+createdAt
+updatedAt
+ai_messages
+id
+conversationId
+role (system,user,assistant)
+content
+metadata jsonb
+tokenUsage
+createdAt
+ai_memories
+id
+userId
+key
+value jsonb
+importance
+lastAccessedAt
+createdAt
+ai_suggestions
+id
+userId
+type
+title
+description
+action
+metadata
+dismissed
+createdAt
+ai_sessions
+id
+userId
+startedAt
+endedAt
+ai_usage_logs
+id
+userId
+model
+promptTokens
+completionTokens
+totalTokens
+latency
+createdAt
+ai_prompt_templates
+id
+name
+category
+systemPrompt
+enabled
+ai_context_cache
+id
+userId
+context jsonb
+expiresAt
+ai_feedback
+id
+messageId
+rating
+comment
+createdAt
+ai_personality
+id
+userId
+tone
+language
+style
+updatedAt
+
+Export schema.
+
+Repository
+IAiRepository
+
+DrizzleAiRepository
+Service
+AiService
+
+Bao gồm
+
+chat()
+
+createConversation()
+
+getConversation()
+
+getMessages()
+
+saveMessage()
+
+generateSuggestions()
+
+loadContext()
+
+getDashboard()
+
+feedback()
+
+memory()
+Context Providers
+
+Nova phải tự động lấy context từ
+
+Wallet
+
+Inventory
+
+Marketplace
+
+Guild
+
+Quest
+
+Mail
+
+Notification
+
+Activity
+
+Reputation
+
+Achievements
+
+Social
+
+World
+
+Launcher Apps
+
+Không dùng mock.
+
+Ví dụ context
+
+wallet
+
+inventory summary
+
+active quests
+
+guild
+
+reputation
+
+leaderboard rank
+
+friends
+
+unread mail
+
+notifications
+
+marketplace listings
+
+featured worlds
+REST API
+GET /api/ai/status
+
+GET /api/ai/dashboard
+
+GET /api/ai/conversations
+
+POST /api/ai/chat
+
+GET /api/ai/conversations/:id
+
+GET /api/ai/conversations/:id/messages
+
+GET /api/ai/memory
+
+GET /api/ai/suggestions
+
+POST /api/ai/suggestions/generate
+
+POST /api/ai/feedback
+
+JWT required.
+
+Suggestion Engine
+
+Nova phải sinh suggestion như
+
+Quest chưa claim
+
+Wallet thấp
+
+Marketplace item bán chậm
+
+Guild event sắp diễn ra
+
+Mail chưa đọc
+
+Achievement sắp mở
+
+Friend request
+
+World nổi bật
+
+Inventory đầy
+
+Daily quest reset
+Dashboard
+GET /api/ai/dashboard
+
+trả về
+
+status
+
+conversationCount
+
+memoryCount
+
+suggestions
+
+lastConversation
+
+tokenUsage
+
+todayUsage
+Frontend
+
+Tạo
+
+/ai
+
+/ai/chat
+
+/ai/chat/:id
+
+/ai/memory
+
+/ai/suggestions
+
+/ai/settings
+
+Sidebar
+
+🤖 Universe AI
+
+Dashboard Widget
+
+AI Status
+
+Nova Online
+
+Conversation count
+
+Memory count
+
+Today's Suggestions
+
+Open AI Chat
+
+Hook
+
+useAi()
+
+useConversations()
+
+useSuggestions()
+
+useMemory()
+
+useChat()
+
+TanStack Query.
+
+AI Chat UI
+
+ChatGPT-style interface
+
+conversation list
+message history
+streaming-ready architecture
+markdown rendering
+copy message
+regenerate
+feedback 👍👎
+Memory
+
+Hiển thị
+
+Known Facts
+
+Recent Memories
+
+Pinned Memories
+Suggestions
+
+Card
+
+Title
+
+Reason
+
+Action button
+
+Ví dụ
+
+Claim Quest
+
+Go to Marketplace
+
+Reply Mail
+
+Visit Featured World
+
+Join Guild Event
+Integration
+
+Nova phải đọc dữ liệu thật từ
+
+HUB-1 Account
+HUB-2 Wallet
+HUB-3 Marketplace
+HUB-4 Dashboard
+HUB-5 Launcher
+HUB-6 Inventory
+HUB-7 Marketplace Integration
+HUB-8 Notifications
+HUB-9 Reputation
+HUB-10 Social
+HUB-11 Guild
+HUB-12 Quest
+HUB-13 Mail
+HUB-14 Chat
+HUB-15 Worlds
+Acceptance Criteria
+API
+GET /api/ai/status
+GET /api/ai/dashboard
+GET /api/ai/conversations
+POST /api/ai/chat
+GET /api/ai/memory
+GET /api/ai/suggestions
+POST /api/ai/suggestions/generate
+POST /api/ai/feedback
+
+đều hoạt động.
+
+Dashboard
+
+Widget hiển thị
+
+AI Online
+Conversation Count
+Memory Count
+Suggestion Count
+Sidebar
+
+Có
+
+🤖 Universe AI
+Launcher
+
+App Registry
+
+slug = ai
+
+status = ACTIVE
+
+category = AI
+
+Launcher hiển thị Universe AI.
+
+Context
+
+Nova đọc được dữ liệu thật từ
+
+Wallet
+
+Inventory
+
+Quest
+
+Guild
+
+Marketplace
+
+Mail
+
+Social
+
+Worlds
+
+Curl Proof
+
+Chứng minh:
+
+tạo conversation
+gửi chat
+lấy history
+suggestion generate
+feedback
+dashboard
+memory
+status
+
+Không sử dụng mock data. Không hardcode. Toàn bộ dữ liệu lấy từ PostgreSQL/Drizzle và các service đã có trong HUB-1 → HUB-15.

@@ -128,7 +128,7 @@ export class DrizzleAiRepository implements IAiRepository {
     if (updates.type       !== undefined) set["type"]        = updates.type;
     if (updates.isArchived !== undefined) set["isArchived"]  = updates.isArchived;
     if (updates.messageCount !== undefined) set["messageCount"] = updates.messageCount;
-    if (updates.lastMessageAt !== undefined) set["lastMessageAt"] = new Date(updates.lastMessageAt);
+    if (updates.lastMessageAt !== undefined) set["lastMessageAt"] = updates.lastMessageAt !== null ? new Date(updates.lastMessageAt) : null;
     const rows = await db.update(aiConversations).set(set).where(eq(aiConversations.id, id)).returning();
     return rows[0] ? toConv(rows[0]) : null;
   }

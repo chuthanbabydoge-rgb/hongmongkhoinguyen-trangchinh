@@ -824,8 +824,9 @@ appRegistryService.registerApp({
   description: "Khám phá, tạo và du hành giữa các thế giới trong Universe Ecosystem",
   icon:        "🌍",
   url:         "/worlds",
-  category:    "METAVERSE",
+  category:    "WORLD",
   status:      "ACTIVE",
   version:     "1.0.0",
 }).catch(() => {});
+
 

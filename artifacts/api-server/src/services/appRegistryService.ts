@@ -208,6 +208,16 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     status:      "ACTIVE",
     version:     "1.0.0",
   },
+  {
+    slug:        "ai",
+    name:        "Universe AI",
+    description: "Nova — AI Companion thông minh của Universe Hub. Tư vấn Wallet, Quest, Marketplace, Guild và nhiều hơn nữa.",
+    icon:        "https://cdn.universe.io/icons/ai.png",
+    url:         `${REPLIT_HUB_URL}/ai`,
+    category:    "AI",
+    status:      "ACTIVE",
+    version:     "1.0.0",
+  },
 ];
 
 // ─── Service ──────────────────────────────────────────────────────────────────
