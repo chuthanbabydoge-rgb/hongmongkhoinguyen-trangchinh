@@ -1,5 +1,5 @@
 import { eq, and, desc, isNull, gt, lte, sql } from "drizzle-orm";
-import { db } from "../../database/db.js";
+import { db } from "@workspace/db";
 import {
   aiConversations,
   aiMessages,

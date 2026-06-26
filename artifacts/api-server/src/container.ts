@@ -719,6 +719,37 @@ appRegistryService.registerApp({
   version:     "1.0.0",
 }).catch(() => {});
 
+// ─── AI Companion (HUB-16) ────────────────────────────────────────────────────
+
+import { InMemoryAiRepository }  from "./repositories/aiRepository.js";
+import { DrizzleAiRepository }   from "./repositories/drizzle/DrizzleAiRepository.js";
+import { AiService }             from "./services/aiService.js";
+import { MockProvider }          from "./services/ai/MockProvider.js";
+import { OpenAIProvider }        from "./services/ai/OpenAIProvider.js";
+import { GeminiProvider }        from "./services/ai/GeminiProvider.js";
+
+const aiRepo = useDrizzle
+  ? new DrizzleAiRepository()
+  : new InMemoryAiRepository();
+logger.info(`Container: AI repository → ${useDrizzle ? "Drizzle" : "InMemory"}`);
+
+const _openaiKey = process.env["OPENAI_API_KEY"];
+const _geminiKey = process.env["GEMINI_API_KEY"] ?? process.env["GOOGLE_AI_API_KEY"];
+const aiProvider = _openaiKey
+  ? new OpenAIProvider(_openaiKey)
+  : _geminiKey
+    ? new GeminiProvider(_geminiKey)
+    : new MockProvider();
+logger.info(`Container: AI provider → ${aiProvider.name}`);
+
+export const aiService = new AiService(
+  aiRepo,
+  aiProvider,
+  notificationsService,
+  activitiesService,
+  userReputationService,
+);
+
 // ─── Universe Worlds (HUB-15) ─────────────────────────────────────────────────
 
 import { InMemoryWorldRepository }  from "./repositories/worldRepository.js";
@@ -746,3 +777,4 @@ appRegistryService.registerApp({
   status:      "ACTIVE",
   version:     "1.0.0",
 }).catch(() => {});
+
