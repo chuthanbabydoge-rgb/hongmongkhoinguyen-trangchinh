@@ -908,4 +908,49 @@ appRegistryService.registerApp({
   version:     "1.0.0",
 }).catch(() => {});
 
+// ─── HUB-20: Pet & Mount System ───────────────────────────────────────────────
+import { DrizzlePetRepository }   from "./repositories/drizzle/DrizzlePetRepository.js";
+import { DrizzleMountRepository } from "./repositories/drizzle/DrizzleMountRepository.js";
+import { PetService }             from "./services/petService.js";
+import { MountService }           from "./services/mountService.js";
+
+const petRepo   = new DrizzlePetRepository();
+const mountRepo = new DrizzleMountRepository();
+logger.info("Container: pet & mount system → Drizzle");
+
+export const petService = new PetService(
+  petRepo, notificationsService, activitiesService, userReputationRepo,
+);
+export const mountService = new MountService(
+  mountRepo, notificationsService, activitiesService, userReputationRepo,
+);
+
+petRepo.seedSpecies().catch(() => {});
+petRepo.seedLevelTable().catch(() => {});
+petRepo.seedSkills().catch(() => {});
+mountRepo.seedMountTypes().catch(() => {});
+mountRepo.seedLevelTable().catch(() => {});
+mountRepo.seedRoutes().catch(() => {});
+
+appRegistryService.registerApp({
+  slug:        "pets",
+  name:        "Universe Pets",
+  description: "Hệ thống thu phục, huấn luyện và tiến hóa pet trong Universe Ecosystem",
+  icon:        "🐾",
+  url:         "/pets",
+  category:    "ANIMAL",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
+
+appRegistryService.registerApp({
+  slug:        "mounts",
+  name:        "Universe Mounts",
+  description: "Hệ thống chiến kỵ, du hành và tùy chỉnh mount trong Universe Ecosystem",
+  icon:        "🐴",
+  url:         "/mounts",
+  category:    "ANIMAL",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
 

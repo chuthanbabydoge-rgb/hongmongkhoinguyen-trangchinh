@@ -46,6 +46,8 @@ import {
   Crown,
   Swords,
   Skull,
+  Rabbit,
+  Footprints,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -216,6 +218,17 @@ export function Sidebar() {
           <NavItem icon={Swords}  label="Universe Combat"   path="/combat" />
           <NavItem icon={Skull}   label="Boss Battle"       path="/combat/boss" />
           <NavItem icon={Trophy}  label="Arena PVP"         path="/combat/ranking" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Pet &amp; Mount
+          </p>
+          <NavItem icon={Rabbit}     label="Universe Pets"   path="/pets" />
+          <NavItem icon={PawPrint}   label="Bộ sưu tập Pet" path="/pets/collection" />
+          <NavItem icon={Sparkles}   label="Tiến hóa Pet"   path="/pets/evolution" />
+          <NavItem icon={Footprints} label="Universe Mounts" path="/mounts" />
+          <NavItem icon={Globe}      label="Du hành Mount"  path="/mounts/travel" />
         </div>
 
         <div className="pt-1 pb-1">

@@ -24,6 +24,7 @@ import aiRouter from "./ai";
 import craftingRouter from "./crafting";
 import characterRouter from "./character";
 import combatRouter from "./combat";
+import petRouter from "./pets";
 
 const router: IRouter = Router();
 
@@ -52,5 +53,6 @@ router.use(aiRouter);
 router.use(craftingRouter);
 router.use(characterRouter);
 router.use(combatRouter);
+router.use(petRouter);
 
 export default router;

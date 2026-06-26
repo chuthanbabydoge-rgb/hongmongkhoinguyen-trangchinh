@@ -77,6 +77,18 @@ import BattleHistory   from "@/pages/combat/BattleHistory";
 import BossBattle      from "@/pages/combat/BossBattle";
 import ArenaRanking    from "@/pages/combat/ArenaRanking";
 import CombatStatistics from "@/pages/combat/CombatStatistics";
+import PetDashboard     from "@/pages/pets/PetDashboard";
+import PetCollection    from "@/pages/pets/PetCollection";
+import PetProfile       from "@/pages/pets/PetProfile";
+import PetTraining      from "@/pages/pets/PetTraining";
+import PetEvolution     from "@/pages/pets/PetEvolution";
+import PetSkills        from "@/pages/pets/PetSkills";
+import PetEquipment     from "@/pages/pets/PetEquipment";
+import MountDashboard   from "@/pages/mounts/MountDashboard";
+import MountStable      from "@/pages/mounts/MountStable";
+import MountTravel      from "@/pages/mounts/MountTravel";
+import MountCustomization from "@/pages/mounts/MountCustomization";
+import MountStatistics  from "@/pages/mounts/MountStatistics";
 import CharacterProfile  from "@/pages/character/CharacterProfile";
 import CharacterStats    from "@/pages/character/CharacterStats";
 import EquipmentPage     from "@/pages/character/EquipmentPage";
@@ -193,6 +205,18 @@ function Router() {
       <Route path="/combat/history" component={BattleHistory} />
       <Route path="/combat/statistics" component={CombatStatistics} />
       <Route path="/combat/room/:id" component={BattleRoom} />
+      <Route path="/pets" component={PetDashboard} />
+      <Route path="/pets/collection" component={PetCollection} />
+      <Route path="/pets/training" component={PetTraining} />
+      <Route path="/pets/evolution" component={PetEvolution} />
+      <Route path="/pets/skills" component={PetSkills} />
+      <Route path="/pets/equipment" component={PetEquipment} />
+      <Route path="/pets/:id" component={PetProfile} />
+      <Route path="/mounts" component={MountDashboard} />
+      <Route path="/mounts/stable" component={MountStable} />
+      <Route path="/mounts/travel" component={MountTravel} />
+      <Route path="/mounts/customize" component={MountCustomization} />
+      <Route path="/mounts/statistics" component={MountStatistics} />
       <Route component={NotFound} />
     </Switch>
   );
