@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "he2Gy0qJgCicIj2n29zW6"
+uri = "file://README.md"
+type = "text"
+title = "README.md — Universe Hub"
