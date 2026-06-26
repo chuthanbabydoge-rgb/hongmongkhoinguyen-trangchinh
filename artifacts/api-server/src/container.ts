@@ -829,13 +829,13 @@ const craftingRepo = new DrizzleCraftingRepository();
 logger.info("Container: crafting system → Drizzle");
 
 export const craftingService = new CraftingService(
-  craftingRepo, notificationsService, activitiesService, userReputationService,
+  craftingRepo, notificationsService, activitiesService, userReputationRepo,
 );
 export const resourceService = new ResourceService(
-  craftingRepo, notificationsService, activitiesService, userReputationService,
+  craftingRepo, notificationsService, activitiesService, userReputationRepo,
 );
 export const npcShopService = new NPCShopService(
-  craftingRepo, notificationsService, activitiesService, userReputationService,
+  craftingRepo, notificationsService, activitiesService, userReputationRepo,
 );
 export const economyService = new EconomyService(craftingRepo);
 

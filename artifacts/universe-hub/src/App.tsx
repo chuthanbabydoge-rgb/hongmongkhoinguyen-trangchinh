@@ -72,9 +72,12 @@ import AiSettings from "@/pages/ai/AiSettings";
 import CraftDashboard   from "@/pages/crafting/CraftDashboard";
 import RecipeBrowser    from "@/pages/crafting/RecipeBrowser";
 import CraftQueue       from "@/pages/crafting/CraftQueue";
+import CraftHistory     from "@/pages/crafting/CraftHistory";
 import Blueprints       from "@/pages/crafting/Blueprints";
 import UpgradeCenter    from "@/pages/crafting/UpgradeCenter";
+import EnchantCenter    from "@/pages/crafting/EnchantCenter";
 import ResourceMap      from "@/pages/resources/ResourceMap";
+import Gathering        from "@/pages/resources/Gathering";
 import NPCShop          from "@/pages/shops/NPCShop";
 import EconomyDashboard from "@/pages/economy/EconomyDashboard";
 import MarketPrices     from "@/pages/economy/MarketPrices";
@@ -151,9 +154,12 @@ function Router() {
       <Route path="/crafting" component={CraftDashboard} />
       <Route path="/crafting/recipes" component={RecipeBrowser} />
       <Route path="/crafting/queue" component={CraftQueue} />
+      <Route path="/crafting/history" component={CraftHistory} />
       <Route path="/crafting/blueprints" component={Blueprints} />
       <Route path="/crafting/upgrade" component={UpgradeCenter} />
+      <Route path="/crafting/enchant" component={EnchantCenter} />
       <Route path="/resources" component={ResourceMap} />
+      <Route path="/resources/gather" component={Gathering} />
       <Route path="/shops" component={NPCShop} />
       <Route path="/economy" component={EconomyDashboard} />
       <Route path="/economy/prices" component={MarketPrices} />
