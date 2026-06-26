@@ -33,3 +33,4 @@ export * from "./quests";
 export * from "./mail";
 export * from "./chat";
 export * from "./worlds";
+export * from "./ai";

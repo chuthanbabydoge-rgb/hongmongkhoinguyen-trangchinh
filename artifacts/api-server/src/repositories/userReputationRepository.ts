@@ -14,7 +14,9 @@ export type ReputationEventType =
   | "QUEST_COMPLETED"
   | "FIRST_CHAT"
   | "FIRST_GUILD_CHAT"
-  | "FIRST_PRIVATE_CHAT";
+  | "FIRST_PRIVATE_CHAT"
+  | "AI_CHAT"
+  | "AI_HELP_USED";
 
 export const REPUTATION_RULES: Record<ReputationEventType, number> = {
   LOGIN:                 5,
@@ -33,6 +35,8 @@ export const REPUTATION_RULES: Record<ReputationEventType, number> = {
   FIRST_CHAT:           10,
   FIRST_GUILD_CHAT:     15,
   FIRST_PRIVATE_CHAT:   10,
+  AI_CHAT:              3,
+  AI_HELP_USED:         5,
 };
 
 export const LEVEL_THRESHOLDS: Array<{ level: string; min: number; max: number | null }> = [

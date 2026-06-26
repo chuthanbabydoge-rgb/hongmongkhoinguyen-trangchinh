@@ -37,7 +37,10 @@ export type QuestEventType =
   | "PRIVATE_CHAT"
   | "WORLD_TRAVEL"
   | "VISIT_WORLD"
-  | "JOIN_WORLD";
+  | "JOIN_WORLD"
+  | "AI_CONVERSATION"
+  | "AI_ASSIST"
+  | "AI_MEMORY_CREATED";
 
 // ─── Event envelope ──────────────────────────────────────────────────────────
 

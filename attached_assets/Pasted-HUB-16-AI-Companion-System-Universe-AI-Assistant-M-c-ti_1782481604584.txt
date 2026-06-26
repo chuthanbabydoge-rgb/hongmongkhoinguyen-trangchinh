@@ -1,0 +1,463 @@
+HUB-16 — AI Companion System (Universe AI Assistant)
+Mục tiêu
+
+Xây dựng Universe AI Companion — trợ lý AI cá nhân hoạt động xuyên suốt toàn bộ Universe Hub.
+
+AI phải có khả năng:
+
+Chat với người dùng
+Ghi nhớ lịch sử hội thoại
+Hiểu dữ liệu thật từ Hub (Inventory, Wallet, Marketplace, Guild, Quest, Mail, Social, Worlds...)
+Đưa ra gợi ý
+Sinh Activity + Notification
+Realtime qua WebSocket
+Không dùng mock data.
+BACKEND
+Database
+
+Tạo schema mới
+
+lib/db/src/schema/ai.ts
+
+Bao gồm tối thiểu:
+
+ai_conversations
+
+ai_messages
+
+ai_memories
+
+ai_suggestions
+
+ai_sessions
+
+ai_usage_logs
+
+ai_prompt_templates
+
+ai_context_cache
+
+ai_feedback
+
+ai_personality
+
+Enums
+
+conversation_type
+
+message_role
+
+suggestion_type
+
+feedback_type
+
+memory_scope
+
+Export trong
+
+schema/index.ts
+Repository
+
+Tạo
+
+repositories/aiRepository.ts
+
+repositories/drizzle/DrizzleAiRepository.ts
+
+Không mock.
+
+Service
+
+Tạo
+
+services/aiService.ts
+
+Bao gồm:
+
+Conversation
+createConversation()
+
+getConversation()
+
+listConversations()
+
+deleteConversation()
+Messages
+sendMessage()
+
+saveMessage()
+
+loadHistory()
+Memory
+remember()
+
+forget()
+
+listMemory()
+Suggestions
+generateSuggestions()
+
+dismissSuggestion()
+Context
+
+AI phải đọc dữ liệu thật từ:
+
+Wallet
+Inventory
+Marketplace
+Reputation
+Quest
+Guild
+Mail
+Social
+Worlds
+
+để build context.
+
+Ví dụ
+
+Bạn đang có:
+
+5420 Credits
+
+18 vật phẩm
+
+3 quest chưa hoàn thành
+
+2 mail chưa đọc
+
+1 guild
+
+4 bạn bè online
+AI Providers
+
+Thiết kế abstraction
+
+IAiProvider
+
+Implement
+
+OpenAIProvider
+
+GeminiProvider
+
+MockProvider
+
+Provider chọn qua ENV
+
+AI_PROVIDER
+
+OPENAI_API_KEY
+
+GEMINI_API_KEY
+
+Nếu thiếu API Key
+
+→ fallback MockProvider.
+
+Controller
+controllers/aiController.ts
+
+Endpoints
+
+GET /api/ai
+
+GET /api/ai/dashboard
+
+GET /api/ai/conversations
+
+POST /api/ai/conversations
+
+GET /api/ai/conversations/:id
+
+DELETE /api/ai/conversations/:id
+
+GET /api/ai/messages/:conversationId
+
+POST /api/ai/chat
+
+GET /api/ai/memory
+
+POST /api/ai/memory
+
+DELETE /api/ai/memory/:id
+
+GET /api/ai/suggestions
+
+DELETE /api/ai/suggestions/:id
+
+POST /api/ai/feedback
+WebSocket
+
+Tạo
+
+aiEventBus.ts
+
+Events
+
+AI_MESSAGE
+
+AI_TYPING
+
+AI_SUGGESTION
+
+AI_MEMORY_UPDATED
+
+AI_CONTEXT_UPDATED
+
+AI_ERROR
+
+AI_STREAM_START
+
+AI_STREAM_CHUNK
+
+AI_STREAM_END
+
+AI_FEEDBACK
+
+Realtime push.
+
+Notification Integration
+
+AI tự sinh Notification khi
+
+Quest gần hết hạn
+Wallet thấp
+Mail mới
+Guild event
+Marketplace item sold
+World event
+Activity Integration
+
+Sinh activity
+
+type = ai
+
+Ví dụ
+
+AI suggested quest
+
+AI summarized mail
+
+AI helped marketplace purchase
+
+AI reminder
+Reputation
+
+Thêm
+
+AI_CHAT
+
+AI_HELP_USED
+Quest Integration
+
+Emit
+
+AI_CONVERSATION
+
+AI_ASSIST
+
+AI_MEMORY_CREATED
+FRONTEND
+
+Tạo
+
+pages/ai/
+
+Bao gồm
+
+AiDashboard
+
+AiChat
+
+AiConversation
+
+AiMemory
+
+AiSuggestions
+
+AiSettings
+Components
+ChatWindow
+
+ChatBubble
+
+TypingIndicator
+
+SuggestionCard
+
+MemoryCard
+
+ConversationSidebar
+
+AiQuickActions
+
+AiStatus
+Hooks
+useAi.ts
+
+TanStack Query đầy đủ.
+
+Dashboard
+
+Thêm widget
+
+AI Companion
+
+Hiển thị
+
+Today's conversations
+
+Suggestions
+
+Memory count
+
+AI status
+Sidebar
+
+Thêm
+
+🤖 Universe AI
+Routes
+/ai
+
+/ai/chat
+
+/ai/memory
+
+/ai/suggestions
+
+/ai/settings
+
+/ai/conversations/:id
+Launcher
+
+Đăng ký App
+
+slug
+
+ai
+
+name
+
+Universe AI
+
+category
+
+AI
+
+status
+
+ACTIVE
+
+Launcher phải hiển thị.
+
+Acceptance Criteria
+Backend
+
+✓ Conversation CRUD
+
+✓ Message history
+
+✓ Memory CRUD
+
+✓ Suggestion CRUD
+
+✓ AI Provider abstraction
+
+✓ Context aggregation
+
+✓ Notification integration
+
+✓ Activity integration
+
+✓ Reputation integration
+
+✓ Quest integration
+
+✓ WebSocket streaming
+
+✓ PostgreSQL
+
+✓ Drizzle
+
+✓ No mock data
+
+Frontend
+
+✓ AI Chat
+
+✓ Conversation list
+
+✓ Memory manager
+
+✓ Suggestions
+
+✓ Dashboard widget
+
+✓ Sidebar
+
+✓ Routes
+
+Curl Proof
+
+Phải chứng minh
+
+GET /api/ai
+
+GET /api/ai/dashboard
+
+POST /api/ai/conversations
+
+POST /api/ai/chat
+
+GET /api/ai/messages/:id
+
+GET /api/ai/memory
+
+POST /api/ai/memory
+
+GET /api/ai/suggestions
+
+DELETE /api/ai/suggestions/:id
+E2E Proof
+
+Chứng minh
+
+Tạo conversation
+
+↓
+
+Chat với AI
+
+↓
+
+AI đọc Inventory thật
+
+↓
+
+AI đọc Wallet thật
+
+↓
+
+AI gợi ý Quest
+
+↓
+
+AI tạo Notification
+
+↓
+
+AI tạo Activity
+
+↓
+
+AI emit WebSocket
+
+↓
+
+Memory lưu DB
+
+↓
+
+Launcher hiển thị Universe AI

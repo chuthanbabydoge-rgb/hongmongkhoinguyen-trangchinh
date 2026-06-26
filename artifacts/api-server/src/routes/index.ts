@@ -20,6 +20,7 @@ import questsRouter from "./quests";
 import mailRouter from "./mail";
 import chatRouter from "./chat";
 import worldsRouter from "./worlds";
+import aiRouter from "./ai";
 
 const router: IRouter = Router();
 
@@ -44,5 +45,6 @@ router.use(questsRouter);
 router.use(mailRouter);
 router.use(chatRouter);
 router.use(worldsRouter);
+router.use(aiRouter);
 
 export default router;

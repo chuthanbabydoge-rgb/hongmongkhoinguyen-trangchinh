@@ -1,4 +1,4 @@
-export type ActivityType = "marketplace" | "wallet" | "inventory" | "launcher" | "system" | "social" | "quest" | "mail" | "chat";
+export type ActivityType = "marketplace" | "wallet" | "inventory" | "launcher" | "system" | "social" | "quest" | "mail" | "chat" | "ai" | "world";
 
 export interface Activity {
   id:          string;
