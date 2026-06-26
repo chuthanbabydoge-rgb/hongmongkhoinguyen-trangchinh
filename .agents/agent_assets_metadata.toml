@@ -1,8 +1,31 @@
 uploads = []
-generated = []
+
+[[generated]]
+id = "YV1f1GqA18wuGQOZsDyKI"
+uri = "file://attached_assets/readme_banner.png"
+type = "image"
+title = "universe hub banner"
+
+[[generated]]
+id = "wMsiYweR9x6AGXS0fVfZ4"
+uri = "file://attached_assets/readme_pvp.png"
+type = "image"
+title = "pvp arena section"
+
+[[generated]]
+id = "37velsM6fwYxDegjBi6CK"
+uri = "file://attached_assets/readme_wallet.png"
+type = "image"
+title = "wallet economy section"
+
+[[generated]]
+id = "lR3hvuGpYhaDl7HLVbDLQ"
+uri = "file://attached_assets/readme_world.png"
+type = "image"
+title = "world system section"
 
 [[outputs]]
 id = "he2Gy0qJgCicIj2n29zW6"
 uri = "file://README.md"
 type = "text"
-title = "README.md — Universe Hub"
+title = "README.md — Universe Hub (Enhanced)"
