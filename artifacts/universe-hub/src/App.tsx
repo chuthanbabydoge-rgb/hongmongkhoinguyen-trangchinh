@@ -89,6 +89,16 @@ import MountStable      from "@/pages/mounts/MountStable";
 import MountTravel      from "@/pages/mounts/MountTravel";
 import MountCustomization from "@/pages/mounts/MountCustomization";
 import MountStatistics  from "@/pages/mounts/MountStatistics";
+import DungeonDashboard  from "@/pages/dungeons/DungeonDashboard";
+import DungeonBrowser    from "@/pages/dungeons/DungeonBrowser";
+import DungeonRoom       from "@/pages/dungeons/DungeonRoom";
+import DungeonHistory    from "@/pages/dungeons/DungeonHistory";
+import DungeonStatistics from "@/pages/dungeons/DungeonStatistics";
+import RaidDashboard     from "@/pages/raids/RaidDashboard";
+import RaidLobby         from "@/pages/raids/RaidLobby";
+import RaidBattle        from "@/pages/raids/RaidBattle";
+import RaidHistory       from "@/pages/raids/RaidHistory";
+import RaidLeaderboard   from "@/pages/raids/RaidLeaderboard";
 import CharacterProfile  from "@/pages/character/CharacterProfile";
 import CharacterStats    from "@/pages/character/CharacterStats";
 import EquipmentPage     from "@/pages/character/EquipmentPage";
@@ -217,6 +227,16 @@ function Router() {
       <Route path="/mounts/travel" component={MountTravel} />
       <Route path="/mounts/customize" component={MountCustomization} />
       <Route path="/mounts/statistics" component={MountStatistics} />
+      <Route path="/dungeons" component={DungeonDashboard} />
+      <Route path="/dungeons/browse" component={DungeonBrowser} />
+      <Route path="/dungeons/history" component={DungeonHistory} />
+      <Route path="/dungeons/statistics" component={DungeonStatistics} />
+      <Route path="/dungeons/room/:id" component={DungeonRoom} />
+      <Route path="/raids" component={RaidDashboard} />
+      <Route path="/raids/lobby" component={RaidLobby} />
+      <Route path="/raids/history" component={RaidHistory} />
+      <Route path="/raids/leaderboard" component={RaidLeaderboard} />
+      <Route path="/raids/:id" component={RaidBattle} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -48,6 +48,8 @@ import {
   Skull,
   Rabbit,
   Footprints,
+  Sword as DungeonSword,
+  Castle,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -229,6 +231,16 @@ export function Sidebar() {
           <NavItem icon={Sparkles}   label="Tiến hóa Pet"   path="/pets/evolution" />
           <NavItem icon={Footprints} label="Universe Mounts" path="/mounts" />
           <NavItem icon={Globe}      label="Du hành Mount"  path="/mounts/travel" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Dungeon &amp; Raid
+          </p>
+          <NavItem icon={DungeonSword} label="Universe Dungeon" path="/dungeons" />
+          <NavItem icon={Skull}        label="Dungeon Lịch sử"  path="/dungeons/history" />
+          <NavItem icon={Castle}       label="Universe Raid"    path="/raids" />
+          <NavItem icon={Trophy}       label="Raid Leaderboard" path="/raids/leaderboard" />
         </div>
 
         <div className="pt-1 pb-1">

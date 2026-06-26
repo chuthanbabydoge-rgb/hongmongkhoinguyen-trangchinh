@@ -954,3 +954,46 @@ appRegistryService.registerApp({
   version:     "1.0.0",
 }).catch(() => {});
 
+// ─── HUB-21: Dungeon & Raid System ───────────────────────────────────────────
+import { DrizzleDungeonRepository } from "./repositories/drizzle/DrizzleDungeonRepository.js";
+import { DrizzleRaidRepository }    from "./repositories/drizzle/DrizzleRaidRepository.js";
+import { DungeonService }           from "./services/dungeonService.js";
+import { RaidService }              from "./services/raidService.js";
+
+const dungeonRepo = new DrizzleDungeonRepository();
+const raidRepo    = new DrizzleRaidRepository();
+logger.info("Container: dungeon & raid system → Drizzle");
+
+export const dungeonService = new DungeonService(
+  dungeonRepo, notificationsService, activitiesService, userReputationRepo,
+);
+export const raidService = new RaidService(
+  raidRepo, notificationsService, activitiesService, userReputationRepo,
+);
+
+dungeonRepo.seedDungeons().catch(() => {});
+dungeonRepo.seedBosses().catch(() => {});
+raidRepo.seedBosses().catch(() => {});
+
+appRegistryService.registerApp({
+  slug:        "dungeons",
+  name:        "Universe Dungeon",
+  description: "Hệ thống hang ngục — khám phá, chiến đấu và nhận phần thưởng trong Universe Ecosystem",
+  icon:        "⚔️",
+  url:         "/dungeons",
+  category:    "OTHER",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
+
+appRegistryService.registerApp({
+  slug:        "raids",
+  name:        "Universe Raid",
+  description: "Hệ thống raid boss — tập hợp đội nhóm lớn để chinh phục những kẻ thù mạnh nhất",
+  icon:        "👹",
+  url:         "/raids",
+  category:    "OTHER",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
+
