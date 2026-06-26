@@ -1,0 +1,637 @@
+# HUB-17 — Universe Economy & Crafting System
+
+Implement the complete HUB-17 Economy & Crafting System.
+
+IMPORTANT
+
+This is NOT a demo.
+This is NOT a mock.
+Everything must use the existing architecture already built in HUB-1 → HUB-16.
+
+Use:
+
+- PostgreSQL
+- Drizzle ORM
+- Existing Container DI
+- Existing WalletService
+- Existing InventoryService
+- Existing MarketplaceService
+- Existing QuestService
+- Existing ReputationService
+- Existing GuildService
+- Existing WorldService
+- Existing NotificationService
+- Existing ActivitiesService
+- Existing AI Service (Nova)
+- Existing WebSocket infrastructure
+- Existing EventBus architecture
+
+Never create mock repositories.
+
+--------------------------------------------------
+PART 1 — DATABASE
+--------------------------------------------------
+
+Create Drizzle schema:
+
+crafting_recipes
+
+recipe_ingredients
+
+recipe_outputs
+
+user_crafting_jobs
+
+resource_nodes
+
+resource_spawns
+
+resource_gather_logs
+
+npc_shops
+
+npc_shop_items
+
+crafting_stations
+
+user_blueprints
+
+item_enchantments
+
+item_upgrades
+
+economy_statistics
+
+resource_market_prices
+
+crafting_history
+
+Enums
+
+CraftJobStatus
+
+PENDING
+
+CRAFTING
+
+FINISHED
+
+FAILED
+
+CANCELLED
+
+ResourceType
+
+WOOD
+
+STONE
+
+IRON
+
+GOLD
+
+CRYSTAL
+
+MAGIC
+
+FOOD
+
+HERB
+
+UpgradeType
+
+LEVEL
+
+RARITY
+
+ENCHANT
+
+SOCKET
+
+--------------------------------------------------
+PART 2 — REPOSITORY
+--------------------------------------------------
+
+Create
+
+ICraftingRepository
+
+DrizzleCraftingRepository
+
+Methods
+
+getRecipes()
+
+getRecipe()
+
+craft()
+
+finishCraft()
+
+cancelCraft()
+
+getUserJobs()
+
+getResources()
+
+spawnResources()
+
+gather()
+
+upgradeItem()
+
+enchantItem()
+
+getBlueprints()
+
+unlockBlueprint()
+
+getNpcShops()
+
+buyNpcItem()
+
+sellNpcItem()
+
+getEconomyStats()
+
+updateMarketPrice()
+
+--------------------------------------------------
+PART 3 — SERVICES
+--------------------------------------------------
+
+Create
+
+CraftingService
+
+EconomyService
+
+ResourceService
+
+NPCShopService
+
+Features
+
+Recipe validation
+
+Material consumption
+
+Inventory deduction
+
+Inventory creation
+
+Wallet deduction
+
+Wallet rewards
+
+Craft queue
+
+Craft timers
+
+Craft completion
+
+Item upgrades
+
+Enchantments
+
+Blueprint unlock
+
+NPC trading
+
+Resource gathering
+
+Dynamic market price
+
+Economy statistics
+
+Guild crafting bonus
+
+World resource spawning
+
+--------------------------------------------------
+PART 4 — EVENT BUS
+--------------------------------------------------
+
+Create
+
+CraftingEventBus
+
+EconomyEventBus
+
+Events
+
+CRAFT_STARTED
+
+CRAFT_COMPLETED
+
+CRAFT_FAILED
+
+ITEM_UPGRADED
+
+ITEM_ENCHANTED
+
+RESOURCE_GATHERED
+
+RESOURCE_RESPAWNED
+
+NPC_PURCHASE
+
+NPC_SALE
+
+MARKET_PRICE_CHANGED
+
+BLUEPRINT_UNLOCKED
+
+--------------------------------------------------
+PART 5 — INTEGRATION
+--------------------------------------------------
+
+Integrate with existing HUBs
+
+Wallet
+
+Deduct crafting cost
+
+Reward selling
+
+Inventory
+
+Consume materials
+
+Generate crafted items
+
+Marketplace
+
+Update economy statistics
+
+Quest
+
+Track
+
+CRAFT_ITEM
+
+UPGRADE_ITEM
+
+GATHER_RESOURCE
+
+BUY_FROM_SHOP
+
+SELL_TO_SHOP
+
+Guild
+
+Guild crafting bonus
+
+Guild stations
+
+Guild warehouse
+
+World
+
+Spawn resources
+
+Mining
+
+Forests
+
+Fishing
+
+Magic crystals
+
+AI
+
+Nova suggests recipes
+
+Nova predicts prices
+
+Nova suggests upgrades
+
+Notifications
+
+Craft finished
+
+Upgrade success
+
+Enchant failed
+
+Rare drop
+
+Activities
+
+Craft completed
+
+Upgrade completed
+
+Gather completed
+
+Economy
+
+Reputation
+
+Events
+
+FIRST_CRAFT
+
+MASTER_BLACKSMITH
+
+RESOURCE_COLLECTOR
+
+MERCHANT
+
+--------------------------------------------------
+PART 6 — API
+--------------------------------------------------
+
+Create
+
+GET
+
+/api/crafting/recipes
+
+GET
+
+/api/crafting/recipes/:id
+
+POST
+
+/api/crafting/start
+
+POST
+
+/api/crafting/:jobId/cancel
+
+GET
+
+/api/crafting/jobs
+
+GET
+
+/api/resources
+
+POST
+
+/api/resources/gather
+
+GET
+
+/api/shops
+
+GET
+
+/api/shops/:id
+
+POST
+
+/api/shops/:id/buy
+
+POST
+
+/api/shops/:id/sell
+
+POST
+
+/api/items/:id/upgrade
+
+POST
+
+/api/items/:id/enchant
+
+GET
+
+/api/blueprints
+
+POST
+
+/api/blueprints/:id/unlock
+
+GET
+
+/api/economy
+
+GET
+
+/api/economy/prices
+
+--------------------------------------------------
+PART 7 — WEBSOCKET
+--------------------------------------------------
+
+Realtime events
+
+CRAFT_STARTED
+
+CRAFT_PROGRESS
+
+CRAFT_COMPLETED
+
+RESOURCE_RESPAWN
+
+RESOURCE_GATHERED
+
+ITEM_UPGRADED
+
+ITEM_ENCHANTED
+
+MARKET_UPDATED
+
+--------------------------------------------------
+PART 8 — FRONTEND
+--------------------------------------------------
+
+Create
+
+/pages/crafting
+
+CraftDashboard
+
+RecipeBrowser
+
+CraftQueue
+
+CraftHistory
+
+Blueprints
+
+UpgradeCenter
+
+EnchantCenter
+
+/pages/resources
+
+ResourceMap
+
+Gathering
+
+/pages/shops
+
+NPCShop
+
+/pages/economy
+
+EconomyDashboard
+
+MarketPrices
+
+Create hooks
+
+useCrafting
+
+useEconomy
+
+useResources
+
+useNpcShop
+
+Create dashboard widgets
+
+CraftWidget
+
+EconomyWidget
+
+ResourceWidget
+
+Add Sidebar
+
+Universe Crafting
+
+Universe Economy
+
+--------------------------------------------------
+PART 9 — APP REGISTRY
+--------------------------------------------------
+
+Register
+
+slug
+
+crafting
+
+status
+
+ACTIVE
+
+category
+
+UTILITY
+
+Register
+
+economy
+
+ACTIVE
+
+UTILITY
+
+--------------------------------------------------
+PART 10 — ACCEPTANCE CRITERIA
+--------------------------------------------------
+
+Everything must use PostgreSQL.
+
+No mocks.
+
+No fake data.
+
+No hardcoded user-001.
+
+JWT authentication.
+
+All APIs working.
+
+Typecheck
+
+0 HUB-17 errors.
+
+Only pre-existing errors may remain.
+
+--------------------------------------------------
+END-TO-END PROOF
+--------------------------------------------------
+
+Provide curl evidence for:
+
+1.
+
+Create crafting recipe
+
+2.
+
+Gather resources
+
+3.
+
+Craft item
+
+4.
+
+Finish craft
+
+5.
+
+Inventory receives crafted item
+
+6.
+
+Wallet deducts crafting fee
+
+7.
+
+Upgrade item
+
+8.
+
+Enchant item
+
+9.
+
+NPC shop buy
+
+10.
+
+NPC shop sell
+
+11.
+
+Blueprint unlock
+
+12.
+
+Economy price updates
+
+13.
+
+Quest progress
+
+14.
+
+Notification generated
+
+15.
+
+Activity generated
+
+16.
+
+Reputation gained
+
+17.
+
+WebSocket events
+
+18.
+
+Launcher shows
+
+Universe Crafting
+
+Universe Economy
+
+19.
+
+All data verified in PostgreSQL
+
+20.
+
+Sprint report listing every created and modified file.
+
+Do not stop until every acceptance criterion passes.

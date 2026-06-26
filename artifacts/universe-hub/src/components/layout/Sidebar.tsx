@@ -42,7 +42,6 @@ import {
   Hammer,
   BarChart,
   Pickaxe,
-  Store,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
