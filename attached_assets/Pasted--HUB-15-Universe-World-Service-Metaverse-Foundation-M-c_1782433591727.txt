@@ -1,0 +1,527 @@
+# HUB-15 — Universe World Service (Metaverse Foundation)
+
+Mục tiêu:
+
+Xây dựng hệ thống Universe World Service làm nền tảng cho toàn bộ Metaverse.
+
+Không mock.
+
+Không hardcode.
+
+PostgreSQL + Drizzle ORM.
+
+WebSocket realtime.
+
+JWT authentication.
+
+Đây là service quản lý toàn bộ Worlds trong Universe Platform.
+
+==================================================
+
+WORLD HIERARCHY
+
+==================================================
+
+Universe
+
+↓
+
+World
+
+↓
+
+Region
+
+↓
+
+Zone
+
+↓
+
+Instance
+
+↓
+
+Spawn Point
+
+Một World có nhiều Region.
+
+Một Region có nhiều Zone.
+
+Một Zone có nhiều Instance.
+
+Instance chứa người chơi realtime.
+
+==================================================
+
+DATABASE
+
+==================================================
+
+Tạo schema:
+
+worlds
+
+world_regions
+
+world_zones
+
+world_instances
+
+world_spawn_points
+
+world_members
+
+world_permissions
+
+world_bookmarks
+
+world_travel_history
+
+world_presence
+
+world_events
+
+==================================================
+
+WORLD TYPES
+
+==================================================
+
+PUBLIC
+
+PRIVATE
+
+CREATOR
+
+OFFICIAL
+
+EVENT
+
+GUILD
+
+PARTY
+
+TRAINING
+
+==================================================
+
+INSTANCE TYPES
+
+==================================================
+
+SHARED
+
+PRIVATE
+
+RESERVED
+
+MATCH
+
+EVENT
+
+==================================================
+
+BACKEND
+
+==================================================
+
+Tạo:
+
+WorldRepository
+
+DrizzleWorldRepository
+
+WorldService
+
+WorldController
+
+WorldGateway
+
+WorldEventBus
+
+==================================================
+
+REST API
+
+==================================================
+
+GET    /api/worlds
+
+POST   /api/worlds
+
+GET    /api/worlds/:id
+
+PUT    /api/worlds/:id
+
+DELETE /api/worlds/:id
+
+GET    /api/worlds/featured
+
+GET    /api/worlds/popular
+
+GET    /api/worlds/recent
+
+GET    /api/worlds/search
+
+POST   /api/worlds/:id/bookmark
+
+DELETE /api/worlds/:id/bookmark
+
+GET    /api/worlds/bookmarks
+
+POST   /api/worlds/:id/join
+
+POST   /api/worlds/:id/leave
+
+POST   /api/worlds/:id/travel
+
+GET    /api/worlds/:id/members
+
+GET    /api/worlds/:id/presence
+
+GET    /api/worlds/:id/events
+
+==================================================
+
+WORLD FEATURES
+
+==================================================
+
+Create World
+
+Edit World
+
+Delete World
+
+Bookmark World
+
+Travel History
+
+Favorite Worlds
+
+Search Worlds
+
+Featured Worlds
+
+Popular Worlds
+
+Recently Visited
+
+==================================================
+
+INSTANCE MANAGEMENT
+
+==================================================
+
+Auto create instance
+
+Auto close empty instance
+
+Capacity
+
+Queue
+
+Player Count
+
+Region selection
+
+Auto balancing
+
+==================================================
+
+PRESENCE
+
+==================================================
+
+Track realtime:
+
+Current World
+
+Current Region
+
+Current Zone
+
+Current Instance
+
+Join Time
+
+Last Seen
+
+==================================================
+
+WEBSOCKET EVENTS
+
+==================================================
+
+WORLD_CREATED
+
+WORLD_UPDATED
+
+WORLD_DELETED
+
+WORLD_JOINED
+
+WORLD_LEFT
+
+WORLD_TRAVEL
+
+INSTANCE_CREATED
+
+INSTANCE_CLOSED
+
+PLAYER_ENTER
+
+PLAYER_EXIT
+
+PRESENCE_UPDATED
+
+==================================================
+
+FRONTEND
+
+==================================================
+
+Universe Worlds App
+
+Pages:
+
+World Dashboard
+
+World Explorer
+
+Featured Worlds
+
+Popular Worlds
+
+Bookmarks
+
+Travel History
+
+World Detail
+
+Create World
+
+Edit World
+
+==================================================
+
+DASHBOARD
+
+==================================================
+
+Widget:
+
+Universe Worlds
+
+Hiển thị:
+
+Current World
+
+Players Online
+
+Bookmarked Worlds
+
+Recently Visited
+
+==================================================
+
+SIDEBAR
+
+==================================================
+
+Thêm:
+
+Universe Worlds
+
+/icon Globe
+
+==================================================
+
+LAUNCHER
+
+==================================================
+
+Đăng ký App:
+
+slug: worlds
+
+name: Universe Worlds
+
+category: WORLD
+
+status: ACTIVE
+
+Launcher hiển thị.
+
+==================================================
+
+INTEGRATION
+
+==================================================
+
+Social
+
+↓
+
+Hiển thị bạn bè đang ở World nào.
+
+Guild
+
+↓
+
+Guild có Official World.
+
+Chat
+
+↓
+
+Join World → Join World Chat.
+
+Activity
+
+↓
+
+WORLD_JOINED
+
+WORLD_LEFT
+
+WORLD_CREATED
+
+WORLD_TRAVEL
+
+Notification
+
+↓
+
+Bạn bè vừa vào cùng World.
+
+Quest
+
+↓
+
+WORLD_TRAVEL
+
+VISIT_WORLD
+
+JOIN_WORLD
+
+Reputation
+
+↓
+
+FIRST_WORLD
+
+WORLD_EXPLORER
+
+WORLD_CREATOR
+
+==================================================
+
+SECURITY
+
+==================================================
+
+JWT bắt buộc.
+
+Private World chỉ owner/invite.
+
+Permission theo role.
+
+Audit log.
+
+==================================================
+
+PERFORMANCE
+
+==================================================
+
+Cursor Pagination.
+
+Lazy loading.
+
+Realtime Presence.
+
+Không N+1 Query.
+
+==================================================
+
+ACCEPTANCE CRITERIA
+
+==================================================
+
+Chứng minh bằng Curl + PostgreSQL + WebSocket.
+
+✓ Tạo World
+
+✓ Cập nhật World
+
+✓ Xóa World
+
+✓ Bookmark
+
+✓ Join World
+
+✓ Leave World
+
+✓ Travel World
+
+✓ Presence realtime
+
+✓ Instance auto create
+
+✓ Instance auto close
+
+✓ Featured Worlds
+
+✓ Popular Worlds
+
+✓ Search Worlds
+
+✓ Travel History
+
+✓ Dashboard Widget
+
+✓ Sidebar
+
+✓ Launcher
+
+✓ Notification
+
+✓ Activity
+
+✓ Quest
+
+✓ Reputation
+
+✓ PostgreSQL có dữ liệu thật
+
+✓ WebSocket realtime
+
+✓ Không mock
+
+✓ Không polling
+
+✓ Không hardcode
+
+✓ Typecheck không phát sinh lỗi mới
+
+==================================================
+
+DELIVERABLE
+
+==================================================
+
+Hoàn thành phải cung cấp:
+
+* Sprint Report
+* Files Created
+* Files Modified
+* Database Schema
+* REST API
+* WebSocket Events
+* PostgreSQL Proof
+* Curl Proof
+* Launcher Proof
+* Dashboard Proof
+* Acceptance Checklist 100%
