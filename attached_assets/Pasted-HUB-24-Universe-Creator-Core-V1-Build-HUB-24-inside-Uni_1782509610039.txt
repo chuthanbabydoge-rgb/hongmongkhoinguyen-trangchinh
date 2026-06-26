@@ -1,0 +1,475 @@
+HUB-24 — Universe Creator Core V1
+
+Build HUB-24 inside Universe Hub.
+
+Goal:
+
+Create the foundation of Universe Creator.
+
+Architect it as a standalone module that can later be extracted into its own repository without breaking Universe Hub.
+
+Requirements
+
+Use existing architecture:
+
+Drizzle ORM
+
+PostgreSQL
+
+Container DI
+
+Repository Pattern
+
+Service Layer
+
+Controller Layer
+
+Routes Layer
+
+WebSocket EventBus
+
+App Registry
+
+Notifications
+
+Activities
+
+Reputation
+
+Quest Engine
+
+No mock data.
+
+No local storage.
+
+Everything PostgreSQL.
+
+DATABASE
+
+Create:
+
+creator_projects
+
+creator_templates
+
+creator_assets
+
+creator_tags
+
+creator_project_members
+
+creator_versions
+
+creator_publish_logs
+
+creator_favorites
+
+creator_categories
+
+creator_comments
+
+Enums
+
+ProjectType
+
+WORLD
+
+NPC
+
+QUEST
+
+BUSINESS
+
+STORY
+
+EVENT
+
+TOURNAMENT
+
+SHOP
+
+GUILD
+
+DUNGEON
+
+ProjectStatus
+
+DRAFT
+
+PRIVATE
+
+PUBLIC
+
+PUBLISHED
+
+ARCHIVED
+
+MemberRole
+
+OWNER
+
+ADMIN
+
+EDITOR
+
+VIEWER
+
+AssetType
+
+IMAGE
+
+MODEL
+
+JSON
+
+SCRIPT
+
+TEXT
+
+ICON
+
+Repository
+
+ICreatorRepository
+
+DrizzleCreatorRepository
+
+InMemoryCreatorRepository
+
+Methods
+
+createProject()
+
+updateProject()
+
+deleteProject()
+
+publishProject()
+
+forkProject()
+
+saveVersion()
+
+restoreVersion()
+
+favoriteProject()
+
+searchProjects()
+
+getTemplates()
+
+uploadAsset()
+
+getAssets()
+
+addMember()
+
+removeMember()
+
+comment()
+
+listPublicProjects()
+
+dashboard()
+
+Service
+
+CreatorService
+
+Features:
+
+Create Project
+
+Duplicate Project
+
+Publish
+
+Versioning
+
+Templates
+
+Assets
+
+Collaboration
+
+Fork
+
+Favorites
+
+Comments
+
+Event Bus
+
+creatorEventBus
+
+Events:
+
+PROJECT_CREATED
+
+PROJECT_UPDATED
+
+PROJECT_PUBLISHED
+
+PROJECT_FORKED
+
+ASSET_UPLOADED
+
+MEMBER_ADDED
+
+COMMENT_ADDED
+
+Notifications
+
+Fire notifications:
+
+project published
+
+project shared
+
+forked project
+
+Activities
+
+Type:
+
+creator
+
+Examples:
+
+CREATOR_PROJECT_CREATED
+
+CREATOR_PROJECT_PUBLISHED
+
+CREATOR_PROJECT_FORKED
+
+Reputation
+
+Add events:
+
+PROJECT_CREATED
+
+PROJECT_PUBLISHED
+
+PROJECT_FORKED
+
+Points:
+
+Create
+
+10
+
+Publish
+
+30
+
+Fork
+
+15
+
+Quest Progress
+
+Emit:
+
+CREATE_PROJECT
+
+PUBLISH_PROJECT
+
+REST API
+
+Base:
+
+/api/creator
+
+Endpoints
+
+GET /projects
+
+GET /projects/public
+
+GET /projects/templates
+
+GET /projects/favorites
+
+GET /projects/:id
+
+POST /projects
+
+PUT /projects/:id
+
+DELETE /projects/:id
+
+POST /projects/:id/publish
+
+POST /projects/:id/fork
+
+POST /projects/:id/version
+
+POST /projects/:id/restore
+
+POST /projects/:id/favorite
+
+DELETE /projects/:id/favorite
+
+POST /projects/:id/member
+
+DELETE /projects/:id/member
+
+POST /projects/:id/comment
+
+POST /assets
+
+GET /assets
+
+GET /dashboard
+
+Frontend
+
+Create pages
+
+CreatorDashboard
+
+CreatorProjects
+
+CreatorTemplates
+
+CreatorAssets
+
+CreatorStudio
+
+CreatorPublic
+
+CreatorFavorites
+
+Components
+
+ProjectCard
+
+TemplateCard
+
+AssetLibrary
+
+VersionHistory
+
+Collaborators
+
+CommentsPanel
+
+Dashboard Widget
+
+CreatorWidget
+
+Show:
+
+Projects
+
+Published
+
+Assets
+
+Favorites
+
+Sidebar
+
+Section:
+
+Universe Creator
+
+Items
+
+Studio
+
+Projects
+
+Templates
+
+Assets
+
+Explore
+
+App Registry
+
+Register:
+
+slug:
+creator
+
+name:
+Universe Creator
+
+category:
+CREATOR
+
+status:
+ACTIVE
+
+WebSocket
+
+Broadcast:
+
+PROJECT_CREATED
+
+PROJECT_PUBLISHED
+
+PROJECT_FORKED
+
+COMMENT_ADDED
+
+Acceptance Criteria
+
+PostgreSQL only
+
+No mocks
+
+Repository Pattern
+
+Container wired
+
+App Registry seeded
+
+Sidebar integrated
+
+Dashboard widget
+
+WebSocket works
+
+Notifications
+
+Activities
+
+Reputation
+
+Quest integration
+
+Versioning works
+
+Fork works
+
+Comments work
+
+Assets work
+
+Publish works
+
+Build success
+
+Typecheck 0 HUB-24 errors
+
+Provide:
+
+Sprint Report
+
+Files Created
+
+Files Modified
+
+API list
+
+DB tables
+
+E2E proof
+
+PostgreSQL proof
+
+WebSocket proof
+
+Acceptance checklist
