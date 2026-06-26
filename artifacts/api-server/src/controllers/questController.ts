@@ -76,7 +76,7 @@ export async function handleGetCompletedQuests(req: Request, res: Response): Pro
 // GET /api/quests/:id
 export async function handleGetQuestById(req: Request, res: Response): Promise<void> {
   try {
-    const quest = await questService.getQuestById(req.params["id"]!);
+    const quest = await questService.getQuestById(req.params["id"] as string);
     res.json({ ok: true, data: quest });
   } catch (err) {
     if (err instanceof QuestNotFoundError) {
@@ -92,7 +92,7 @@ export async function handleStartQuest(req: Request, res: Response): Promise<voi
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    const userQuest = await questService.startQuest(userId, req.params["id"]!);
+    const userQuest = await questService.startQuest(userId, req.params["id"] as string);
     res.status(201).json({ ok: true, data: userQuest });
   } catch (err) {
     if (err instanceof QuestNotFoundError) {
@@ -110,7 +110,7 @@ export async function handleClaimQuest(req: Request, res: Response): Promise<voi
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    const result = await questService.claimReward(userId, req.params["id"]!);
+    const result = await questService.claimReward(userId, req.params["id"] as string);
     res.json({ ok: true, data: result });
   } catch (err) {
     if (err instanceof UserQuestNotFoundError) {
@@ -130,7 +130,7 @@ export async function handleCancelQuest(req: Request, res: Response): Promise<vo
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    const userQuest = await questService.cancelQuest(userId, req.params["id"]!);
+    const userQuest = await questService.cancelQuest(userId, req.params["id"] as string);
     res.json({ ok: true, data: userQuest });
   } catch (err) {
     if (err instanceof UserQuestNotFoundError) {

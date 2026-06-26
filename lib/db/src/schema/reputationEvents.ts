@@ -7,6 +7,17 @@ export const reputationEventTypeEnum = pgEnum("reputation_event_type", [
   "MARKETPLACE_PURCHASE",
   "WALLET_TRANSFER",
   "INVENTORY_ACQUIRED",
+  "GUILD_CREATED",
+  "GUILD_JOINED",
+  "GUILD_EVENT",
+  "GUILD_CONTRIBUTION",
+  "GUILD_ANNOUNCEMENT",
+  "GUILD_RECRUIT",
+  "ACHIEVEMENT_UNLOCKED",
+  "QUEST_COMPLETED",
+  "FIRST_CHAT",
+  "FIRST_GUILD_CHAT",
+  "FIRST_PRIVATE_CHAT",
 ]);
 
 export const reputationEventsTable = pgTable("reputation_events", {

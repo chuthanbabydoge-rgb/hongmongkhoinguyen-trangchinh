@@ -78,7 +78,7 @@ export async function handleGetMailById(req: Request, res: Response): Promise<vo
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    const data = await mailService.getById(req.params["id"]!, userId);
+    const data = await mailService.getById(req.params["id"] as string, userId);
     res.json({ ok: true, data });
   } catch (err) { handleError(res, err); }
 }
@@ -96,7 +96,7 @@ export async function handleMarkRead(req: Request, res: Response): Promise<void>
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    const data = await mailService.markRead(req.params["id"]!, userId);
+    const data = await mailService.markRead(req.params["id"] as string, userId);
     res.json({ ok: true, data });
   } catch (err) { handleError(res, err); }
 }
@@ -116,7 +116,7 @@ export async function handleClaimAttachments(req: Request, res: Response): Promi
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    const data = await mailService.claimAttachments(req.params["id"]!, userId);
+    const data = await mailService.claimAttachments(req.params["id"] as string, userId);
     res.json({ ok: true, data });
   } catch (err) { handleError(res, err); }
 }
@@ -126,7 +126,7 @@ export async function handleArchiveMail(req: Request, res: Response): Promise<vo
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    const data = await mailService.archiveMail(req.params["id"]!, userId);
+    const data = await mailService.archiveMail(req.params["id"] as string, userId);
     res.json({ ok: true, data });
   } catch (err) { handleError(res, err); }
 }
@@ -136,7 +136,7 @@ export async function handleDeleteMail(req: Request, res: Response): Promise<voi
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    await mailService.deleteMail(req.params["id"]!, userId);
+    await mailService.deleteMail(req.params["id"] as string, userId);
     res.json({ ok: true });
   } catch (err) { handleError(res, err); }
 }

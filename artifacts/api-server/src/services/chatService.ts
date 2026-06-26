@@ -199,12 +199,12 @@ export class ChatService {
     }).catch(() => {});
 
     // Reputation — first messages
-    this.userReputationService.addEvent(input.senderId, "FIRST_CHAT", 5).catch(() => {});
+    this.userReputationService.addEvent(input.senderId, "FIRST_CHAT").catch(() => {});
     if (room.type === "GUILD") {
-      this.userReputationService.addEvent(input.senderId, "FIRST_GUILD_CHAT", 5).catch(() => {});
+      this.userReputationService.addEvent(input.senderId, "FIRST_GUILD_CHAT").catch(() => {});
     }
     if (room.type === "PRIVATE") {
-      this.userReputationService.addEvent(input.senderId, "FIRST_PRIVATE_CHAT", 5).catch(() => {});
+      this.userReputationService.addEvent(input.senderId, "FIRST_PRIVATE_CHAT").catch(() => {});
     }
 
     return msg;

@@ -170,7 +170,7 @@ export class MailService {
       `Bạn đã nhận phần thưởng từ: ${mail.subject}`,
     );
 
-    this.userReputationService.fire(userId, "QUEST_COMPLETED").catch?.(() => {});
+    this.userReputationService.fire(userId, "QUEST_COMPLETED");
 
     questEventBus.publish({ userId, type: "MAIL_CLAIMED", metadata: { mailId } });
 

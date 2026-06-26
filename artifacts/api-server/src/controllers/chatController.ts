@@ -24,7 +24,7 @@ async function resolveProfile(req: Request): Promise<{ id: string; name: string 
   try {
     const profile = await accountBridgeService.getProfileCached(auth);
     if (!profile?.id) return null;
-    const name = [profile.firstName, profile.lastName].filter(Boolean).join(" ") || profile.username || "Người dùng";
+    const name = profile.displayName || profile.username || "Người dùng";
     return { id: profile.id, name };
   } catch {
     return null;
@@ -66,7 +66,7 @@ export async function handleGetRoom(req: Request, res: Response): Promise<void> 
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    const data = await chatService.getRoom(req.params["id"]!);
+    const data = await chatService.getRoom(req.params["id"] as string);
     res.json({ ok: true, data });
   } catch (err) { handleError(res, err); }
 }
@@ -76,7 +76,7 @@ export async function handleDeleteRoom(req: Request, res: Response): Promise<voi
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    await chatService.deleteRoom(req.params["id"]!, userId);
+    await chatService.deleteRoom(req.params["id"] as string, userId);
     res.json({ ok: true });
   } catch (err) { handleError(res, err); }
 }
@@ -86,7 +86,7 @@ export async function handleJoinRoom(req: Request, res: Response): Promise<void>
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    const data = await chatService.joinRoom(req.params["id"]!, userId);
+    const data = await chatService.joinRoom(req.params["id"] as string, userId);
     res.json({ ok: true, data });
   } catch (err) { handleError(res, err); }
 }
@@ -96,7 +96,7 @@ export async function handleLeaveRoom(req: Request, res: Response): Promise<void
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    await chatService.leaveRoom(req.params["id"]!, userId);
+    await chatService.leaveRoom(req.params["id"] as string, userId);
     res.json({ ok: true });
   } catch (err) { handleError(res, err); }
 }
@@ -106,7 +106,7 @@ export async function handleGetMembers(req: Request, res: Response): Promise<voi
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    const data = await chatService.getMembers(req.params["id"]!);
+    const data = await chatService.getMembers(req.params["id"] as string);
     res.json({ ok: true, data });
   } catch (err) { handleError(res, err); }
 }
@@ -147,7 +147,7 @@ export async function handleGetMessages(req: Request, res: Response): Promise<vo
       limit:  req.query["limit"] ? Number(req.query["limit"]) : 50,
       search: req.query["search"] as string | undefined,
     };
-    const data = await chatService.getMessages(req.params["id"]!, userId, filter);
+    const data = await chatService.getMessages(req.params["id"] as string, userId, filter);
     res.json({ ok: true, data });
   } catch (err) { handleError(res, err); }
 }
@@ -165,7 +165,7 @@ export async function handleSendMessage(req: Request, res: Response): Promise<vo
   if (!content?.trim()) { res.status(400).json({ ok: false, error: "content là bắt buộc" }); return; }
   try {
     const data = await chatService.sendMessage({
-      roomId:     req.params["id"]!,
+      roomId:     req.params["id"] as string,
       senderId:   profile.id,
       senderName: profile.name,
       content:    content.trim(),
@@ -184,7 +184,7 @@ export async function handleEditMessage(req: Request, res: Response): Promise<vo
   const { content } = req.body as { content: string };
   if (!content?.trim()) { res.status(400).json({ ok: false, error: "content là bắt buộc" }); return; }
   try {
-    const data = await chatService.editMessage(req.params["id"]!, userId, content.trim());
+    const data = await chatService.editMessage(req.params["id"] as string, userId, content.trim());
     res.json({ ok: true, data });
   } catch (err) { handleError(res, err); }
 }
@@ -194,7 +194,7 @@ export async function handleDeleteMessage(req: Request, res: Response): Promise<
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    await chatService.deleteMessage(req.params["id"]!, userId);
+    await chatService.deleteMessage(req.params["id"] as string, userId);
     res.json({ ok: true });
   } catch (err) { handleError(res, err); }
 }
@@ -206,7 +206,7 @@ export async function handleReact(req: Request, res: Response): Promise<void> {
   const { emoji } = req.body as { emoji: string };
   if (!emoji) { res.status(400).json({ ok: false, error: "emoji là bắt buộc" }); return; }
   try {
-    await chatService.reactToMessage(req.params["id"]!, userId, emoji);
+    await chatService.reactToMessage(req.params["id"] as string, userId, emoji);
     res.json({ ok: true });
   } catch (err) { handleError(res, err); }
 }
@@ -218,7 +218,7 @@ export async function handleRemoveReact(req: Request, res: Response): Promise<vo
   const { emoji } = req.body as { emoji: string };
   if (!emoji) { res.status(400).json({ ok: false, error: "emoji là bắt buộc" }); return; }
   try {
-    await chatService.removeReaction(req.params["id"]!, userId, emoji);
+    await chatService.removeReaction(req.params["id"] as string, userId, emoji);
     res.json({ ok: true });
   } catch (err) { handleError(res, err); }
 }
@@ -230,7 +230,7 @@ export async function handleMarkRead(req: Request, res: Response): Promise<void>
   const roomId = req.body["roomId"] as string;
   if (!roomId) { res.status(400).json({ ok: false, error: "roomId là bắt buộc" }); return; }
   try {
-    await chatService.markMessageRead(req.params["id"]!, roomId, userId);
+    await chatService.markMessageRead(req.params["id"] as string, roomId, userId);
     res.json({ ok: true });
   } catch (err) { handleError(res, err); }
 }
@@ -242,7 +242,7 @@ export async function handlePinMessage(req: Request, res: Response): Promise<voi
   const roomId = req.body["roomId"] as string;
   if (!roomId) { res.status(400).json({ ok: false, error: "roomId là bắt buộc" }); return; }
   try {
-    const data = await chatService.pinMessage(roomId, req.params["id"]!, userId, req.body["note"]);
+    const data = await chatService.pinMessage(roomId, req.params["id"] as string, userId, req.body["note"]);
     res.json({ ok: true, data });
   } catch (err) { handleError(res, err); }
 }
@@ -252,7 +252,7 @@ export async function handleUnpinMessage(req: Request, res: Response): Promise<v
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    await chatService.unpinMessage(req.params["id"]!, userId);
+    await chatService.unpinMessage(req.params["id"] as string, userId);
     res.json({ ok: true });
   } catch (err) { handleError(res, err); }
 }
@@ -262,7 +262,7 @@ export async function handleGetPins(req: Request, res: Response): Promise<void> 
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    const data = await chatService.getPins(req.params["id"]!);
+    const data = await chatService.getPins(req.params["id"] as string);
     res.json({ ok: true, data });
   } catch (err) { handleError(res, err); }
 }
@@ -274,7 +274,7 @@ export async function handleSearchMessages(req: Request, res: Response): Promise
   const q = req.query["q"] as string;
   if (!q) { res.status(400).json({ ok: false, error: "q là bắt buộc" }); return; }
   try {
-    const data = await chatService.searchMessages(req.params["id"]!, userId, q);
+    const data = await chatService.searchMessages(req.params["id"] as string, userId, q);
     res.json({ ok: true, data });
   } catch (err) { handleError(res, err); }
 }
@@ -286,7 +286,7 @@ export async function handleTyping(req: Request, res: Response): Promise<void> {
   const profile = await resolveProfile(req);
   if (!profile) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   const { isTyping } = req.body as { isTyping?: boolean };
-  chatService.publishTyping(req.params["id"]!, profile.id, profile.name, isTyping !== false);
+  chatService.publishTyping(req.params["id"] as string, profile.id, profile.name, isTyping !== false);
   res.json({ ok: true });
 }
 
@@ -329,7 +329,7 @@ export async function handleUnblockUser(req: Request, res: Response): Promise<vo
   const userId = await resolveUserId(req);
   if (!userId) { res.status(401).json({ ok: false, error: "Unauthorized" }); return; }
   try {
-    await chatService.unblockUser(userId, req.params["blockedUserId"]!);
+    await chatService.unblockUser(userId, req.params["blockedUserId"] as string);
     res.json({ ok: true });
   } catch (err) { handleError(res, err); }
 }
@@ -341,7 +341,7 @@ export async function handleReportMessage(req: Request, res: Response): Promise<
   const { reason } = req.body as { reason: string };
   if (!reason) { res.status(400).json({ ok: false, error: "reason là bắt buộc" }); return; }
   try {
-    const data = await chatService.reportMessage(req.params["id"]!, userId, reason);
+    const data = await chatService.reportMessage(req.params["id"] as string, userId, reason);
     res.status(201).json({ ok: true, data });
   } catch (err) { handleError(res, err); }
 }

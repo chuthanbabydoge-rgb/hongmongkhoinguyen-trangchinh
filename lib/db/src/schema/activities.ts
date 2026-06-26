@@ -7,6 +7,9 @@ export const activityTypeEnum = pgEnum("activity_type", [
   "launcher",
   "system",
   "social",
+  "quest",
+  "mail",
+  "chat",
 ]);
 
 export const activitiesTable = pgTable("activities", {

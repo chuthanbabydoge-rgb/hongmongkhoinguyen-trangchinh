@@ -6,6 +6,7 @@ export const notificationTypeEnum = pgEnum("notification_type", [
   "system",
   "social",
   "marketplace",
+  "quest",
 ]);
 
 export const notificationsTable = pgTable("notifications", {
