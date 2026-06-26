@@ -1,0 +1,595 @@
+# HUB-21 — Universe Dungeon & Raid System
+
+Implement the complete HUB-21 Dungeon & Raid System.
+
+IMPORTANT
+
+This is NOT a demo.
+
+Everything must integrate with HUB-1 through HUB-20.
+
+Use ONLY
+
+- PostgreSQL
+- Drizzle ORM
+- Existing DI Container
+- Existing WebSocket
+- Existing EventBus
+- Existing NotificationService
+- Existing ActivitiesService
+
+Never create mock repositories.
+
+====================================================
+PART 1 — DATABASE
+====================================================
+
+Create Drizzle schema.
+
+Tables
+
+dungeons
+
+dungeon_regions
+
+dungeon_rooms
+
+dungeon_instances
+
+dungeon_members
+
+dungeon_monsters
+
+dungeon_bosses
+
+dungeon_loot_tables
+
+dungeon_rewards
+
+dungeon_progress
+
+dungeon_statistics
+
+raid_groups
+
+raid_members
+
+raid_bosses
+
+raid_instances
+
+raid_progress
+
+raid_rewards
+
+raid_damage_logs
+
+raid_rankings
+
+raid_history
+
+Enums
+
+DungeonDifficulty
+
+NORMAL
+
+HARD
+
+ELITE
+
+LEGENDARY
+
+MYTHIC
+
+DungeonStatus
+
+WAITING
+
+ACTIVE
+
+COMPLETED
+
+FAILED
+
+EXPIRED
+
+RaidDifficulty
+
+NORMAL
+
+HEROIC
+
+MYTHIC
+
+NIGHTMARE
+
+RaidRole
+
+TANK
+
+HEALER
+
+DPS
+
+SUPPORT
+
+====================================================
+PART 2 — REPOSITORY
+====================================================
+
+Create
+
+IDungeonRepository
+
+IRaidRepository
+
+DrizzleDungeonRepository
+
+DrizzleRaidRepository
+
+Methods
+
+createDungeon()
+
+joinDungeon()
+
+leaveDungeon()
+
+startDungeon()
+
+finishDungeon()
+
+spawnMonster()
+
+spawnBoss()
+
+recordKill()
+
+recordReward()
+
+createRaid()
+
+joinRaid()
+
+recordDamage()
+
+leaderboard()
+
+history()
+
+====================================================
+PART 3 — SERVICES
+====================================================
+
+DungeonService
+
+RaidService
+
+BossAIService
+
+LootService
+
+RewardService
+
+MatchmakingService
+
+Features
+
+Party system
+
+Raid groups
+
+Dungeon instances
+
+Boss mechanics
+
+Random loot
+
+Drop tables
+
+Daily dungeon
+
+Weekly raid
+
+Revive
+
+Respawn
+
+Checkpoints
+
+Damage statistics
+
+Healing statistics
+
+MVP calculation
+
+====================================================
+PART 4 — EVENT BUS
+====================================================
+
+DungeonEventBus
+
+Events
+
+DUNGEON_CREATED
+
+DUNGEON_STARTED
+
+ROOM_COMPLETED
+
+MONSTER_KILLED
+
+BOSS_SPAWNED
+
+BOSS_KILLED
+
+DUNGEON_COMPLETED
+
+RAID_CREATED
+
+RAID_STARTED
+
+RAID_COMPLETED
+
+PLAYER_REVIVED
+
+LOOT_GRANTED
+
+====================================================
+PART 5 — INTEGRATION
+====================================================
+
+Character
+
+Level requirement
+
+Combat power
+
+Equipment durability
+
+Combat
+
+Use HUB-19 engine
+
+Pet
+
+Pet joins dungeon
+
+Mount
+
+Travel to dungeon
+
+Quest
+
+Dungeon quests
+
+Raid quests
+
+Guild
+
+Guild raids
+
+Guild rankings
+
+World
+
+World dungeon portals
+
+Marketplace
+
+Trade dungeon loot
+
+Economy
+
+Dungeon rewards
+
+Crafting
+
+Dungeon materials
+
+Mail
+
+Reward mail
+
+Notifications
+
+Dungeon completed
+
+Boss defeated
+
+Activities
+
+Dungeon history
+
+Achievements
+
+First Dungeon
+
+First Raid
+
+Boss Hunter
+
+Legend Raider
+
+Reputation
+
+Dungeon reputation
+
+Raid reputation
+
+AI
+
+Nova recommends party composition
+
+Nova recommends equipment
+
+====================================================
+PART 6 — API
+====================================================
+
+GET
+
+/api/dungeons
+
+POST
+
+/api/dungeons
+
+GET
+
+/api/dungeons/:id
+
+POST
+
+/api/dungeons/:id/join
+
+POST
+
+/api/dungeons/:id/start
+
+POST
+
+/api/dungeons/:id/leave
+
+POST
+
+/api/dungeons/:id/finish
+
+GET
+
+/api/dungeons/history
+
+GET
+
+/api/dungeons/statistics
+
+GET
+
+/api/raids
+
+POST
+
+/api/raids
+
+GET
+
+/api/raids/:id
+
+POST
+
+/api/raids/:id/join
+
+POST
+
+/api/raids/:id/start
+
+POST
+
+/api/raids/:id/finish
+
+GET
+
+/api/raids/leaderboard
+
+====================================================
+PART 7 — WEBSOCKET
+====================================================
+
+Realtime
+
+DungeonCreated
+
+DungeonStarted
+
+MonsterKilled
+
+BossSpawned
+
+BossKilled
+
+DungeonCompleted
+
+RaidCreated
+
+RaidStarted
+
+RaidCompleted
+
+LootDropped
+
+====================================================
+PART 8 — FRONTEND
+====================================================
+
+Create pages
+
+/pages/dungeons
+
+DungeonDashboard
+
+DungeonBrowser
+
+DungeonRoom
+
+DungeonHistory
+
+DungeonStatistics
+
+/pages/raids
+
+RaidDashboard
+
+RaidLobby
+
+RaidBattle
+
+RaidHistory
+
+RaidLeaderboard
+
+Hooks
+
+useDungeon
+
+useRaid
+
+Widgets
+
+DungeonWidget
+
+RaidWidget
+
+BossWidget
+
+Sidebar
+
+Universe Dungeon
+
+Universe Raid
+
+====================================================
+PART 9 — APP REGISTRY
+====================================================
+
+Register
+
+slug
+
+dungeons
+
+ACTIVE
+
+GAME
+
+slug
+
+raids
+
+ACTIVE
+
+GAME
+
+====================================================
+PART 10 — ACCEPTANCE
+====================================================
+
+Everything must use PostgreSQL.
+
+No mock data.
+
+JWT authentication.
+
+Zero HUB-21 type errors.
+
+Integrate with
+
+Character
+
+Combat
+
+Pet
+
+Mount
+
+Guild
+
+Quest
+
+World
+
+Marketplace
+
+Economy
+
+Crafting
+
+Mail
+
+Notifications
+
+Activities
+
+Achievements
+
+AI
+
+Launcher
+
+====================================================
+END TO END PROOF
+====================================================
+
+Provide curl evidence for
+
+1. Create dungeon
+
+2. Join dungeon
+
+3. Start dungeon
+
+4. Kill monster
+
+5. Spawn boss
+
+6. Kill boss
+
+7. Complete dungeon
+
+8. Receive loot
+
+9. Gain XP
+
+10. Complete quest
+
+11. Create raid
+
+12. Join raid
+
+13. Defeat raid boss
+
+14. Raid rewards distributed
+
+15. Character progression updated
+
+16. Pet gains XP
+
+17. Notification generated
+
+18. Activity generated
+
+19. Achievement unlocked
+
+20. Reputation updated
+
+21. WebSocket realtime verified
+
+22. Launcher shows Universe Dungeon
+
+23. Launcher shows Universe Raid
+
+24. Database verification
+
+25. Sprint report listing every created and modified file.
+
+Do not stop until every acceptance criterion passes.
