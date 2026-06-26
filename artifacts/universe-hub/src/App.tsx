@@ -69,6 +69,15 @@ import AiChat from "@/pages/ai/AiChat";
 import AiMemory from "@/pages/ai/AiMemory";
 import AiSuggestions from "@/pages/ai/AiSuggestions";
 import AiSettings from "@/pages/ai/AiSettings";
+import CraftDashboard   from "@/pages/crafting/CraftDashboard";
+import RecipeBrowser    from "@/pages/crafting/RecipeBrowser";
+import CraftQueue       from "@/pages/crafting/CraftQueue";
+import Blueprints       from "@/pages/crafting/Blueprints";
+import UpgradeCenter    from "@/pages/crafting/UpgradeCenter";
+import ResourceMap      from "@/pages/resources/ResourceMap";
+import NPCShop          from "@/pages/shops/NPCShop";
+import EconomyDashboard from "@/pages/economy/EconomyDashboard";
+import MarketPrices     from "@/pages/economy/MarketPrices";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -139,6 +148,15 @@ function Router() {
       <Route path="/ai/memory" component={AiMemory} />
       <Route path="/ai/suggestions" component={AiSuggestions} />
       <Route path="/ai/settings" component={AiSettings} />
+      <Route path="/crafting" component={CraftDashboard} />
+      <Route path="/crafting/recipes" component={RecipeBrowser} />
+      <Route path="/crafting/queue" component={CraftQueue} />
+      <Route path="/crafting/blueprints" component={Blueprints} />
+      <Route path="/crafting/upgrade" component={UpgradeCenter} />
+      <Route path="/resources" component={ResourceMap} />
+      <Route path="/shops" component={NPCShop} />
+      <Route path="/economy" component={EconomyDashboard} />
+      <Route path="/economy/prices" component={MarketPrices} />
       <Route component={NotFound} />
     </Switch>
   );

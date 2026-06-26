@@ -39,6 +39,10 @@ import {
   MessageSquare,
   Earth,
   Bot,
+  Hammer,
+  BarChart,
+  Pickaxe,
+  Store,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -186,6 +190,16 @@ export function Sidebar() {
             AI
           </p>
           <NavItem icon={Bot} label="Universe AI" path="/ai" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Kinh tế &amp; Chế tạo
+          </p>
+          <NavItem icon={Hammer}  label="Universe Crafting" path="/crafting" />
+          <NavItem icon={Pickaxe} label="Tài nguyên"        path="/resources" />
+          <NavItem icon={Store}   label="Cửa hàng NPC"      path="/shops" />
+          <NavItem icon={BarChart} label="Universe Economy" path="/economy" />
         </div>
 
         <div className="pt-1 pb-1">

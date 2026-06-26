@@ -817,6 +817,35 @@ export const worldService = new WorldService(
   userReputationService,
 );
 
+// ─── HUB-17 Economy & Crafting ────────────────────────────────────────────────
+
+import { DrizzleCraftingRepository } from "./repositories/drizzle/DrizzleCraftingRepository.js";
+import { CraftingService }           from "./services/craftingService.js";
+import { ResourceService }           from "./services/resourceService.js";
+import { NPCShopService }            from "./services/npcShopService.js";
+import { EconomyService }            from "./services/economyService.js";
+
+const craftingRepo = new DrizzleCraftingRepository();
+logger.info("Container: crafting system → Drizzle");
+
+export const craftingService = new CraftingService(
+  craftingRepo, notificationsService, activitiesService, userReputationService,
+);
+export const resourceService = new ResourceService(
+  craftingRepo, notificationsService, activitiesService, userReputationService,
+);
+export const npcShopService = new NPCShopService(
+  craftingRepo, notificationsService, activitiesService, userReputationService,
+);
+export const economyService = new EconomyService(craftingRepo);
+
+// Seed defaults
+craftingRepo.seedDefaultStations().catch(() => {});
+craftingRepo.seedDefaultRecipes().catch(() => {});
+craftingRepo.seedDefaultNodes().catch(() => {});
+craftingRepo.seedDefaultShops().catch(() => {});
+craftingRepo.seedMarketPrices().catch(() => {});
+
 // Seed "worlds" app into ecosystem registry
 appRegistryService.registerApp({
   slug:        "worlds",

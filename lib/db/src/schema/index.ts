@@ -34,3 +34,4 @@ export * from "./mail";
 export * from "./chat";
 export * from "./worlds";
 export * from "./ai";
+export * from "./crafting";
