@@ -11,6 +11,7 @@ import { ReputationCard } from "@/components/dashboard/ReputationCard";
 import { SocialOverviewCard } from "@/components/dashboard/SocialOverviewCard";
 import { MailOverviewCard } from "@/components/dashboard/MailOverviewCard";
 import { ChatWidget } from "@/components/dashboard/ChatWidget";
+import { WorldWidget } from "@/components/dashboard/WorldWidget";
 import { AchievementShowcase } from "@/components/dashboard/AchievementShowcase";
 import { QuestWidget } from "@/components/dashboard/QuestWidget";
 import { useDashboard } from "@/hooks/useDashboard";
@@ -58,6 +59,7 @@ export default function Dashboard() {
             <QuestWidget />
             <MailOverviewCard />
             <ChatWidget />
+            <WorldWidget />
             <SocialOverviewCard />
             <AchievementShowcase />
             <InventorySummary />

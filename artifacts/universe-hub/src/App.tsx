@@ -55,6 +55,15 @@ import QuestsDashboard from "@/pages/quests/QuestsDashboard";
 import MailDashboard from "@/pages/mail/MailDashboard";
 import ChatHome from "@/pages/chat/ChatHome";
 import ChatRoom from "@/pages/chat/ChatRoom";
+import WorldDashboard from "@/pages/worlds/WorldDashboard";
+import WorldExplorer from "@/pages/worlds/WorldExplorer";
+import WorldDetail from "@/pages/worlds/WorldDetail";
+import WorldCreate from "@/pages/worlds/WorldCreate";
+import WorldEdit from "@/pages/worlds/WorldEdit";
+import FeaturedWorlds from "@/pages/worlds/FeaturedWorlds";
+import PopularWorlds from "@/pages/worlds/PopularWorlds";
+import WorldBookmarks from "@/pages/worlds/WorldBookmarks";
+import WorldTravelHistory from "@/pages/worlds/WorldTravelHistory";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -110,6 +119,15 @@ function Router() {
       <Route path="/mail" component={MailDashboard} />
       <Route path="/chat" component={ChatHome} />
       <Route path="/chat/:id" component={ChatRoom} />
+      <Route path="/worlds" component={WorldDashboard} />
+      <Route path="/worlds/explorer" component={WorldExplorer} />
+      <Route path="/worlds/featured" component={FeaturedWorlds} />
+      <Route path="/worlds/popular" component={PopularWorlds} />
+      <Route path="/worlds/bookmarks" component={WorldBookmarks} />
+      <Route path="/worlds/history" component={WorldTravelHistory} />
+      <Route path="/worlds/create" component={WorldCreate} />
+      <Route path="/worlds/:id/edit" component={WorldEdit} />
+      <Route path="/worlds/:id" component={WorldDetail} />
       <Route component={NotFound} />
     </Switch>
   );

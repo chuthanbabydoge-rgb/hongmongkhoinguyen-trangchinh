@@ -19,6 +19,7 @@ import guildRouter from "./guild";
 import questsRouter from "./quests";
 import mailRouter from "./mail";
 import chatRouter from "./chat";
+import worldsRouter from "./worlds";
 
 const router: IRouter = Router();
 
@@ -42,5 +43,6 @@ router.use(guildRouter);
 router.use(questsRouter);
 router.use(mailRouter);
 router.use(chatRouter);
+router.use(worldsRouter);
 
 export default router;

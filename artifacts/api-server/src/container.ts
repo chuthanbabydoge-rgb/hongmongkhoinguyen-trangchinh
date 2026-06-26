@@ -718,3 +718,31 @@ appRegistryService.registerApp({
   status:      "ACTIVE",
   version:     "1.0.0",
 }).catch(() => {});
+
+// ─── Universe Worlds (HUB-15) ─────────────────────────────────────────────────
+
+import { InMemoryWorldRepository }  from "./repositories/worldRepository.js";
+import { DrizzleWorldRepository }   from "./repositories/drizzle/DrizzleWorldRepository.js";
+import { WorldService }             from "./services/worldService.js";
+
+const worldRepo = useDrizzle ? new DrizzleWorldRepository() : new InMemoryWorldRepository();
+logger.info(`Container: world system → ${useDrizzle ? "Drizzle" : "InMemory"}`);
+
+export const worldService = new WorldService(
+  worldRepo,
+  notificationsService,
+  activitiesService,
+  userReputationService,
+);
+
+// Seed "worlds" app into ecosystem registry
+appRegistryService.registerApp({
+  slug:        "worlds",
+  name:        "Universe Worlds",
+  description: "Khám phá, tạo và du hành giữa các thế giới trong Universe Ecosystem",
+  icon:        "🌍",
+  url:         "/worlds",
+  category:    "METAVERSE",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});

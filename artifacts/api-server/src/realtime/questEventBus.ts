@@ -34,7 +34,10 @@ export type QuestEventType =
   | "MAIL_CLAIMED"
   | "SEND_MESSAGE"
   | "SEND_GUILD_MESSAGE"
-  | "PRIVATE_CHAT";
+  | "PRIVATE_CHAT"
+  | "WORLD_TRAVEL"
+  | "VISIT_WORLD"
+  | "JOIN_WORLD";
 
 // ─── Event envelope ──────────────────────────────────────────────────────────
 

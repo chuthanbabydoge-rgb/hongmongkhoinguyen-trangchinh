@@ -17,6 +17,7 @@ import {
 } from "./marketplaceEventBus";
 import { mailEventBus, type MailEvent }   from "./mailEventBus";
 import { chatEventBus, type ChatEvent }   from "./chatEventBus";
+import { worldEventBus, type WorldEvent } from "./worldEventBus";
 
 // ─── Metrics ──────────────────────────────────────────────────────────────────
 
@@ -72,6 +73,9 @@ export function attachWebSocketServer(server: Server): WebSocketServer {
 
   // Broadcast chat bus events — routed by roomId/userId
   chatEventBus.subscribe((event: ChatEvent) => broadcast(event));
+
+  // Broadcast world bus events — routed by userId/worldId
+  worldEventBus.subscribe((event: WorldEvent) => broadcast(event as unknown as MarketplaceEvent));
 
   wss.on("connection", (ws) => {
     _connectedClients++;
