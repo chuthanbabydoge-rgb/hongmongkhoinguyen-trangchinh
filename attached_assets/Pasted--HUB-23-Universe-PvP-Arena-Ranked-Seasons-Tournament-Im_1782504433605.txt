@@ -1,0 +1,565 @@
+# HUB-23 — Universe PvP Arena, Ranked Seasons & Tournament
+
+Implement the complete HUB-23 PvP Arena, Ranked Seasons & Tournament System.
+
+IMPORTANT
+
+This is NOT a demo.
+
+Everything must integrate with HUB-1 through HUB-22.
+
+Use ONLY
+
+- PostgreSQL
+- Drizzle ORM
+- Existing DI Container
+- Existing WebSocket
+- Existing EventBus
+- Existing NotificationService
+- Existing ActivitiesService
+
+Never create mock repositories.
+
+====================================================
+PART 1 — DATABASE
+====================================================
+
+Create Drizzle schema.
+
+Tables
+
+pvp_matches
+
+pvp_match_players
+
+pvp_match_logs
+
+pvp_match_events
+
+pvp_damage_logs
+
+pvp_skill_logs
+
+pvp_seasons
+
+pvp_rankings
+
+pvp_rewards
+
+pvp_statistics
+
+pvp_loadouts
+
+pvp_matchmaking_queue
+
+tournaments
+
+tournament_brackets
+
+tournament_matches
+
+tournament_rewards
+
+tournament_history
+
+spectators
+
+Enums
+
+MatchType
+
+DUEL
+
+ARENA_2V2
+
+ARENA_3V3
+
+ARENA_5V5
+
+GUILD_WAR
+
+TournamentType
+
+SINGLE
+
+DOUBLE
+
+ROUND_ROBIN
+
+SeasonStatus
+
+PRESEASON
+
+ACTIVE
+
+FINISHED
+
+RankTier
+
+BRONZE
+
+SILVER
+
+GOLD
+
+PLATINUM
+
+DIAMOND
+
+MASTER
+
+GRANDMASTER
+
+LEGEND
+
+====================================================
+PART 2 — REPOSITORY
+====================================================
+
+Create
+
+IPvpRepository
+
+ITournamentRepository
+
+DrizzlePvpRepository
+
+DrizzleTournamentRepository
+
+Methods
+
+createMatch()
+
+joinQueue()
+
+leaveQueue()
+
+startMatch()
+
+finishMatch()
+
+recordDamage()
+
+recordKill()
+
+updateRating()
+
+getLeaderboard()
+
+createTournament()
+
+joinTournament()
+
+generateBracket()
+
+finishTournament()
+
+====================================================
+PART 3 — SERVICES
+====================================================
+
+PvpService
+
+MatchmakingService
+
+RankingService
+
+TournamentService
+
+SeasonService
+
+RewardService
+
+Features
+
+MMR / ELO
+
+Ranked Seasons
+
+Placement matches
+
+Match history
+
+Spectator mode
+
+Replay metadata
+
+Tournament brackets
+
+Guild wars
+
+Season rewards
+
+Top players
+
+====================================================
+PART 4 — EVENT BUS
+====================================================
+
+PvpEventBus
+
+Events
+
+MATCH_FOUND
+
+MATCH_STARTED
+
+PLAYER_KILLED
+
+MATCH_FINISHED
+
+RANK_CHANGED
+
+SEASON_STARTED
+
+SEASON_ENDED
+
+TOURNAMENT_STARTED
+
+TOURNAMENT_FINISHED
+
+====================================================
+PART 5 — INTEGRATION
+====================================================
+
+Character
+
+Combat stats
+
+Combat
+
+Use HUB-19 engine
+
+Pet
+
+Pet PvP
+
+Mount
+
+Cosmetic only
+
+Guild
+
+Guild Wars
+
+Quest
+
+PvP quests
+
+Tournament quests
+
+Reputation
+
+PvP reputation
+
+Achievements
+
+First Victory
+
+Arena Champion
+
+Grandmaster
+
+Tournament Winner
+
+Marketplace
+
+PvP cosmetics
+
+Economy
+
+Season rewards
+
+Mail
+
+Season reward mail
+
+Notifications
+
+Match found
+
+Rank changed
+
+Activities
+
+PvP history
+
+AI
+
+Nova recommends builds
+
+Nova analyzes matches
+
+====================================================
+PART 6 — API
+====================================================
+
+GET
+
+/api/pvp/dashboard
+
+GET
+
+/api/pvp/leaderboard
+
+GET
+
+/api/pvp/history
+
+POST
+
+/api/pvp/queue
+
+DELETE
+
+/api/pvp/queue
+
+GET
+
+/api/pvp/match/:id
+
+POST
+
+/api/pvp/match/:id/ready
+
+POST
+
+/api/pvp/match/:id/attack
+
+POST
+
+/api/pvp/match/:id/skill
+
+POST
+
+/api/pvp/match/:id/surrender
+
+GET
+
+/api/seasons
+
+GET
+
+/api/seasons/current
+
+GET
+
+/api/tournaments
+
+POST
+
+/api/tournaments
+
+POST
+
+/api/tournaments/:id/join
+
+GET
+
+/api/tournaments/:id/bracket
+
+POST
+
+/api/tournaments/:id/start
+
+POST
+
+/api/tournaments/:id/finish
+
+====================================================
+PART 7 — WEBSOCKET
+====================================================
+
+Realtime
+
+MatchFound
+
+QueueUpdated
+
+MatchStarted
+
+PlayerKilled
+
+HPUpdated
+
+MatchFinished
+
+RankChanged
+
+TournamentUpdated
+
+====================================================
+PART 8 — FRONTEND
+====================================================
+
+Create pages
+
+/pages/pvp
+
+PvpDashboard
+
+RankedQueue
+
+ArenaMatch
+
+MatchHistory
+
+Leaderboard
+
+SeasonRewards
+
+/pages/tournaments
+
+TournamentDashboard
+
+TournamentBracket
+
+TournamentMatch
+
+TournamentHistory
+
+Hooks
+
+usePvp
+
+useTournament
+
+Widgets
+
+PvpWidget
+
+RankWidget
+
+TournamentWidget
+
+Sidebar
+
+Universe PvP
+
+Universe Tournament
+
+====================================================
+PART 9 — APP REGISTRY
+====================================================
+
+Register
+
+slug
+
+pvp
+
+ACTIVE
+
+GAME
+
+slug
+
+tournaments
+
+ACTIVE
+
+GAME
+
+====================================================
+PART 10 — ACCEPTANCE
+====================================================
+
+Everything must use PostgreSQL.
+
+No mock data.
+
+JWT authentication.
+
+Zero HUB-23 type errors.
+
+Integrate with
+
+Character
+
+Combat
+
+Pet
+
+Mount
+
+Guild
+
+Quest
+
+Boss
+
+Dungeon
+
+Raid
+
+Marketplace
+
+Economy
+
+Mail
+
+Notifications
+
+Activities
+
+Achievements
+
+AI
+
+Launcher
+
+====================================================
+END TO END PROOF
+====================================================
+
+Provide curl evidence for
+
+1. Join matchmaking queue
+
+2. Match found
+
+3. Match started
+
+4. Attack opponent
+
+5. Use skill
+
+6. Player defeated
+
+7. Match finished
+
+8. Rating updated
+
+9. Rank changed
+
+10. Leaderboard updated
+
+11. Tournament created
+
+12. Join tournament
+
+13. Bracket generated
+
+14. Tournament winner
+
+15. Season rewards distributed
+
+16. Notification generated
+
+17. Activity generated
+
+18. Achievement unlocked
+
+19. Reputation updated
+
+20. WebSocket realtime verified
+
+21. Launcher shows Universe PvP
+
+22. Launcher shows Universe Tournament
+
+23. Database verification
+
+24. Sprint report listing every created and modified file.
+
+Do not stop until every acceptance criterion passes.
