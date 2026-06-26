@@ -40,7 +40,9 @@ export type QuestEventType =
   | "JOIN_WORLD"
   | "AI_CONVERSATION"
   | "AI_ASSIST"
-  | "AI_MEMORY_CREATED";
+  | "AI_MEMORY_CREATED"
+  | "CREATE_PROJECT"
+  | "PUBLISH_PROJECT";
 
 // ─── Event envelope ──────────────────────────────────────────────────────────
 

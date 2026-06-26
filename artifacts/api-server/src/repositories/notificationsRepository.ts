@@ -1,4 +1,4 @@
-export type NotificationType = "reward" | "transaction" | "system" | "social" | "marketplace" | "quest" | "ai" | "world";
+export type NotificationType = "reward" | "transaction" | "system" | "social" | "marketplace" | "quest" | "ai" | "world" | "creator";
 
 export interface Notification {
   id:        string;

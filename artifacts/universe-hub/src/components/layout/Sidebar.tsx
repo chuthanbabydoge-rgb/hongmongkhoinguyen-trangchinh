@@ -54,6 +54,11 @@ import {
   CloudLightning,
   CloudSun,
   Award,
+  Palette,
+  Wand2,
+  BookTemplate,
+  FolderOpen,
+  BookMarked,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -266,6 +271,19 @@ export function Sidebar() {
           <NavItem icon={Award}   label="Bảng xếp hạng MMR"  path="/pvp/leaderboard" />
           <NavItem icon={Trophy}  label="Phần thưởng Mùa"    path="/pvp/season" />
           <NavItem icon={Trophy}  label="Giải đấu"           path="/tournaments" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Creator
+          </p>
+          <NavItem icon={Palette}      label="Creator Hub"        path="/creator" />
+          <NavItem icon={FolderOpen}   label="Projects của tôi"   path="/creator/projects" />
+          <NavItem icon={Wand2}        label="Creator Studio"      path="/creator/studio" />
+          <NavItem icon={Globe}        label="Explore Projects"    path="/creator/explore" />
+          <NavItem icon={BookTemplate} label="Templates"           path="/creator/templates" />
+          <NavItem icon={Package}      label="Asset Library"       path="/creator/assets" />
+          <NavItem icon={BookMarked}   label="Yêu thích"           path="/creator/favorites" />
         </div>
 
         <div className="pt-1 pb-1">

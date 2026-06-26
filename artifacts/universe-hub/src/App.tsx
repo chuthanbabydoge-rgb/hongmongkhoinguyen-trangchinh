@@ -117,6 +117,14 @@ import SeasonRewards     from "@/pages/pvp/SeasonRewards";
 import TournamentDashboard from "@/pages/tournaments/TournamentDashboard";
 import TournamentCreate  from "@/pages/tournaments/TournamentCreate";
 import TournamentDetail  from "@/pages/tournaments/TournamentDetail";
+import CreatorDashboard     from "@/pages/creator/CreatorDashboard";
+import CreatorProjects      from "@/pages/creator/CreatorProjects";
+import CreatorStudio        from "@/pages/creator/CreatorStudio";
+import CreatorPublic        from "@/pages/creator/CreatorPublic";
+import CreatorTemplates     from "@/pages/creator/CreatorTemplates";
+import CreatorAssets        from "@/pages/creator/CreatorAssets";
+import CreatorFavorites     from "@/pages/creator/CreatorFavorites";
+import CreatorProjectDetail from "@/pages/creator/CreatorProjectDetail";
 import CharacterProfile  from "@/pages/character/CharacterProfile";
 import CharacterStats    from "@/pages/character/CharacterStats";
 import EquipmentPage     from "@/pages/character/EquipmentPage";
@@ -273,6 +281,14 @@ function Router() {
       <Route path="/tournaments" component={TournamentDashboard} />
       <Route path="/tournaments/create" component={TournamentCreate} />
       <Route path="/tournaments/:id" component={TournamentDetail} />
+      <Route path="/creator" component={CreatorDashboard} />
+      <Route path="/creator/projects" component={CreatorProjects} />
+      <Route path="/creator/studio" component={CreatorStudio} />
+      <Route path="/creator/explore" component={CreatorPublic} />
+      <Route path="/creator/templates" component={CreatorTemplates} />
+      <Route path="/creator/assets" component={CreatorAssets} />
+      <Route path="/creator/favorites" component={CreatorFavorites} />
+      <Route path="/creator/projects/:id" component={CreatorProjectDetail} />
       <Route component={NotFound} />
     </Switch>
   );

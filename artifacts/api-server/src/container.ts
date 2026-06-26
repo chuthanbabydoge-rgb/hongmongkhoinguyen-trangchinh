@@ -1070,3 +1070,27 @@ appRegistryService.registerApp({
   version:     "1.0.0",
 }).catch(() => {});
 
+// ─── HUB-24: Universe Creator Core ───────────────────────────────────────────
+import { DrizzleCreatorRepository } from "./repositories/drizzle/DrizzleCreatorRepository.js";
+import { CreatorService }           from "./services/creatorService.js";
+
+const creatorRepo = new DrizzleCreatorRepository();
+logger.info("Container: creator system → Drizzle");
+
+export const creatorService = new CreatorService(
+  creatorRepo, notificationsService, activitiesService, userReputationRepo,
+);
+
+creatorRepo.seedCategories().catch(() => {});
+
+appRegistryService.registerApp({
+  slug:        "creator",
+  name:        "Universe Creator",
+  description: "Công cụ sáng tạo nội dung — tạo thế giới, nhiệm vụ, nhân vật và dự án trong Universe Ecosystem",
+  icon:        "🎨",
+  url:         "/creator",
+  category:    "CREATOR",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
+
