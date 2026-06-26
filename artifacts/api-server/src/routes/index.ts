@@ -27,6 +27,7 @@ import combatRouter from "./combat";
 import petRouter from "./pets";
 import dungeonRouter from "./dungeons";
 import bossRouter from "./bosses";
+import pvpRouter from "./pvp";
 
 const router: IRouter = Router();
 
@@ -58,5 +59,6 @@ router.use(combatRouter);
 router.use(petRouter);
 router.use(dungeonRouter);
 router.use(bossRouter);
+router.use(pvpRouter);
 
 export default router;

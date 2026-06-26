@@ -238,6 +238,26 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     status:      "ACTIVE",
     version:     "1.0.0",
   },
+  {
+    slug:        "pvp",
+    name:        "Universe PvP",
+    description: "Đấu trường PvP — xếp hạng MMR, mùa giải, đấu 1v1 đến 5v5 và Guild War",
+    icon:        "https://cdn.universe.io/icons/pvp.png",
+    url:         `${REPLIT_HUB_URL}/pvp`,
+    category:    "GAME",
+    status:      "ACTIVE",
+    version:     "1.0.0",
+  },
+  {
+    slug:        "tournaments",
+    name:        "Universe Tournament",
+    description: "Giải đấu chính thức — thi đấu loại trực tiếp, vòng tròn, giải thưởng lớn",
+    icon:        "https://cdn.universe.io/icons/tournaments.png",
+    url:         `${REPLIT_HUB_URL}/tournaments`,
+    category:    "GAME",
+    status:      "ACTIVE",
+    version:     "1.0.0",
+  },
 ];
 
 // ─── Service ──────────────────────────────────────────────────────────────────

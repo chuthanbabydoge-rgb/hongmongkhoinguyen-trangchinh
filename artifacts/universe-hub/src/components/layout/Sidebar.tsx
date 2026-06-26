@@ -53,6 +53,7 @@ import {
   ShieldAlert,
   CloudLightning,
   CloudSun,
+  Award,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -254,6 +255,17 @@ export function Sidebar() {
           <NavItem icon={Skull}          label="Boss Leaderboard"     path="/bosses/leaderboard" />
           <NavItem icon={CloudLightning} label="Universe World Events" path="/world-events" />
           <NavItem icon={CloudSun}       label="Trung tâm Thời tiết"  path="/world-events/weather" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            PvP Arena
+          </p>
+          <NavItem icon={Swords}  label="Universe PvP"       path="/pvp" />
+          <NavItem icon={Swords}  label="Tìm trận PvP"       path="/pvp/queue" />
+          <NavItem icon={Award}   label="Bảng xếp hạng MMR"  path="/pvp/leaderboard" />
+          <NavItem icon={Trophy}  label="Phần thưởng Mùa"    path="/pvp/season" />
+          <NavItem icon={Trophy}  label="Giải đấu"           path="/tournaments" />
         </div>
 
         <div className="pt-1 pb-1">

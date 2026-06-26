@@ -108,6 +108,15 @@ import WorldEventsPage   from "@/pages/world-events/WorldEvents";
 import WorldEventDetail  from "@/pages/world-events/WorldEventDetail";
 import WorldEventHistory from "@/pages/world-events/WorldEventHistory";
 import WeatherCenter     from "@/pages/world-events/WeatherCenter";
+import PvpDashboard      from "@/pages/pvp/PvpDashboard";
+import RankedQueue       from "@/pages/pvp/RankedQueue";
+import ArenaMatch        from "@/pages/pvp/ArenaMatch";
+import PvpLeaderboard    from "@/pages/pvp/Leaderboard";
+import MatchHistory      from "@/pages/pvp/MatchHistory";
+import SeasonRewards     from "@/pages/pvp/SeasonRewards";
+import TournamentDashboard from "@/pages/tournaments/TournamentDashboard";
+import TournamentCreate  from "@/pages/tournaments/TournamentCreate";
+import TournamentDetail  from "@/pages/tournaments/TournamentDetail";
 import CharacterProfile  from "@/pages/character/CharacterProfile";
 import CharacterStats    from "@/pages/character/CharacterStats";
 import EquipmentPage     from "@/pages/character/EquipmentPage";
@@ -255,6 +264,15 @@ function Router() {
       <Route path="/world-events/history" component={WorldEventHistory} />
       <Route path="/world-events/weather" component={WeatherCenter} />
       <Route path="/world-events/:id" component={WorldEventDetail} />
+      <Route path="/pvp" component={PvpDashboard} />
+      <Route path="/pvp/queue" component={RankedQueue} />
+      <Route path="/pvp/leaderboard" component={PvpLeaderboard} />
+      <Route path="/pvp/history" component={MatchHistory} />
+      <Route path="/pvp/season" component={SeasonRewards} />
+      <Route path="/pvp/match/:id" component={ArenaMatch} />
+      <Route path="/tournaments" component={TournamentDashboard} />
+      <Route path="/tournaments/create" component={TournamentCreate} />
+      <Route path="/tournaments/:id" component={TournamentDetail} />
       <Route component={NotFound} />
     </Switch>
   );

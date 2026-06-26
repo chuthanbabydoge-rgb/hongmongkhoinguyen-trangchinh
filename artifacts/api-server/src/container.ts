@@ -1002,6 +1002,12 @@ import { DrizzleBossRepository }       from "./repositories/drizzle/DrizzleBossR
 import { DrizzleWorldEventRepository } from "./repositories/drizzle/DrizzleWorldEventRepository.js";
 import { BossAIService }               from "./services/bossAIService.js";
 import { WorldEventService, WeatherService } from "./services/worldEventService.js";
+import { DrizzlePvpRepository }        from "./repositories/drizzle/DrizzlePvpRepository.js";
+import { DrizzleTournamentRepository } from "./repositories/drizzle/DrizzleTournamentRepository.js";
+import { PvpService }                  from "./services/pvpService.js";
+import { MatchmakingService }          from "./services/matchmakingService.js";
+import { RankingService }              from "./services/rankingService.js";
+import { TournamentService }           from "./services/tournamentService.js";
 
 const bossRepo       = new DrizzleBossRepository();
 const worldEventRepo = new DrizzleWorldEventRepository();
@@ -1022,6 +1028,25 @@ bossRepo.seedSkills().catch(() => {});
 bossRepo.seedPhases().catch(() => {});
 worldEventRepo.seedEvents().catch(() => {});
 worldEventRepo.seedWeather().catch(() => {});
+
+// ─── HUB-23: PvP Arena, Ranked Seasons & Tournament ──────────────────────────
+
+const pvpRepo        = new DrizzlePvpRepository();
+const tournamentRepo = new DrizzleTournamentRepository();
+logger.info("Container: PvP Arena & Tournament → Drizzle");
+
+export const pvpService = new PvpService(
+  pvpRepo, notificationsService, activitiesService, userReputationRepo,
+);
+export const rankingService = new RankingService(
+  pvpRepo, notificationsService,
+);
+export const tournamentService = new TournamentService(
+  tournamentRepo, pvpRepo, pvpService, notificationsService, activitiesService, userReputationRepo,
+);
+export const matchmakingService = new MatchmakingService(pvpRepo, pvpService);
+
+pvpRepo.seedSeason().catch(() => {});
 
 appRegistryService.registerApp({
   slug:        "bosses",
