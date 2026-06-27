@@ -136,6 +136,22 @@ import CreatorTemplates     from "@/pages/creator/CreatorTemplates";
 import CreatorAssets        from "@/pages/creator/CreatorAssets";
 import CreatorFavorites     from "@/pages/creator/CreatorFavorites";
 import CreatorProjectDetail from "@/pages/creator/CreatorProjectDetail";
+import SportsDashboard      from "@/pages/sports/SportsDashboard";
+import SportsDirectory      from "@/pages/sports/SportsDirectory";
+import LeagueList           from "@/pages/sports/LeagueList";
+import LeagueDetail         from "@/pages/sports/LeagueDetail";
+import TeamList             from "@/pages/sports/TeamList";
+import TeamDetail           from "@/pages/sports/TeamDetail";
+import PlayerList           from "@/pages/sports/PlayerList";
+import PlayerDetail         from "@/pages/sports/PlayerDetail";
+import MatchList            from "@/pages/sports/MatchList";
+import MatchDetail          from "@/pages/sports/MatchDetail";
+import SportsTournamentList   from "@/pages/sports/TournamentList";
+import SportsTournamentDetail from "@/pages/sports/TournamentDetail";
+import RankingsPage         from "@/pages/sports/RankingsPage";
+import StadiumList          from "@/pages/sports/StadiumList";
+import AwardsList           from "@/pages/sports/AwardsList";
+import StatisticsPage       from "@/pages/sports/StatisticsPage";
 import CharacterProfile  from "@/pages/character/CharacterProfile";
 import CharacterStats    from "@/pages/character/CharacterStats";
 import EquipmentPage     from "@/pages/character/EquipmentPage";
@@ -311,6 +327,22 @@ function Router() {
       <Route path="/creator/assets" component={CreatorAssets} />
       <Route path="/creator/favorites" component={CreatorFavorites} />
       <Route path="/creator/projects/:id" component={CreatorProjectDetail} />
+      <Route path="/sports" component={SportsDashboard} />
+      <Route path="/sports/directory" component={SportsDirectory} />
+      <Route path="/sports/leagues" component={LeagueList} />
+      <Route path="/sports/leagues/:id" component={LeagueDetail} />
+      <Route path="/sports/teams" component={TeamList} />
+      <Route path="/sports/teams/:id" component={TeamDetail} />
+      <Route path="/sports/players" component={PlayerList} />
+      <Route path="/sports/players/:id" component={PlayerDetail} />
+      <Route path="/sports/matches" component={MatchList} />
+      <Route path="/sports/matches/:id" component={MatchDetail} />
+      <Route path="/sports/tournaments" component={SportsTournamentList} />
+      <Route path="/sports/tournaments/:id" component={SportsTournamentDetail} />
+      <Route path="/sports/rankings" component={RankingsPage} />
+      <Route path="/sports/stadiums" component={StadiumList} />
+      <Route path="/sports/awards" component={AwardsList} />
+      <Route path="/sports/statistics" component={StatisticsPage} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -11,6 +11,7 @@ export const notificationTypeEnum = pgEnum("notification_type", [
   "world",
   "creator",
   "education",
+  "sports",
 ]);
 
 export const notificationsTable = pgTable("notifications", {

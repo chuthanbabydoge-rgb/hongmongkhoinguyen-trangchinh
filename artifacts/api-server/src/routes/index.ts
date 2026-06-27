@@ -30,6 +30,7 @@ import bossRouter from "./bosses";
 import pvpRouter from "./pvp";
 import creatorRouter from "./creator";
 import educationRouter from "./education";
+import sportsRouter from "./sports";
 
 const router: IRouter = Router();
 
@@ -64,5 +65,6 @@ router.use(bossRouter);
 router.use(pvpRouter);
 router.use(creatorRouter);
 router.use(educationRouter);
+router.use(sportsRouter);
 
 export default router;

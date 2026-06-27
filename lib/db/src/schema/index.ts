@@ -43,3 +43,4 @@ export * from "./bossEvents";
 export * from "./pvp";
 export * from "./creator";
 export * from "./education";
+export * from "./sports";

@@ -63,6 +63,11 @@ import {
   BookOpenCheck,
   ClipboardList,
   School,
+  Dumbbell,
+  MapPin,
+  CalendarDays,
+  GitBranch,
+  BarChartHorizontal,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -302,6 +307,23 @@ export function Sidebar() {
           <NavItem icon={Award}          label="Chứng chỉ"           path="/education/certificates" />
           <NavItem icon={Users}          label="Lớp học"             path="/education/classrooms" />
           <NavItem icon={BookMarked}     label="Bài tập"             path="/education/homework" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Universe Sports
+          </p>
+          <NavItem icon={Trophy}              label="Sports Hub"          path="/sports" />
+          <NavItem icon={Globe}               label="Môn thể thao"        path="/sports/directory" />
+          <NavItem icon={Dumbbell}            label="Giải đấu"            path="/sports/leagues" />
+          <NavItem icon={Users}               label="Đội bóng"            path="/sports/teams" />
+          <NavItem icon={Star}                label="Cầu thủ"             path="/sports/players" />
+          <NavItem icon={CalendarDays}        label="Lịch thi đấu"        path="/sports/matches" />
+          <NavItem icon={GitBranch}           label="Giải vô địch"        path="/sports/tournaments" />
+          <NavItem icon={BarChartHorizontal}  label="Bảng xếp hạng"      path="/sports/rankings" />
+          <NavItem icon={MapPin}              label="Sân vận động"        path="/sports/stadiums" />
+          <NavItem icon={Medal}               label="Giải thưởng"         path="/sports/awards" />
+          <NavItem icon={BarChart2}           label="Thống kê"            path="/sports/statistics" />
         </div>
 
         <div className="pt-1 pb-1">

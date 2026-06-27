@@ -1118,3 +1118,27 @@ appRegistryService.registerApp({
   version:     "1.0.0",
 }).catch(() => {});
 
+// ─── HUB-26: Universe Sports Framework ───────────────────────────────────────
+import { DrizzleSportsRepository } from "./repositories/drizzle/DrizzleSportsRepository.js";
+import { SportsService }           from "./services/sportsService.js";
+
+const sportsRepo = new DrizzleSportsRepository();
+logger.info("Container: sports framework → Drizzle");
+
+export const sportsService = new SportsService(
+  sportsRepo, notificationsService, activitiesService, userReputationRepo,
+);
+
+sportsRepo.seedData().catch(() => {});
+
+appRegistryService.registerApp({
+  slug:        "sports",
+  name:        "Universe Sports",
+  description: "Nền tảng thể thao Universe — bóng đá, bóng rổ, võ thuật, e-sports và các môn thể thao khác",
+  icon:        "🏆",
+  url:         "/sports",
+  category:    "SPORT",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
+
