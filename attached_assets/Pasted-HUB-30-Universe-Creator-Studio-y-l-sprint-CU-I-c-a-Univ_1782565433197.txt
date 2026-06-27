@@ -1,0 +1,401 @@
+HUB-30 — Universe Creator Studio
+
+Đây là sprint CUỐI của Universe Hub.
+
+Sau HUB-30 sẽ tách thành project riêng Universe Creator.
+
+==============================
+YÊU CẦU
+==============================
+
+- Không tạo project mới.
+- Build trực tiếp trong Universe Hub.
+- PostgreSQL.
+- DrizzleORM.
+- JWT.
+- Không mock.
+- Không sửa code HUB cũ ngoài integration.
+- Build backend + frontend song song.
+- Build.
+- Typecheck.
+- Trả Sprint Report.
+
+====================================
+1. DATABASE
+====================================
+
+Tạo
+
+lib/db/src/schema/creatorStudio.ts
+
+Khoảng 25–30 bảng.
+
+Ví dụ:
+
+studio_editors
+
+editor_sessions
+
+editor_layouts
+
+editor_preferences
+
+world_documents
+
+npc_documents
+
+quest_documents
+
+boss_documents
+
+dungeon_documents
+
+item_documents
+
+skill_documents
+
+pet_documents
+
+mount_documents
+
+building_documents
+
+city_documents
+
+sports_documents
+
+education_documents
+
+company_documents
+
+dialog_documents
+
+behavior_trees
+
+visual_scripts
+
+logic_graphs
+
+publish_jobs
+
+studio_assets
+
+studio_packages
+
+studio_plugins
+
+studio_templates
+
+studio_history
+
+studio_backups
+
+====================================
+2. BACKEND
+====================================
+
+CreatorStudioRepository
+
+DrizzleCreatorStudioRepository
+
+CreatorStudioService
+
+CreatorStudioController
+
+CreatorStudioEventBus
+
+Routes
+
+/api/studio/*
+
+Khoảng
+
+70–90 REST endpoints
+
+Ví dụ
+
+Dashboard
+
+Projects
+
+Editors
+
+Open
+
+Save
+
+History
+
+Undo
+
+Redo
+
+Clone
+
+Import
+
+Export
+
+Publish
+
+Packages
+
+Templates
+
+Plugins
+
+Assets
+
+Documents
+
+====================================
+3. EDITORS
+====================================
+
+World Editor
+
+NPC Editor
+
+Quest Editor
+
+Boss Editor
+
+Dungeon Editor
+
+Pet Editor
+
+Mount Editor
+
+Skill Editor
+
+Item Editor
+
+Dialogue Editor
+
+Company Editor
+
+Education Editor
+
+Sports Editor
+
+Land Editor
+
+Nation Editor
+
+====================================
+4. VISUAL SCRIPT
+====================================
+
+Node editor.
+
+Ví dụ:
+
+Start
+
+↓
+
+If
+
+↓
+
+Spawn NPC
+
+↓
+
+Give Quest
+
+↓
+
+Reward
+
+↓
+
+Finish
+
+Lưu graph xuống PostgreSQL.
+
+====================================
+5. PUBLISH PIPELINE
+====================================
+
+Publish
+
+↓
+
+Validate
+
+↓
+
+Package
+
+↓
+
+Create Version
+
+↓
+
+Push Creator Core
+
+↓
+
+Register Runtime
+
+====================================
+6. FRONTEND
+====================================
+
+Khoảng 20 trang React.
+
+Ví dụ:
+
+StudioDashboard
+
+ProjectExplorer
+
+EditorHome
+
+WorldEditor
+
+NpcEditor
+
+QuestEditor
+
+BossEditor
+
+DungeonEditor
+
+ItemEditor
+
+SkillEditor
+
+PetEditor
+
+DialogueEditor
+
+VisualScriptEditor
+
+TemplateBrowser
+
+AssetBrowser
+
+PluginCenter
+
+PublishCenter
+
+HistoryCenter
+
+PackageManager
+
+StudioSettings
+
+====================================
+7. UI
+====================================
+
+Layout kiểu IDE.
+
+Sidebar trái
+
+Explorer
+
+Center
+
+Canvas
+
+Inspector phải
+
+Bottom
+
+Console
+
+History
+
+====================================
+8. SIDEBAR
+====================================
+
+Section
+
+Creator Studio
+
+20 menu.
+
+====================================
+9. APP REGISTRY
+====================================
+
+slug
+
+creator-studio
+
+category
+
+CREATOR
+
+ACTIVE
+
+====================================
+10. INTEGRATION
+====================================
+
+Creator Core
+
+World
+
+Quest
+
+Boss
+
+Dungeon
+
+Character
+
+Pet
+
+Education
+
+Sports
+
+Business
+
+Land
+
+Nation
+
+AI
+
+====================================
+11. ACCEPTANCE
+====================================
+
+- PostgreSQL
+- Không mock
+- Build OK
+- Typecheck OK
+- App Registry
+- Sidebar
+- Dashboard
+- Studio hoạt động
+- API hoạt động
+
+Cuối cùng trả đúng format:
+
+HUB-30 Sprint Report
+
+bao gồm
+
+Files Created
+
+Files Modified
+
+Database
+
+API
+
+Frontend
+
+Integration
+
+Typecheck
+
+Acceptance Checklist

@@ -34,6 +34,7 @@ import sportsRouter from "./sports";
 import businessRouter from "./business";
 import landRouter from "./land";
 import nationRouter from "./nation";
+import studioRouter from "./studio";
 
 const router: IRouter = Router();
 
@@ -72,5 +73,6 @@ router.use(sportsRouter);
 router.use(businessRouter);
 router.use(landRouter);
 router.use(nationRouter);
+router.use(studioRouter);
 
 export default router;

@@ -136,6 +136,28 @@ import CreatorTemplates     from "@/pages/creator/CreatorTemplates";
 import CreatorAssets        from "@/pages/creator/CreatorAssets";
 import CreatorFavorites     from "@/pages/creator/CreatorFavorites";
 import CreatorProjectDetail from "@/pages/creator/CreatorProjectDetail";
+import StudioDashboard      from "@/pages/studio/StudioDashboard";
+import ProjectExplorer      from "@/pages/studio/ProjectExplorer";
+import EditorHome           from "@/pages/studio/EditorHome";
+import WorldEditor          from "@/pages/studio/WorldEditor";
+import NpcEditor            from "@/pages/studio/NpcEditor";
+import QuestEditor          from "@/pages/studio/QuestEditor";
+import BossEditor           from "@/pages/studio/BossEditor";
+import DungeonEditor        from "@/pages/studio/DungeonEditor";
+import ItemEditor           from "@/pages/studio/ItemEditor";
+import SkillEditor          from "@/pages/studio/SkillEditor";
+import PetEditor            from "@/pages/studio/PetEditor";
+import MountEditor          from "@/pages/studio/MountEditor";
+import DialogueEditor       from "@/pages/studio/DialogueEditor";
+import VisualScriptEditor   from "@/pages/studio/VisualScriptEditor";
+import TemplateBrowser      from "@/pages/studio/TemplateBrowser";
+import AssetBrowser         from "@/pages/studio/AssetBrowser";
+import PluginCenter         from "@/pages/studio/PluginCenter";
+import PublishCenter        from "@/pages/studio/PublishCenter";
+import HistoryCenter        from "@/pages/studio/HistoryCenter";
+import PackageManager       from "@/pages/studio/PackageManager";
+import StudioSettings       from "@/pages/studio/StudioSettings";
+import BackupCenter         from "@/pages/studio/BackupCenter";
 import SportsDashboard      from "@/pages/sports/SportsDashboard";
 import SportsDirectory      from "@/pages/sports/SportsDirectory";
 import LeagueList           from "@/pages/sports/LeagueList";
@@ -382,6 +404,29 @@ function Router() {
       <Route path="/creator/assets" component={CreatorAssets} />
       <Route path="/creator/favorites" component={CreatorFavorites} />
       <Route path="/creator/projects/:id" component={CreatorProjectDetail} />
+      {/* HUB-30: Universe Creator Studio */}
+      <Route path="/studio" component={StudioDashboard} />
+      <Route path="/studio/projects" component={ProjectExplorer} />
+      <Route path="/studio/editors" component={EditorHome} />
+      <Route path="/studio/world-editor" component={WorldEditor} />
+      <Route path="/studio/npc-editor" component={NpcEditor} />
+      <Route path="/studio/quest-editor" component={QuestEditor} />
+      <Route path="/studio/boss-editor" component={BossEditor} />
+      <Route path="/studio/dungeon-editor" component={DungeonEditor} />
+      <Route path="/studio/item-editor" component={ItemEditor} />
+      <Route path="/studio/skill-editor" component={SkillEditor} />
+      <Route path="/studio/pet-editor" component={PetEditor} />
+      <Route path="/studio/mount-editor" component={MountEditor} />
+      <Route path="/studio/dialogue-editor" component={DialogueEditor} />
+      <Route path="/studio/visual-script" component={VisualScriptEditor} />
+      <Route path="/studio/templates" component={TemplateBrowser} />
+      <Route path="/studio/assets" component={AssetBrowser} />
+      <Route path="/studio/plugins" component={PluginCenter} />
+      <Route path="/studio/publish" component={PublishCenter} />
+      <Route path="/studio/history" component={HistoryCenter} />
+      <Route path="/studio/packages" component={PackageManager} />
+      <Route path="/studio/backups" component={BackupCenter} />
+      <Route path="/studio/settings" component={StudioSettings} />
       <Route path="/sports" component={SportsDashboard} />
       <Route path="/sports/directory" component={SportsDirectory} />
       <Route path="/sports/leagues" component={LeagueList} />

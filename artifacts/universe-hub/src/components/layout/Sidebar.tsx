@@ -81,6 +81,14 @@ import {
   ClipboardCheck,
   BadgeDollarSign,
   BookOpen,
+  HardDrive,
+  Puzzle,
+  Send,
+  History,
+  Mountain,
+  Zap,
+  ScrollText,
+  Code,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -301,11 +309,36 @@ export function Sidebar() {
           </p>
           <NavItem icon={Palette}      label="Creator Hub"        path="/creator" />
           <NavItem icon={FolderOpen}   label="Projects của tôi"   path="/creator/projects" />
-          <NavItem icon={Wand2}        label="Creator Studio"      path="/creator/studio" />
           <NavItem icon={Globe}        label="Explore Projects"    path="/creator/explore" />
           <NavItem icon={BookTemplate} label="Templates"           path="/creator/templates" />
           <NavItem icon={Package}      label="Asset Library"       path="/creator/assets" />
           <NavItem icon={BookMarked}   label="Yêu thích"           path="/creator/favorites" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Creator Studio
+          </p>
+          <NavItem icon={Wand2}        label="Studio Dashboard"    path="/studio" />
+          <NavItem icon={FolderOpen}   label="Project Explorer"    path="/studio/projects" />
+          <NavItem icon={Code}         label="Chọn Editor"         path="/studio/editors" />
+          <NavItem icon={Globe}        label="World Editor"        path="/studio/world-editor" />
+          <NavItem icon={Users}        label="NPC Editor"          path="/studio/npc-editor" />
+          <NavItem icon={ScrollText}   label="Quest Editor"        path="/studio/quest-editor" />
+          <NavItem icon={Skull}        label="Boss Editor"         path="/studio/boss-editor" />
+          <NavItem icon={Mountain}     label="Dungeon Editor"      path="/studio/dungeon-editor" />
+          <NavItem icon={Package}      label="Item Editor"         path="/studio/item-editor" />
+          <NavItem icon={Zap}          label="Skill Editor"        path="/studio/skill-editor" />
+          <NavItem icon={Heart}        label="Pet Editor"          path="/studio/pet-editor" />
+          <NavItem icon={MessageSquare}label="Dialogue Editor"     path="/studio/dialogue-editor" />
+          <NavItem icon={Cpu}          label="Visual Scripts"      path="/studio/visual-script" />
+          <NavItem icon={BookTemplate} label="Studio Templates"    path="/studio/templates" />
+          <NavItem icon={Package}      label="Studio Assets"       path="/studio/assets" />
+          <NavItem icon={Puzzle}       label="Plugins"             path="/studio/plugins" />
+          <NavItem icon={Send}         label="Publish Center"      path="/studio/publish" />
+          <NavItem icon={History}      label="History"             path="/studio/history" />
+          <NavItem icon={HardDrive}    label="Backups"             path="/studio/backups" />
+          <NavItem icon={Settings}     label="Studio Settings"     path="/studio/settings" />
         </div>
 
         <div className="pt-1 pb-1">

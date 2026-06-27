@@ -1214,3 +1214,23 @@ appRegistryService.registerApp({
   version:     "1.0.0",
 }).catch(() => {});
 
+
+// ─── HUB-30: Universe Creator Studio ─────────────────────────────────────────
+import { DrizzleCreatorStudioRepository } from "./repositories/drizzle/DrizzleCreatorStudioRepository.js";
+import { CreatorStudioService }           from "./services/creatorStudioService.js";
+
+const creatorStudioRepo = new DrizzleCreatorStudioRepository();
+logger.info("Container: creator studio → Drizzle");
+
+export const creatorStudioService = new CreatorStudioService(creatorStudioRepo);
+
+appRegistryService.registerApp({
+  slug:        "creator-studio",
+  name:        "Universe Creator Studio",
+  description: "IDE sáng tạo Universe — world, NPC, quest, boss, dungeon, item, skill, pet, visual script và toàn bộ hệ sinh thái",
+  icon:        "🎨",
+  url:         "/studio",
+  category:    "CREATOR",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
