@@ -44,3 +44,4 @@ export * from "./pvp";
 export * from "./creator";
 export * from "./education";
 export * from "./sports";
+export * from "./business";

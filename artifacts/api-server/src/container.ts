@@ -1142,3 +1142,27 @@ appRegistryService.registerApp({
   version:     "1.0.0",
 }).catch(() => {});
 
+// ─── HUB-27: Universe Business Framework ─────────────────────────────────────
+import { DrizzleBusinessRepository } from "./repositories/drizzle/DrizzleBusinessRepository.js";
+import { BusinessService }           from "./services/businessService.js";
+
+const businessRepo = new DrizzleBusinessRepository();
+logger.info("Container: business framework → Drizzle");
+
+export const businessService = new BusinessService(
+  businessRepo, notificationsService, activitiesService, userReputationRepo,
+);
+
+businessRepo.seedData().catch(() => {});
+
+appRegistryService.registerApp({
+  slug:        "business",
+  name:        "Universe Business",
+  description: "Hạ tầng doanh nghiệp Universe — công ty, nhân viên, kho hàng, nhà máy, thương hiệu và phân tích kinh doanh",
+  icon:        "🏢",
+  url:         "/business",
+  category:    "BUSINESS",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
+

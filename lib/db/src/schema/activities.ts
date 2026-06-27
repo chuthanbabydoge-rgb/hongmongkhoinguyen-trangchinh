@@ -15,6 +15,7 @@ export const activityTypeEnum = pgEnum("activity_type", [
   "creator",
   "education",
   "sports",
+  "business",
 ]);
 
 export const activitiesTable = pgTable("activities", {
