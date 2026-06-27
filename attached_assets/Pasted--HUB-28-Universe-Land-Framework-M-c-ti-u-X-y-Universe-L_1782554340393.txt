@@ -1,0 +1,720 @@
+# HUB-28 — Universe Land Framework
+
+## Mục tiêu
+
+Xây **Universe Land Framework**.
+
+Đây là framework quản lý đất đai, bất động sản và đô thị cho toàn bộ Universe.
+
+KHÔNG build game.
+
+KHÔNG build Minecraft.
+
+KHÔNG build City Builder.
+
+Mục tiêu là xây hạ tầng để sau này dùng chung cho:
+
+* Universe Worlds
+* Universe Creator
+* Virtual Nation
+* Business Framework
+* Exchange Hub
+* Digital Twin Earth
+* XR Layer
+
+---
+
+# DATABASE (PostgreSQL + Drizzle)
+
+Tạo file
+
+```text
+lib/db/src/schema/land.ts
+```
+
+Khoảng **25 bảng**.
+
+## ENUMS
+
+LandType
+
+ParcelStatus
+
+OwnershipType
+
+BuildingType
+
+BuildingStatus
+
+ConstructionStatus
+
+CityType
+
+DistrictType
+
+RoadType
+
+UtilityType
+
+TeleportType
+
+RentalStatus
+
+## TABLES
+
+land_regions
+
+land_cities
+
+land_districts
+
+land_parcels
+
+land_plots
+
+land_ownerships
+
+land_buildings
+
+building_templates
+
+building_levels
+
+construction_projects
+
+construction_materials
+
+roads
+
+bridges
+
+utilities
+
+teleport_ports
+
+land_bookmarks
+
+land_permissions
+
+land_visitors
+
+land_ratings
+
+land_marketplace
+
+land_transactions
+
+land_events
+
+land_statistics
+
+land_logs
+
+land_settings
+
+---
+
+# Repository
+
+ILandRepository
+
+DrizzleLandRepository
+
+100% PostgreSQL.
+
+Không mock.
+
+---
+
+# Services
+
+LandService
+
+BuildingService
+
+ConstructionService
+
+CityService
+
+TeleportService
+
+LandMarketplaceService
+
+LandAnalyticsService
+
+LandEventBus
+
+---
+
+# FEATURES
+
+## Regions
+
+Create
+
+Edit
+
+Delete
+
+Search
+
+Statistics
+
+---
+
+## Cities
+
+Create
+
+Update
+
+Districts
+
+Population
+
+Mayor
+
+Statistics
+
+---
+
+## Districts
+
+Residential
+
+Commercial
+
+Industrial
+
+Education
+
+Sports
+
+Government
+
+Mixed
+
+---
+
+## Land Parcels
+
+Create
+
+Transfer
+
+Sell
+
+Buy
+
+Bookmark
+
+Favorite
+
+Permissions
+
+Visitors
+
+History
+
+---
+
+## Buildings
+
+Create
+
+Upgrade
+
+Repair
+
+Destroy
+
+Templates
+
+Levels
+
+Status
+
+---
+
+## Construction
+
+Projects
+
+Queue
+
+Progress
+
+Complete
+
+Cancel
+
+Materials
+
+Workers
+
+---
+
+## Roads
+
+Roads
+
+Bridges
+
+Connections
+
+Path
+
+---
+
+## Utilities
+
+Electricity
+
+Water
+
+Internet
+
+Energy
+
+Gas
+
+---
+
+## Teleport
+
+Teleport Gates
+
+Travel Points
+
+World Connections
+
+Cooldown
+
+Travel History
+
+---
+
+## Marketplace
+
+List land
+
+Buy
+
+Sell
+
+Transfer
+
+Rent
+
+Lease
+
+History
+
+---
+
+## Analytics
+
+Land Value
+
+Population
+
+Buildings
+
+Revenue
+
+Construction
+
+Visitors
+
+City Ranking
+
+---
+
+# EVENT BUS
+
+landEventBus
+
+Events
+
+LAND_CREATED
+
+LAND_TRANSFERRED
+
+LAND_SOLD
+
+LAND_PURCHASED
+
+BUILDING_CREATED
+
+BUILDING_UPGRADED
+
+BUILDING_DESTROYED
+
+CONSTRUCTION_STARTED
+
+CONSTRUCTION_COMPLETED
+
+CITY_CREATED
+
+DISTRICT_CREATED
+
+ROAD_CREATED
+
+UTILITY_CONNECTED
+
+TELEPORT_USED
+
+LAND_RENTED
+
+---
+
+# REST API
+
+Prefix
+
+```text
+/api/land
+```
+
+Ít nhất **70 REST endpoints**
+
+Ví dụ
+
+GET /regions
+
+POST /regions
+
+GET /cities
+
+POST /cities
+
+GET /districts
+
+POST /districts
+
+GET /parcels
+
+POST /parcels
+
+PUT /parcels/:id
+
+DELETE /parcels/:id
+
+POST /parcels/:id/buy
+
+POST /parcels/:id/sell
+
+POST /parcels/:id/rent
+
+GET /buildings
+
+POST /buildings
+
+PUT /buildings/:id
+
+POST /buildings/:id/upgrade
+
+GET /construction
+
+POST /construction
+
+GET /roads
+
+POST /roads
+
+GET /utilities
+
+POST /utilities
+
+GET /teleports
+
+POST /teleports
+
+POST /teleports/:id/use
+
+GET /marketplace
+
+POST /marketplace
+
+GET /analytics
+
+GET /statistics
+
+GET /dashboard
+
+...
+
+---
+
+# FRONTEND
+
+Tạo các trang
+
+LandDashboard
+
+RegionBrowser
+
+CityBrowser
+
+CityDetail
+
+DistrictPage
+
+ParcelExplorer
+
+ParcelDetail
+
+BuildingCenter
+
+ConstructionCenter
+
+RoadNetwork
+
+UtilitiesCenter
+
+TeleportCenter
+
+LandMarketplace
+
+LandBookmarks
+
+LandAnalytics
+
+LandStatistics
+
+LandSettings
+
+---
+
+# React Hooks
+
+useLand()
+
+useRegions()
+
+useCities()
+
+useParcels()
+
+useBuildings()
+
+useConstruction()
+
+useMarketplace()
+
+useTeleport()
+
+useAnalytics()
+
+---
+
+# Dashboard Widget
+
+Land Widget
+
+Hiển thị
+
+Regions
+
+Cities
+
+Owned Land
+
+Buildings
+
+Construction
+
+Property Value
+
+Teleport Usage
+
+---
+
+# Sidebar
+
+Thêm section
+
+Universe Land
+
+Menu
+
+Dashboard
+
+Regions
+
+Cities
+
+Districts
+
+Parcels
+
+Buildings
+
+Construction
+
+Marketplace
+
+Teleport
+
+Analytics
+
+Statistics
+
+---
+
+# App Registry
+
+Đăng ký
+
+slug
+
+```text
+land
+```
+
+category
+
+```text
+LAND
+```
+
+status
+
+```text
+ACTIVE
+```
+
+Launcher phải hiển thị
+
+Universe Land
+
+---
+
+# Integration
+
+Tích hợp với
+
+Universe Account
+
+Character
+
+Wallet
+
+Inventory
+
+Marketplace
+
+Business
+
+Worlds
+
+Creator
+
+AI
+
+Sports
+
+Education
+
+Guild
+
+Chat
+
+Mail
+
+Notifications
+
+Activities
+
+Reputation
+
+Quest
+
+---
+
+# Seed Data
+
+Seed
+
+5 Regions
+
+10 Cities
+
+30 Districts
+
+500 Parcels
+
+100 Buildings
+
+20 Building Templates
+
+20 Roads
+
+10 Utilities
+
+10 Teleport Gates
+
+50 Marketplace Listings
+
+100 Land Transactions
+
+---
+
+# Rules
+
+Không mock.
+
+100% PostgreSQL.
+
+Drizzle ORM.
+
+Không sửa unrelated files.
+
+Không phá code cũ.
+
+Không tạo type errors mới.
+
+Không dùng any.
+
+---
+
+# Verification
+
+Sau khi hoàn thành phải tự động
+
+* db push
+* build backend
+* restart API
+* build frontend
+* chạy curl verify
+* chứng minh dữ liệu PostgreSQL
+* typecheck
+* launcher proof
+* dashboard proof
+
+---
+
+# OUTPUT
+
+Trả về Sprint Report giống các HUB trước.
+
+Bao gồm
+
+* Files Created
+* Files Modified
+* Database
+* Repository
+* Services
+* API
+* Frontend
+* Seed Data
+* Curl Proof
+* Launcher Proof
+* Dashboard Proof
+* Acceptance Checklist
+
+Yêu cầu:
+
+* Zero HUB-28 type errors.
+* Không dừng giữa chừng.
+* Tự hoàn thành toàn bộ HUB-28 end-to-end.
