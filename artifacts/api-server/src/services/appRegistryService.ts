@@ -268,6 +268,16 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     status:      "ACTIVE",
     version:     "1.0.0",
   },
+  {
+    slug:        "land",
+    name:        "Universe Land",
+    description: "Hạ tầng đất đai Universe — vùng, thành phố, quận, ô đất, công trình và bất động sản",
+    icon:        "https://cdn.universe.io/icons/land.png",
+    url:         `${REPLIT_HUB_URL}/land`,
+    category:    "LAND",
+    status:      "ACTIVE",
+    version:     "1.0.0",
+  },
 ];
 
 // ─── Service ──────────────────────────────────────────────────────────────────

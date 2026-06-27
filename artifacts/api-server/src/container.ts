@@ -1145,6 +1145,8 @@ appRegistryService.registerApp({
 // ─── HUB-27: Universe Business Framework ─────────────────────────────────────
 import { DrizzleBusinessRepository } from "./repositories/drizzle/DrizzleBusinessRepository.js";
 import { BusinessService }           from "./services/businessService.js";
+import { DrizzleLandRepository }     from "./repositories/drizzle/DrizzleLandRepository.js";
+import { LandService }               from "./services/landService.js";
 
 const businessRepo = new DrizzleBusinessRepository();
 logger.info("Container: business framework → Drizzle");
@@ -1154,6 +1156,28 @@ export const businessService = new BusinessService(
 );
 
 businessRepo.seedData().catch(() => {});
+
+// ─── HUB-28: Universe Land Framework ─────────────────────────────────────────
+
+const landRepo = new DrizzleLandRepository();
+logger.info("Container: land framework → Drizzle");
+
+export const landService = new LandService(
+  landRepo, notificationsService, activitiesService, userReputationRepo,
+);
+
+landRepo.seedData().catch(() => {});
+
+appRegistryService.registerApp({
+  slug:        "land",
+  name:        "Universe Land",
+  description: "Hạ tầng đất đai Universe — vùng, thành phố, quận, ô đất, công trình và hệ thống bất động sản",
+  icon:        "🏞️",
+  url:         "/land",
+  category:    "LAND",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
 
 appRegistryService.registerApp({
   slug:        "business",
