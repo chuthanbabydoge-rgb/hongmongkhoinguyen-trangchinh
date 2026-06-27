@@ -349,6 +349,27 @@ export function Sidebar() {
 
         <div className="pt-1 pb-1">
           <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Universe Land
+          </p>
+          <NavItem icon={MapPin}        label="Land Hub"            path="/land" />
+          <NavItem icon={Globe}         label="Vùng đất"            path="/land/regions" />
+          <NavItem icon={Building2}     label="Thành phố"           path="/land/cities" />
+          <NavItem icon={Layers}        label="Quận / Khu vực"      path="/land/districts" />
+          <NavItem icon={TrendingUp}    label="Ô đất"               path="/land/parcels" />
+          <NavItem icon={Castle}        label="Công trình"          path="/land/buildings" />
+          <NavItem icon={Hammer}        label="Xây dựng"            path="/land/construction" />
+          <NavItem icon={GitBranch}     label="Giao thông"          path="/land/roads" />
+          <NavItem icon={Cpu}           label="Tiện ích"            path="/land/utilities" />
+          <NavItem icon={Rocket}        label="Cổng dịch chuyển"    path="/land/teleports" />
+          <NavItem icon={ShoppingBag}   label="Thị trường đất"      path="/land/marketplace" />
+          <NavItem icon={BookMarked}    label="Đã lưu"              path="/land/bookmarks" />
+          <NavItem icon={BarChart2}     label="Phân tích"           path="/land/analytics" />
+          <NavItem icon={BarChart3}     label="Thống kê"            path="/land/statistics" />
+          <NavItem icon={Settings}      label="Cài đặt"             path="/land/settings" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
             Danh tiếng
           </p>
           <NavItem icon={Star}   label="Thành tựu"        path="/achievements" />

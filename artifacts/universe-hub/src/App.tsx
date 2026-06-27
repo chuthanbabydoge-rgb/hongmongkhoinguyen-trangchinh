@@ -170,6 +170,23 @@ import ExpensePage              from "@/pages/business/ExpensePage";
 import BusinessProfile          from "@/pages/business/BusinessProfile";
 import BusinessSettings         from "@/pages/business/BusinessSettings";
 import BusinessReviews          from "@/pages/business/BusinessReviews";
+import LandDashboard       from "@/pages/land/LandDashboard";
+import RegionBrowser       from "@/pages/land/RegionBrowser";
+import CityBrowser         from "@/pages/land/CityBrowser";
+import CityDetail          from "@/pages/land/CityDetail";
+import DistrictPage        from "@/pages/land/DistrictPage";
+import ParcelExplorer      from "@/pages/land/ParcelExplorer";
+import ParcelDetail        from "@/pages/land/ParcelDetail";
+import BuildingCenter      from "@/pages/land/BuildingCenter";
+import ConstructionCenter  from "@/pages/land/ConstructionCenter";
+import RoadNetwork         from "@/pages/land/RoadNetwork";
+import UtilitiesCenter     from "@/pages/land/UtilitiesCenter";
+import TeleportCenter      from "@/pages/land/TeleportCenter";
+import LandMarketplace     from "@/pages/land/LandMarketplace";
+import LandBookmarks       from "@/pages/land/LandBookmarks";
+import LandAnalytics       from "@/pages/land/LandAnalytics";
+import LandStatistics      from "@/pages/land/LandStatistics";
+import LandSettings        from "@/pages/land/LandSettings";
 import CharacterProfile  from "@/pages/character/CharacterProfile";
 import CharacterStats    from "@/pages/character/CharacterStats";
 import EquipmentPage     from "@/pages/character/EquipmentPage";
@@ -379,6 +396,23 @@ function Router() {
       <Route path="/business/profile"         component={BusinessProfile} />
       <Route path="/business/settings"        component={BusinessSettings} />
       <Route path="/business/reviews"         component={BusinessReviews} />
+      <Route path="/land"                     component={LandDashboard} />
+      <Route path="/land/regions"             component={RegionBrowser} />
+      <Route path="/land/cities"              component={CityBrowser} />
+      <Route path="/land/cities/:id"          component={CityDetail} />
+      <Route path="/land/districts"           component={DistrictPage} />
+      <Route path="/land/parcels"             component={ParcelExplorer} />
+      <Route path="/land/parcels/:id"         component={ParcelDetail} />
+      <Route path="/land/buildings"           component={BuildingCenter} />
+      <Route path="/land/construction"        component={ConstructionCenter} />
+      <Route path="/land/roads"               component={RoadNetwork} />
+      <Route path="/land/utilities"           component={UtilitiesCenter} />
+      <Route path="/land/teleports"           component={TeleportCenter} />
+      <Route path="/land/marketplace"         component={LandMarketplace} />
+      <Route path="/land/bookmarks"           component={LandBookmarks} />
+      <Route path="/land/analytics"           component={LandAnalytics} />
+      <Route path="/land/statistics"          component={LandStatistics} />
+      <Route path="/land/settings"            component={LandSettings} />
       <Route component={NotFound} />
     </Switch>
   );
