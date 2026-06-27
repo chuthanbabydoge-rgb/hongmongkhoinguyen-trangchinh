@@ -1179,6 +1179,30 @@ appRegistryService.registerApp({
   version:     "1.0.0",
 }).catch(() => {});
 
+// ─── HUB-29: Universe Virtual Nation ─────────────────────────────────────────
+import { DrizzleNationRepository } from "./repositories/drizzle/DrizzleNationRepository.js";
+import { NationService }           from "./services/nationService.js";
+
+const nationRepo = new DrizzleNationRepository();
+logger.info("Container: nation framework → Drizzle");
+
+export const nationService = new NationService(
+  nationRepo, notificationsService, activitiesService, userReputationRepo,
+);
+
+nationRepo.seedData().catch(() => {});
+
+appRegistryService.registerApp({
+  slug:        "nation",
+  name:        "Universe Nation",
+  description: "Quốc gia ảo Universe — chính phủ, công dân, luật pháp, bầu cử và ngân sách",
+  icon:        "🏛️",
+  url:         "/nation",
+  category:    "GOVERNMENT",
+  status:      "ACTIVE",
+  version:     "1.0.0",
+}).catch(() => {});
+
 appRegistryService.registerApp({
   slug:        "business",
   name:        "Universe Business",

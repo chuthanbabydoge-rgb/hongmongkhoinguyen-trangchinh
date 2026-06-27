@@ -21,6 +21,7 @@ export const APP_CATEGORIES = [
   "EDUCATION",
   "BUSINESS",
   "LAND",
+  "GOVERNMENT",
   "OTHER",
 ] as const;
 

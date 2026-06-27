@@ -187,6 +187,26 @@ import LandBookmarks       from "@/pages/land/LandBookmarks";
 import LandAnalytics       from "@/pages/land/LandAnalytics";
 import LandStatistics      from "@/pages/land/LandStatistics";
 import LandSettings        from "@/pages/land/LandSettings";
+
+import NationDashboard     from "@/pages/nation/NationDashboard";
+import GovernmentCenter    from "@/pages/nation/GovernmentCenter";
+import MinistryList        from "@/pages/nation/MinistryList";
+import GovernmentMembers   from "@/pages/nation/GovernmentMembers";
+import CitizenDirectory    from "@/pages/nation/CitizenDirectory";
+import CitizenProfile      from "@/pages/nation/CitizenProfile";
+import CitizenRegister     from "@/pages/nation/CitizenRegister";
+import PassportCenter      from "@/pages/nation/PassportCenter";
+import VisaCenter          from "@/pages/nation/VisaCenter";
+import LawCenter           from "@/pages/nation/LawCenter";
+import LawDetail           from "@/pages/nation/LawDetail";
+import ElectionCenter      from "@/pages/nation/ElectionCenter";
+import ElectionDetail      from "@/pages/nation/ElectionDetail";
+import BudgetCenter        from "@/pages/nation/BudgetCenter";
+import TaxCenter           from "@/pages/nation/TaxCenter";
+import Announcements       from "@/pages/nation/Announcements";
+import NationalEvents      from "@/pages/nation/NationalEvents";
+import NationalStatistics  from "@/pages/nation/NationalStatistics";
+import CountrySettings     from "@/pages/nation/CountrySettings";
 import CharacterProfile  from "@/pages/character/CharacterProfile";
 import CharacterStats    from "@/pages/character/CharacterStats";
 import EquipmentPage     from "@/pages/character/EquipmentPage";
@@ -413,6 +433,27 @@ function Router() {
       <Route path="/land/analytics"           component={LandAnalytics} />
       <Route path="/land/statistics"          component={LandStatistics} />
       <Route path="/land/settings"            component={LandSettings} />
+
+      {/* HUB-29: Universe Virtual Nation */}
+      <Route path="/nation"                       component={NationDashboard} />
+      <Route path="/nation/government"            component={GovernmentCenter} />
+      <Route path="/nation/ministries"            component={MinistryList} />
+      <Route path="/nation/members"               component={GovernmentMembers} />
+      <Route path="/nation/citizens"              component={CitizenDirectory} />
+      <Route path="/nation/citizens/me"           component={CitizenProfile} />
+      <Route path="/nation/citizens/register"     component={CitizenRegister} />
+      <Route path="/nation/passport"              component={PassportCenter} />
+      <Route path="/nation/visa"                  component={VisaCenter} />
+      <Route path="/nation/laws"                  component={LawCenter} />
+      <Route path="/nation/laws/:id"              component={LawDetail} />
+      <Route path="/nation/elections"             component={ElectionCenter} />
+      <Route path="/nation/elections/:id"         component={ElectionDetail} />
+      <Route path="/nation/budget"                component={BudgetCenter} />
+      <Route path="/nation/tax"                   component={TaxCenter} />
+      <Route path="/nation/announcements"         component={Announcements} />
+      <Route path="/nation/events"                component={NationalEvents} />
+      <Route path="/nation/statistics"            component={NationalStatistics} />
+      <Route path="/nation/settings"              component={CountrySettings} />
       <Route component={NotFound} />
     </Switch>
   );
