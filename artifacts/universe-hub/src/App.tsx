@@ -151,7 +151,25 @@ import SportsTournamentDetail from "@/pages/sports/TournamentDetail";
 import RankingsPage         from "@/pages/sports/RankingsPage";
 import StadiumList          from "@/pages/sports/StadiumList";
 import AwardsList           from "@/pages/sports/AwardsList";
-import StatisticsPage       from "@/pages/sports/StatisticsPage";
+import StatisticsPage            from "@/pages/sports/StatisticsPage";
+import BusinessDashboard        from "@/pages/business/BusinessDashboard";
+import CompanyCenter            from "@/pages/business/CompanyCenter";
+import CompanyDetail            from "@/pages/business/CompanyDetail";
+import DepartmentCenter         from "@/pages/business/DepartmentCenter";
+import EmployeeCenter           from "@/pages/business/EmployeeCenter";
+import StoreCenter              from "@/pages/business/StoreCenter";
+import FactoryCenter            from "@/pages/business/FactoryCenter";
+import WarehouseCenter          from "@/pages/business/WarehouseCenter";
+import ProductCenter            from "@/pages/business/ProductCenter";
+import BrandCenter              from "@/pages/business/BrandCenter";
+import PayrollCenter            from "@/pages/business/PayrollCenter";
+import BusinessAnalyticsCenter  from "@/pages/business/AnalyticsCenter";
+import BusinessStatisticsPage   from "@/pages/business/StatisticsPage";
+import RevenuePage              from "@/pages/business/RevenuePage";
+import ExpensePage              from "@/pages/business/ExpensePage";
+import BusinessProfile          from "@/pages/business/BusinessProfile";
+import BusinessSettings         from "@/pages/business/BusinessSettings";
+import BusinessReviews          from "@/pages/business/BusinessReviews";
 import CharacterProfile  from "@/pages/character/CharacterProfile";
 import CharacterStats    from "@/pages/character/CharacterStats";
 import EquipmentPage     from "@/pages/character/EquipmentPage";
@@ -343,6 +361,24 @@ function Router() {
       <Route path="/sports/stadiums" component={StadiumList} />
       <Route path="/sports/awards" component={AwardsList} />
       <Route path="/sports/statistics" component={StatisticsPage} />
+      <Route path="/business"                 component={BusinessDashboard} />
+      <Route path="/business/companies"       component={CompanyCenter} />
+      <Route path="/business/companies/:id"   component={CompanyDetail} />
+      <Route path="/business/departments"     component={DepartmentCenter} />
+      <Route path="/business/employees"       component={EmployeeCenter} />
+      <Route path="/business/stores"          component={StoreCenter} />
+      <Route path="/business/factories"       component={FactoryCenter} />
+      <Route path="/business/warehouses"      component={WarehouseCenter} />
+      <Route path="/business/products"        component={ProductCenter} />
+      <Route path="/business/brands"          component={BrandCenter} />
+      <Route path="/business/payroll"         component={PayrollCenter} />
+      <Route path="/business/analytics"       component={BusinessAnalyticsCenter} />
+      <Route path="/business/statistics"      component={BusinessStatisticsPage} />
+      <Route path="/business/revenue"         component={RevenuePage} />
+      <Route path="/business/expenses"        component={ExpensePage} />
+      <Route path="/business/profile"         component={BusinessProfile} />
+      <Route path="/business/settings"        component={BusinessSettings} />
+      <Route path="/business/reviews"         component={BusinessReviews} />
       <Route component={NotFound} />
     </Switch>
   );

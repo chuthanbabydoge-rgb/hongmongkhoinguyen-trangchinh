@@ -68,6 +68,10 @@ import {
   CalendarDays,
   GitBranch,
   BarChartHorizontal,
+  Building2,
+  Factory,
+  Banknote,
+  Briefcase,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -324,6 +328,23 @@ export function Sidebar() {
           <NavItem icon={MapPin}              label="Sân vận động"        path="/sports/stadiums" />
           <NavItem icon={Medal}               label="Giải thưởng"         path="/sports/awards" />
           <NavItem icon={BarChart2}           label="Thống kê"            path="/sports/statistics" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Universe Business
+          </p>
+          <NavItem icon={Briefcase}     label="Dashboard"          path="/business" />
+          <NavItem icon={Building2}     label="Công ty"            path="/business/companies" />
+          <NavItem icon={Layers}        label="Phòng ban"          path="/business/departments" />
+          <NavItem icon={Users}         label="Nhân viên"          path="/business/employees" />
+          <NavItem icon={Store}         label="Cửa hàng"           path="/business/stores" />
+          <NavItem icon={Factory}       label="Nhà máy"            path="/business/factories" />
+          <NavItem icon={Warehouse}     label="Kho hàng"           path="/business/warehouses" />
+          <NavItem icon={Package}       label="Sản phẩm"           path="/business/products" />
+          <NavItem icon={Banknote}      label="Bảng lương"         path="/business/payroll" />
+          <NavItem icon={BarChart3}     label="Phân tích"          path="/business/analytics" />
+          <NavItem icon={BarChart2}     label="Thống kê"           path="/business/statistics" />
         </div>
 
         <div className="pt-1 pb-1">

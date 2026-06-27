@@ -258,6 +258,16 @@ const SEED_APPS: Omit<EcosystemApp, "id" | "createdAt" | "updatedAt">[] = [
     status:      "ACTIVE",
     version:     "1.0.0",
   },
+  {
+    slug:        "business",
+    name:        "Universe Business",
+    description: "Hạ tầng doanh nghiệp Universe — quản lý công ty, nhân viên, kho hàng, nhà máy, cửa hàng và tài chính",
+    icon:        "https://cdn.universe.io/icons/business.png",
+    url:         `${REPLIT_HUB_URL}/business`,
+    category:    "BUSINESS",
+    status:      "ACTIVE",
+    version:     "1.0.0",
+  },
 ];
 
 // ─── Service ──────────────────────────────────────────────────────────────────
