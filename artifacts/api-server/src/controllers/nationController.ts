@@ -11,7 +11,7 @@ function handleErr(res: Response, err: unknown) {
 async function getUserId(req: Request): Promise<string> {
   const auth = req.headers["authorization"] ?? "";
   const profile = await accountBridgeService.getProfileCached(auth);
-  return (profile as Record<string, unknown>)["id"] as string ?? "anonymous";
+  return (profile as unknown as Record<string, unknown>)["id"] as string ?? "anonymous";
 }
 
 export function makeNationController(svc: NationService) {
@@ -52,8 +52,8 @@ export function makeNationController(svc: NationService) {
         const id = req.params["id"] as string;
         const data = await svc.getMinistry(id);
         if (!data) return res.status(404).json({ ok: false, error: "Bộ ngành không tồn tại" });
-        res.json({ ok: true, data });
-      } catch (e) { handleErr(res, e); }
+        return res.json({ ok: true, data });
+      } catch (e) { return handleErr(res, e); }
     },
 
     async createMinistry(req: Request, res: Response) {

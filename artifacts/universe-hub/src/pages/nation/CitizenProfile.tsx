@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Shield, BadgeCheck, Star, Passport, Globe, Users } from "lucide-react";
+import { Shield, BadgeCheck, Star, FileText, Globe, Users } from "lucide-react";
 import { Link } from "wouter";
 
 export default function CitizenProfile() {

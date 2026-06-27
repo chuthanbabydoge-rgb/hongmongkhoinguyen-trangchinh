@@ -72,6 +72,15 @@ import {
   Factory,
   Banknote,
   Briefcase,
+  Landmark,
+  Flag,
+  Scale,
+  Vote,
+  FileText,
+  Megaphone,
+  ClipboardCheck,
+  BadgeDollarSign,
+  BookOpen,
 } from "lucide-react";
 import { MODULES } from "@/config/modules";
 import { cn } from "@/lib/utils";
@@ -366,6 +375,27 @@ export function Sidebar() {
           <NavItem icon={BarChart2}     label="Phân tích"           path="/land/analytics" />
           <NavItem icon={BarChart3}     label="Thống kê"            path="/land/statistics" />
           <NavItem icon={Settings}      label="Cài đặt"             path="/land/settings" />
+        </div>
+
+        <div className="pt-1 pb-1">
+          <p className="px-4 py-2 text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest">
+            Universe Nation
+          </p>
+          <NavItem icon={Landmark}        label="Quốc gia"           path="/nation" />
+          <NavItem icon={Crown}           label="Chính phủ"          path="/nation/government" />
+          <NavItem icon={Building2}       label="Bộ ngành"           path="/nation/ministries" />
+          <NavItem icon={Users}           label="Thành viên CP"      path="/nation/members" />
+          <NavItem icon={Users}           label="Công dân"           path="/nation/citizens" />
+          <NavItem icon={Flag}            label="Hộ chiếu"           path="/nation/passport" />
+          <NavItem icon={Shield}          label="Visa"               path="/nation/visa" />
+          <NavItem icon={Scale}           label="Luật pháp"          path="/nation/laws" />
+          <NavItem icon={Vote}            label="Bầu cử"             path="/nation/elections" />
+          <NavItem icon={BadgeDollarSign} label="Ngân sách"          path="/nation/budget" />
+          <NavItem icon={Receipt}         label="Thuế"               path="/nation/tax" />
+          <NavItem icon={Megaphone}       label="Thông báo"          path="/nation/announcements" />
+          <NavItem icon={CalendarDays}    label="Sự kiện Quốc gia"   path="/nation/events" />
+          <NavItem icon={BarChart2}       label="Thống kê"           path="/nation/statistics" />
+          <NavItem icon={Settings}        label="Cài đặt Quốc gia"   path="/nation/settings" />
         </div>
 
         <div className="pt-1 pb-1">

@@ -85,7 +85,7 @@ export default function LawDetail() {
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {(data.votes as Record<string, string>[]).map(v => (
               <div key={v.id} className="flex items-center gap-3 text-sm">
-                <span>{v.vote === true || v.vote === "true" ? "✅" : "❌"}</span>
+                <span>{v.vote === "true" ? "✅" : "❌"}</span>
                 <span className="text-muted-foreground truncate">{v.userId}</span>
                 {v.reason && <span className="text-xs text-muted-foreground/60 truncate">— {v.reason}</span>}
               </div>

@@ -45,7 +45,7 @@ export class NationService {
       elections: elections.slice(0, 5), announcements: announcements.slice(0, 5),
       latestStats: stats[0] ?? null, citizenship, passport, visa,
       totalCitizens: (await this.repo.listCitizens(nationId)).length,
-      activeLaws:    laws.filter(l => l.status === "PASSED").length,
+      activeLaws:    laws.filter((l: { status: string }) => l.status === "PASSED").length,
       taxRules,
     };
   }
