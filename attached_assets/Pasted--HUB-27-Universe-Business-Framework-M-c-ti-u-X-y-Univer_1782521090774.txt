@@ -1,0 +1,584 @@
+# HUB-27 — Universe Business Framework
+
+## Mục tiêu
+
+Xây **Universe Business Framework**.
+
+Đây là framework doanh nghiệp dùng chung cho toàn bộ Universe.
+
+KHÔNG build game.
+
+KHÔNG build Shop Simulator.
+
+KHÔNG build Tycoon.
+
+Mục tiêu là xây hạ tầng doanh nghiệp để sau này dùng cho:
+
+* Exchange Hub
+* Marketplace
+* Universe Land
+* Virtual Nation
+* AI Company
+* NPC Company
+* Franchise
+* Creator Studio
+
+Toàn bộ đều dùng chung backend.
+
+---
+
+# DATABASE (PostgreSQL + Drizzle)
+
+Tạo file:
+
+```
+business.ts
+```
+
+Khoảng **25 bảng**.
+
+## Enums
+
+BusinessType
+
+CompanyType
+
+CompanyStatus
+
+EmployeeRole
+
+EmploymentStatus
+
+DepartmentType
+
+SalaryPeriod
+
+PayrollStatus
+
+InvoiceStatus
+
+WarehouseType
+
+AssetType
+
+TransactionType
+
+## Tables
+
+business_categories
+
+companies
+
+company_profiles
+
+company_members
+
+company_departments
+
+company_positions
+
+employees
+
+employee_contracts
+
+payrolls
+
+salaries
+
+stores
+
+warehouses
+
+warehouse_items
+
+factories
+
+factory_recipes
+
+brands
+
+products
+
+business_assets
+
+business_transactions
+
+business_invoices
+
+business_logs
+
+business_statistics
+
+business_reviews
+
+company_followers
+
+company_settings
+
+---
+
+# Repository
+
+IBusinessRepository
+
+DrizzleBusinessRepository
+
+Không mock.
+
+100% PostgreSQL.
+
+---
+
+# Services
+
+BusinessService
+
+StoreService
+
+FactoryService
+
+PayrollService
+
+WarehouseService
+
+AnalyticsService
+
+BusinessEventBus
+
+---
+
+# BUSINESS FEATURES
+
+Company
+
+Create company
+
+Edit company
+
+Delete company
+
+Company profile
+
+Departments
+
+Positions
+
+Employees
+
+Roles
+
+Contracts
+
+Salary
+
+Payroll
+
+Warehouse
+
+Inventory
+
+Factory
+
+Production
+
+Stores
+
+Products
+
+Brands
+
+Followers
+
+Reviews
+
+Transactions
+
+Revenue
+
+Expenses
+
+Profit
+
+Statistics
+
+Dashboard
+
+---
+
+# EVENT BUS
+
+businessEventBus
+
+Events
+
+COMPANY_CREATED
+
+COMPANY_UPDATED
+
+COMPANY_DELETED
+
+EMPLOYEE_HIRED
+
+EMPLOYEE_FIRED
+
+SALARY_PAID
+
+PAYROLL_COMPLETED
+
+STORE_CREATED
+
+PRODUCT_CREATED
+
+WAREHOUSE_UPDATED
+
+FACTORY_STARTED
+
+FACTORY_COMPLETED
+
+TRANSACTION_CREATED
+
+REVENUE_RECEIVED
+
+BUSINESS_LEVEL_UP
+
+---
+
+# REST API
+
+Prefix
+
+```
+/api/business
+```
+
+Ít nhất **60 endpoints**
+
+Ví dụ
+
+GET /companies
+
+POST /companies
+
+GET /companies/:id
+
+PUT /companies/:id
+
+DELETE /companies/:id
+
+GET /companies/:id/employees
+
+POST /companies/:id/employees
+
+DELETE /companies/:id/employees/:id
+
+GET /companies/:id/departments
+
+POST /companies/:id/departments
+
+GET /companies/:id/payroll
+
+POST /companies/:id/payroll
+
+GET /stores
+
+POST /stores
+
+GET /warehouses
+
+POST /warehouses
+
+GET /factories
+
+POST /factories
+
+GET /brands
+
+POST /brands
+
+GET /products
+
+POST /products
+
+GET /transactions
+
+GET /statistics
+
+GET /dashboard
+
+...
+
+---
+
+# Frontend
+
+Tạo các trang
+
+BusinessDashboard
+
+CompanyCenter
+
+CompanyDetail
+
+DepartmentCenter
+
+EmployeeCenter
+
+PayrollCenter
+
+WarehouseCenter
+
+FactoryCenter
+
+StoreCenter
+
+BrandCenter
+
+ProductCenter
+
+AnalyticsCenter
+
+StatisticsPage
+
+RevenuePage
+
+ExpensePage
+
+BusinessSettings
+
+BusinessProfile
+
+BusinessReviews
+
+---
+
+# React Hooks
+
+useBusiness()
+
+useCompanies()
+
+useEmployees()
+
+usePayroll()
+
+useWarehouse()
+
+useFactories()
+
+useProducts()
+
+useAnalytics()
+
+---
+
+# Sidebar
+
+Thêm section
+
+Universe Business
+
+```
+Dashboard
+
+Companies
+
+Departments
+
+Employees
+
+Stores
+
+Factories
+
+Warehouses
+
+Products
+
+Payroll
+
+Analytics
+
+Statistics
+```
+
+---
+
+# Dashboard Widget
+
+Business Widget
+
+Hiển thị
+
+Companies
+
+Employees
+
+Revenue
+
+Expenses
+
+Profit
+
+Factories
+
+Warehouses
+
+---
+
+# Integration
+
+Đăng ký App Registry
+
+slug
+
+```
+business
+```
+
+category
+
+```
+BUSINESS
+```
+
+status
+
+```
+ACTIVE
+```
+
+Launcher phải hiển thị
+
+Universe Business
+
+---
+
+# Integration với HUB
+
+Wallet
+
+Inventory
+
+Marketplace
+
+Guild
+
+Character
+
+Quest
+
+World
+
+Creator
+
+Sports
+
+Education
+
+Mail
+
+AI
+
+Activities
+
+Notifications
+
+Reputation
+
+---
+
+# Seed Data
+
+Seed
+
+5 Companies
+
+5 Brands
+
+5 Stores
+
+3 Factories
+
+5 Warehouses
+
+50 Employees
+
+10 Departments
+
+20 Products
+
+100 Transactions
+
+30 Payrolls
+
+---
+
+# Rules
+
+Không mock.
+
+Toàn bộ PostgreSQL.
+
+Drizzle ORM.
+
+Không sửa unrelated files.
+
+Không phá code cũ.
+
+Không tạo type errors mới.
+
+Không dùng any.
+
+---
+
+# Verify
+
+Sau khi build phải tự
+
+* db push
+
+* build api
+
+* restart server
+
+* chạy curl
+
+* chứng minh PostgreSQL
+
+* typecheck
+
+* launcher proof
+
+* dashboard proof
+
+---
+
+# OUTPUT
+
+Trả về Sprint Report giống HUB trước.
+
+Bao gồm
+
+Files Created
+
+Files Modified
+
+Database
+
+API
+
+Frontend
+
+Seed
+
+Curl Proof
+
+Launcher Proof
+
+Acceptance Checklist
+
+Zero HUB-27 type errors.
+
+Không được dừng giữa chừng.
+
+Tự hoàn thành toàn bộ HUB-27.
