@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { NationService, NationError } from "../services/nationService.js";
-import { accountBridgeService }        from "../services/accountBridgeService.js";
+import { accountBridgeService }        from "../container.js";
 
 function handleErr(res: Response, err: unknown) {
   if (err instanceof NationError) return res.status(400).json({ ok: false, error: err.message, code: err.code });

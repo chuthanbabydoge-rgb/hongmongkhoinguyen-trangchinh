@@ -1,0 +1,395 @@
+HUB-29 — Universe Virtual Nation
+
+Đây là sprint tiếp theo của Universe Hub.
+
+QUAN TRỌNG
+
+- Không tạo project mới.
+- Build trực tiếp trong Universe Hub.
+- Không mock.
+- PostgreSQL + DrizzleORM.
+- JWT auth.
+- Giữ nguyên architecture hiện tại.
+- Không sửa code ngoài phạm vi HUB-29 trừ khi cần integration.
+- Nếu phát hiện lỗi compile cũ thì không sửa trừ khi HUB-29 phụ thuộc.
+- Làm song song backend + frontend.
+- Sau khi hoàn thành phải build, typecheck, chạy API và trả Sprint Report đầy đủ.
+
+====================================
+1. DATABASE
+====================================
+
+Tạo schema:
+
+lib/db/src/schema/nation.ts
+
+Khoảng 20–25 bảng.
+
+Ví dụ:
+
+countries
+
+government_terms
+
+ministries
+
+government_members
+
+citizenships
+
+citizen_profiles
+
+citizen_titles
+
+laws
+
+law_categories
+
+law_votes
+
+tax_rules
+
+tax_payments
+
+budgets
+
+budget_items
+
+elections
+
+election_candidates
+
+election_votes
+
+passports
+
+visas
+
+national_events
+
+government_announcements
+
+national_statistics
+
+quốc gia, nhiệm kỳ, bộ ngành, luật, thuế, bầu cử, ngân sách...
+
+Export vào schema/index.ts.
+
+====================================
+2. BACKEND
+====================================
+
+Tạo:
+
+NationRepository
+
+DrizzleNationRepository
+
+NationService
+
+NationController
+
+nationEventBus
+
+Routes:
+
+/api/nation/*
+
+Khoảng 50–70 REST endpoints.
+
+Ví dụ:
+
+Government
+
+GET /government
+
+GET /ministries
+
+POST /ministries
+
+PUT /ministries/:id
+
+DELETE /ministries/:id
+
+Citizen
+
+GET /citizens
+
+GET /citizens/me
+
+POST /citizens/register
+
+Passport
+
+GET /passport
+
+POST /passport
+
+Visa
+
+GET /visa
+
+POST /visa
+
+Law
+
+GET /laws
+
+POST /laws
+
+Vote
+
+POST /laws/:id/vote
+
+Election
+
+GET /elections
+
+POST /elections
+
+POST /elections/:id/vote
+
+Budget
+
+GET /budget
+
+POST /budget
+
+Tax
+
+GET /tax
+
+POST /tax/pay
+
+Announcement
+
+GET /announcements
+
+POST /announcements
+
+Statistics
+
+GET /statistics
+
+Dashboard
+
+GET /dashboard
+
+====================================
+3. EVENT BUS
+====================================
+
+UniverseNationEventBus
+
+Ví dụ:
+
+LAW_CREATED
+
+LAW_APPROVED
+
+LAW_REJECTED
+
+ELECTION_STARTED
+
+ELECTION_ENDED
+
+CITIZEN_REGISTERED
+
+PASSPORT_CREATED
+
+VISA_GRANTED
+
+TAX_PAID
+
+MINISTER_APPOINTED
+
+BUDGET_APPROVED
+
+....
+
+Broadcast WebSocket.
+
+====================================
+4. INTEGRATION
+====================================
+
+Tích hợp với:
+
+Wallet
+
+→ tax
+
+Character
+
+→ citizen
+
+World
+
+→ country
+
+Guild
+
+→ organization
+
+Activities
+
+Notifications
+
+Reputation
+
+Quest
+
+AI
+
+Creator
+
+====================================
+5. FRONTEND
+====================================
+
+Tạo khoảng 15–18 trang React.
+
+Ví dụ:
+
+NationDashboard
+
+GovernmentCenter
+
+MinistryList
+
+CitizenDirectory
+
+CitizenProfile
+
+PassportCenter
+
+VisaCenter
+
+LawCenter
+
+LawDetail
+
+ElectionCenter
+
+ElectionDetail
+
+BudgetCenter
+
+TaxCenter
+
+Announcements
+
+NationalStatistics
+
+GovernmentMembers
+
+CountrySettings
+
+NationalEvents
+
+====================================
+6. ROUTING
+====================================
+
+App.tsx
+
+Sidebar
+
+Section:
+
+Universe Nation
+
+icon:
+
+Landmark
+
+Shield
+
+Flag
+
+Scale
+
+Vote
+
+Users
+
+Wallet
+
+....
+
+====================================
+7. APP REGISTRY
+====================================
+
+Đăng ký:
+
+slug:
+
+nation
+
+name:
+
+Universe Nation
+
+category:
+
+GOVERNMENT
+
+status:
+
+ACTIVE
+
+====================================
+8. SEED DATA
+====================================
+
+Seed:
+
+1 quốc gia
+
+8 ministries
+
+20 laws
+
+5 elections
+
+100 citizens
+
+20 passports
+
+5 visa types
+
+10 tax rules
+
+20 announcements
+
+====================================
+9. ACCEPTANCE
+====================================
+
+Sau khi hoàn thành:
+
+- Build thành công.
+- Typecheck.
+- Push schema.
+- API chạy.
+- Sidebar hoạt động.
+- Launcher có Universe Nation.
+- Dashboard hoạt động.
+- Không mock.
+- PostgreSQL thật.
+
+Cuối cùng trả đúng format:
+
+HUB-29 Sprint Report
+
+bao gồm:
+
+- Files Created
+- Files Modified
+- API Endpoints
+- Database
+- Frontend Pages
+- Seed Data
+- Typecheck
+- Acceptance Checklist
